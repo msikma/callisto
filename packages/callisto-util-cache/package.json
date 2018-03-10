@@ -1,0 +1,15 @@
+{
+  "name": "callisto-util-cache",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Small helper package for caching data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michiel Sikma <michiel@sikma.org>",
+  "license": "SEE LICENSE IN <readme.md>",
+  "dependencies": {
+    "sqlite": "^2.9.1"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "callisto-task-vgmrips",
+  "private": true,
+  "version": "1.0.0",
+  "description": "VGMRips scraping task for the Callisto bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michiel Sikma <michiel@sikma.org>",
+  "license": "SEE LICENSE IN <readme.md>",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "discord.js": "^11.3.0",
+    "cheerio": "^1.0.0-rc.2",
+    "slugify": "^1.2.9"
+  }
+}

@@ -1,0 +1,10 @@
+{
+	"name": "callisto-bot",
+  "version": "1.0.0",
+  "description": "Private Discord bot for the Ganymede server",
+  "private": true,
+  "license": "SEE LICENSE IN <readme.md>",
+  "devDependencies": {
+    "lerna": "^2.9.0"
+  }
+}
