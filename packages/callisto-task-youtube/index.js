@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [7200000, 'find new videos from Youtube subscriptions', actionSubscriptionUpdates, true]
+  [1800000, 'find new videos from Youtube subscriptions', actionSubscriptionUpdates, true]
 ]
 
 export const getTaskInfo = () => {
