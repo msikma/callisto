@@ -23,6 +23,7 @@ const parser = new xml2js.Parser();
  */
 const readSubscriptions = (url) => (
   new Promise((resolve, reject) => {
+    parser.reset()
     fs.readFile(url, (errFs, data) => {
       parser.parseString(data, (errParse, result) => {
         if (errFs || errParse) return reject(errFs, errParse, result)
