@@ -15,7 +15,6 @@ const cookies = {
 
 // These headers are sent with each request to make us look more like a real browser.
 const browserHeaders = {
-  'Accept-Encoding': 'gzip, deflate, br',
   'Accept-Language': 'en-US,en;q=0.9,ja;q=0.8,nl;q=0.7,de;q=0.6,es;q=0.5,it;q=0.4,pt;q=0.3',
   'Upgrade-Insecure-Requests': '1',
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36',
@@ -42,8 +41,8 @@ export const loadCookies = (cookieOverride) => {
  *
  * This mimics a browser request to ensure we don't hit an anti-bot wall.
  */
-export const requestAsBrowser = (url, extraHeaders = {}) => (
-  request({ url, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip: true })
+export const requestAsBrowser = (url, extraHeaders = {}, gzip = true) => (
+  request({ url, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip })
 )
 
 /**
@@ -53,6 +52,6 @@ export const requestAsBrowser = (url, extraHeaders = {}) => (
  *
  * See <https://github.com/request/request-promise/issues/90>
  */
-export const requestAsBrowserCb = (url, extraHeaders = {}, cb) => (
-  requestSync({ url, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip: true }, cb)
+export const requestAsBrowserCb = (url, extraHeaders = {}, cb, gzip = true) => (
+  requestSync({ url, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip }, cb)
 )
