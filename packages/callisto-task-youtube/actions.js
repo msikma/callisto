@@ -16,7 +16,7 @@ import { color } from './index'
 const YOUTUBE_ICON = 'https://i.imgur.com/rAFBjZ4.jpg'
 
 // XML parser.
-const parser = new xml2js.Parser();
+const parser = new xml2js.Parser()
 
 /**
  * Parses the subscriptions XML file.
