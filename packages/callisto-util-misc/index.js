@@ -4,6 +4,7 @@
  */
 
 import rssParser from 'parse-rss'
+import vm from 'vm'
 
 let callistoName
 
@@ -11,6 +12,25 @@ let callistoName
 const mentions = new RegExp('<@[0-9]+>', 'g')
 // Splits up commands by whitespace.
 const split = new RegExp('\\S+', 'g')
+
+/**
+ * Runs a script inside of a sandboxed VM to extract its data.
+ */
+export const findScriptData = (scriptContent) => {
+  try {
+    const sandbox = { window: {} }
+    const script = new vm.Script(scriptContent)
+    const ctx = new vm.createContext(sandbox) // eslint-disable-line new-cap
+    const value = script.runInContext(ctx)
+    return {
+      value,
+      sandbox
+    }
+  }
+  catch (e) {
+    throw new Error(`Could not extract script data: ${e}`)
+  }
+}
 
 /**
  * Returns a promise which, upon resolution, contains the contents of the RSS found at the given URL.
