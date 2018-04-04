@@ -70,7 +70,7 @@ export const findNewSearchVideos = async (params, query, slug) => {
   const items = findVideos(pageData.sandbox.window.ytInitialData)
   if (items.length === 0) return []
   const newItems = await removeCached(searchCacheID, items)
-  //cacheItems(searchCacheID, newItems)
+  cacheItems(searchCacheID, newItems)
   return newItems
 }
 
