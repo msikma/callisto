@@ -4,7 +4,7 @@
  */
 
 import { commandResponder } from 'callisto-discord-interface/src/responder'
-import { actionSubscriptionUpdates } from './actions'
+import { actionSearchUpdates } from './actions'
 
 export const id = 'youtube'
 const name = 'Youtube'
@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [480000, 'find new videos from Youtube subscriptions', actionSubscriptionUpdates, true]
+  [480000, 'find new videos from Youtube searches and subscriptions', actionSearchUpdates, true]
 ]
 
 export const getTaskInfo = () => {

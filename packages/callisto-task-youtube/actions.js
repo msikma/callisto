@@ -6,10 +6,11 @@
 import { RichEmbed } from 'discord.js'
 import xml2js from 'xml2js'
 import fs from 'fs'
+import path from 'path'
 
 import { config } from 'callisto-discord-interface/src/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { findNewVideos } from './search'
+import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
 import { color } from './index'
 
 // URL to the Youtube icon.
@@ -34,25 +35,45 @@ const readSubscriptions = (url) => (
 )
 
 /**
- * Find new videos in Youtube subscriptions.
+ * Find new subscription videos.
  */
-export const actionSubscriptionUpdates = (discordClient, user, taskConfig) => {
-  // Default search parameters.
-  taskConfig.accounts.forEach(async accountData => {
-    const subscriptionsFile = accountData.subscriptions.replace('<%base%>', config.CALLISTO_BASE_DIR)
-    const subscriptionData = await readSubscriptions(subscriptionsFile)
-    const subscriptions = subscriptionData.opml.body[0].outline[0].outline.map(n => n.$)
+const parseSubscriptionTask = async (accountData) => {
+  const subscriptionsFile = accountData.subscriptions.replace('<%base%>', config.CALLISTO_BASE_DIR)
+  const subscriptionData = await readSubscriptions(subscriptionsFile)
+  const subscriptions = subscriptionData.opml.body[0].outline[0].outline.map(n => n.$)
 
-    for (const sub of subscriptions) {
-      const { title, xmlUrl } = sub
-      try {
-        // Pass on the 'slug' from the account data, which we'll use for caching.
-        const results = await findNewVideos(xmlUrl, accountData.slug)
-        accountData.target.forEach(t => reportResults(t[0], t[1], results, title))
-      }
-      catch (err) {
-        // Nothing. Sometimes the RSS parser complains if it can't find any items.
-      }
+  for (const sub of subscriptions) {
+    const { title, xmlUrl } = sub
+    try {
+      // Pass on the 'slug' from the account data, which we'll use for caching.
+      const results = await findNewSubscriptionVideos(xmlUrl, accountData.slug)
+      accountData.target.forEach(t => reportResults(t[0], t[1], results, subscriptionsFile))
+    }
+    catch (err) {
+      // Nothing. Sometimes the RSS parser complains if it can't find any items.
+    }
+  }
+}
+
+/**
+ * Find new videos from a search task.
+ */
+const parseSearchTask = async (searchData) => {
+  const { slug, searchParameters, searchQuery, target } = searchData
+  const results = await findNewSearchVideos(searchParameters, searchQuery, slug)
+  target.forEach(t => reportResults(t[0], t[1], results, null, searchQuery))
+}
+
+/**
+ * Find new videos in Youtube searches and subscriptions.
+ */
+export const actionSearchUpdates = (discordClient, user, taskConfig) => {
+  taskConfig.searches.forEach(async taskData => {
+    switch (taskData.type) {
+      case 'account': return parseSubscriptionTask(taskData)
+      case 'search': return parseSearchTask(taskData)
+      default:
+        console.log(`Error in Youtube configuration. Invalid 'type' value: ${taskData.type}`)
     }
   })
 }
@@ -60,19 +81,32 @@ export const actionSubscriptionUpdates = (discordClient, user, taskConfig) => {
 /**
  * Passes on the search results to the server.
  */
-const reportResults = (server, channel, results, title) => {
+const reportResults = (server, channel, results, file, query) => {
   if (results.length === 0) return
-  results.forEach(item => sendMessage(server, channel, null, formatMessage(item, title)))
+  results.forEach(item => sendMessage(server, channel, null, formatMessage(item, file, query)))
 }
 
 /**
  * Returns a RichEmbed describing a new item.
  */
-const formatMessage = (item, title) => {
+const formatMessage = (item, file = '', query = '') => {
+  const baseFile = file && path.basename(file)
   const embed = new RichEmbed();
   embed.setAuthor(`New Youtube video by ${item.author}`, YOUTUBE_ICON)
   embed.setTitle(item.title)
-  embed.setImage(item.image.url)
+  if (file && !query) {
+    embed.setFooter(`Sourced from subscriptions file: ${baseFile}`)
+    embed.setImage(item.image.url)
+  }
+  if (query && !file) {
+    if (item.description) {
+      embed.setDescription(item.description)
+    }
+    embed.setFooter(`Searched for keyword: ${query}`)
+    embed.addField('Views', `${item.views}`)
+    embed.addField('Duration', `${item.duration}`)
+    embed.setImage(item.image)
+  }
   embed.setURL(item.link)
   embed.setColor(color)
   return embed
