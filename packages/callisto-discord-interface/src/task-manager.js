@@ -57,6 +57,7 @@ const startTimedTasks = (discordClient, user, taskConfig) => {
       // If the fourth item is set to true, we'll run the code right away instead of waiting.
       // Useful for making sure tasks with long delays at least run once on bot bootup.
       if (a[3]) {
+        logger.debug(`Calling task at startup: ${t.id}`)
         safeCall(a[2]).call(null, discordClient, user, taskConfig[t.id], t.id)
       }
     })
