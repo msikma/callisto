@@ -25,7 +25,7 @@ const consoleFormat = format.printf(info => (
 ))
 
 const fileLogger = createLogger({
-  level: 'verbose',
+  level: 'debug',
   format: format.combine(
     format.timestamp(),
     format.json(),
