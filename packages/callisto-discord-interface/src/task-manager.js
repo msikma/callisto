@@ -17,8 +17,13 @@ const tasks = {}
  */
 export const findAndRegisterTasks = (discordClient, user, taskConfig) => {
   findTasks().forEach(t => {
-    const taskInfo = require(t).getTaskInfo()
-    registerTask(discordClient, user, taskInfo)
+    try {
+      const taskInfo = require(t).getTaskInfo()
+      registerTask(discordClient, user, taskInfo)
+    }
+    catch (err) {
+      logger.error(`Task ${t} could not be imported:\n${err.stack}`)
+    }
   })
   startTimedTasks(discordClient, user, taskConfig)
 }
