@@ -24,6 +24,7 @@ const consoleFormat = format.printf(info => (
   levelColors[info.level](info.message)
 ))
 
+// Logs to text files.
 const fileLogger = createLogger({
   level: 'debug',
   format: format.combine(
@@ -33,6 +34,8 @@ const fileLogger = createLogger({
   transports: [],
   exitOnError: false
 })
+
+// Logs to console with the lines colorized according to verbosity.
 const consoleLogger = createLogger({
   level: 'verbose',
   format: consoleFormat,
@@ -40,6 +43,10 @@ const consoleLogger = createLogger({
   exitOnError: false
 })
 
+/**
+ * Helper function for logging messages.
+ * This passes on whatever we want to log to both the fileLogger and consoleLogger.
+ */
 const log = (verbosity) => (arg) => {
   fileLogger[verbosity](arg)
   consoleLogger[verbosity](arg)
