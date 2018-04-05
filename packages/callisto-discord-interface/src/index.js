@@ -7,6 +7,7 @@ import Discord from 'discord.js'
 
 import { dbInit, getSettings } from 'callisto-util-cache'
 import { registerBotName } from 'callisto-util-misc'
+import logger, { configureLogger } from 'callisto-util-logging'
 
 import decorateResponses from './decorator'
 import { findAndRegisterTasks } from './task-manager'
@@ -19,8 +20,13 @@ export const discord = {
 }
 
 export const run = async () => {
-  console.log(`callisto-bot ${pkg.version}`)
+  // Make sure we can write logs.
+  configureLogger(config.CALLISTO_BASE_DIR)
 
+  logger.info(`callisto-bot ${pkg.version}`)
+
+  // Saves our chosen bot name for writing responses to users instructing them to @ us.
+  // TODO: this should likely be removed, since we can just pass the bot user object's name.
   registerBotName(config.CALLISTO_BOT_NAME)
 
   // Mount database file, or create a new file if it doesn't exist.

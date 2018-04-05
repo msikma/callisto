@@ -6,6 +6,7 @@
 import moment from 'moment'
 import fs from 'fs'
 import path from 'path'
+import logger from 'callisto-util-logging'
 
 import { config } from './resources'
 
@@ -23,22 +24,35 @@ export const findAndRegisterTasks = (discordClient, user, taskConfig) => {
 }
 
 /**
+ * Calls a task, logging an error if something goes wrong.
+ */
+const safeCall = (fn) => (discordClient, user, taskConfig, taskID) => {
+  try {
+    logger.debug(`Running task ${taskID}`)
+    fn.call(this, discordClient, user, taskConfig)
+  }
+  catch (err) {
+    logger.error(`Task ${taskID} has thrown an exception:\n${err.stack}`)
+  }
+}
+
+/**
  * Starts all timed tasks.
  */
 const startTimedTasks = (discordClient, user, taskConfig) => {
-  console.log('Starting timed actions.')
+  logger.info('Starting timed actions.')
   Object.values(tasks).forEach(t => {
     if (!t.scheduledActions.length) {
       return
     }
     t.scheduledActions.forEach(a => {
-      console.log(`Task: ${t.id}: ${a[1]} (delay: ${moment.duration(a[0]).humanize()}${a[3] ? ', runs on boot' : ''})`)
-      discordClient.setInterval(a[2], a[0], discordClient, user, taskConfig[t.id])
+      logger.verbose(`Task: ${t.id}: ${a[1]} (delay: ${moment.duration(a[0]).humanize()}${a[3] ? ', runs on boot' : ''})`)
+      discordClient.setInterval(safeCall(a[2]), a[0], discordClient, user, taskConfig[t.id], t.id)
 
       // If the fourth item is set to true, we'll run the code right away instead of waiting.
       // Useful for making sure tasks with long delays at least run once on bot bootup.
       if (a[3]) {
-        a[2].call(null, discordClient, user, taskConfig[t.id])
+        safeCall(a[2]).call(null, discordClient, user, taskConfig[t.id], t.id)
       }
     })
   })
@@ -49,7 +63,7 @@ const startTimedTasks = (discordClient, user, taskConfig) => {
  */
 const registerTask = (discordClient, user, { id, formats, triggerActions, scheduledActions }) => {
   tasks[id] = { id, formats, triggerActions, scheduledActions }
-  console.log(`Registered task: ${id}`)
+  logger.verbose(`Registered task: ${id}`)
   triggerActions.forEach(a => discordClient.on(a[0], a[1]))
 }
 

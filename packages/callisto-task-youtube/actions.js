@@ -8,6 +8,7 @@ import xml2js from 'xml2js'
 import fs from 'fs'
 import path from 'path'
 
+import logger from 'callisto-util-logging'
 import { config } from 'callisto-discord-interface/src/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
@@ -73,7 +74,7 @@ export const actionSearchUpdates = (discordClient, user, taskConfig) => {
       case 'account': return parseSubscriptionTask(taskData)
       case 'search': return parseSearchTask(taskData)
       default:
-        console.log(`Error in Youtube configuration. Invalid 'type' value: ${taskData.type}`)
+        logger.warn(`Error in Youtube configuration. Invalid 'type' value: ${taskData.type}`)
     }
   })
 }

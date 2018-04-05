@@ -3,7 +3,9 @@
  * Copyright © 2018, Michiel Sikma
  */
 
+import logger from 'callisto-util-logging'
+
 // This task runs once when the bot is connected and initialized.
 export default function () {
-  console.log(`Callisto bot initialized and ready. Time: ${String(new Date())}.`)
+  logger.info(`Callisto bot connected.`)
 }

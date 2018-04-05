@@ -4,6 +4,7 @@
  */
 
 import { RichEmbed } from 'discord.js'
+import logger from 'callisto-util-logging'
 import { parseCommand, showCommandHelp, showCommandUsage } from 'callisto-util-misc'
 
 import { config } from './resources'
@@ -81,7 +82,7 @@ const getCommandResponse = (id, formats, messageObject) => {
   // If we're here, it means the command was correctly formed and we can run the prescribed function.
   // The function is defined in the format as the fourth item.
   const taskArgsStr = [command.reqArgs, command.optArgs].map(o => JSON.stringify(o)).join(', ')
-  console.log(`Calling task function: ${id}, ${command.name} (${taskArgsStr})`)
+  logger.verbose(`Calling task function: ${id}, ${command.name} (${taskArgsStr})`)
   const callback = command.matchingFormat[4]
   return callback(command.reqArgs, command.optArgs)
 }
