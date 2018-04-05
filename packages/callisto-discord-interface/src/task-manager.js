@@ -16,13 +16,13 @@ const tasks = {}
  * Iterates through our installed tasks and registers them so they can be used.
  */
 export const findAndRegisterTasks = (discordClient, user, taskConfig) => {
-  findTasks().forEach(t => {
+  findTasks().forEach(({ name, file }) => {
     try {
-      const taskInfo = require(t).getTaskInfo()
+      const taskInfo = require(file).getTaskInfo()
       registerTask(discordClient, user, taskInfo)
     }
     catch (err) {
-      logger.error(`Task ${t} could not be imported:\n${err.stack}`)
+      logger.error(`Task ${name} could not be imported:\n${err.stack}`)
     }
   })
   startTimedTasks(discordClient, user, taskConfig)
@@ -77,7 +77,7 @@ const registerTask = (discordClient, user, { id, formats, triggerActions, schedu
  */
 const findTasks = () => {
   const base = `${config.CALLISTO_BASE_DIR}/packages/`
-  return listTaskDirs(base).map(i => `${base}${i}/index.js`)
+  return listTaskDirs(base).map(i => ({ name: i, file: `${base}${i}/index.js` }))
 }
 
 /**
