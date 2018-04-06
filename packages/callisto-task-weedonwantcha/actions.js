@@ -4,7 +4,6 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import moment from 'moment'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { runSearch } from './search'
