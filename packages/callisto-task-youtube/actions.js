@@ -69,14 +69,8 @@ const parseSearchTask = async (searchData) => {
  * Find new videos in Youtube searches and subscriptions.
  */
 export const actionSearchUpdates = (discordClient, user, taskConfig) => {
-  taskConfig.searches.forEach(async taskData => {
-    switch (taskData.type) {
-      case 'account': return parseSubscriptionTask(taskData)
-      case 'search': return parseSearchTask(taskData)
-      default:
-        logger.warn(`Error in Youtube configuration. Invalid 'type' value: ${taskData.type}`)
-    }
-  })
+  taskConfig.subscriptions.forEach(async taskData => parseSubscriptionTask(taskData))
+  taskConfig.searches.forEach(async taskData => parseSearchTask(taskData))
 }
 
 /**
