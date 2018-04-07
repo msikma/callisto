@@ -4,6 +4,9 @@
  */
 
 import sqlite from 'sqlite'
+import { isArray } from 'lodash'
+
+import logger from 'callisto-util-logging'
 
 let db
 
@@ -64,6 +67,25 @@ export const dbClose = () => (
 )
 
 /**
+ * Returns a list of which IDs, from a given array, have been cached in the database.
+ */
+export const filterCachedIDs = async (task, check) => {
+  if (!check) return
+
+  // Ensure our ids are in an array.
+  const ids = !isArray(check) ? [check] : check
+  const sql = (`
+    select id, task
+    from cached_items
+    where id in (${new Array(ids.length).fill('?').join(', ')})
+    and task = ?
+  `)
+  const stmt = await db.prepare(sql)
+  const cachedIDs = await stmt.all([...ids, task])
+  return cachedIDs ? cachedIDs : []
+}
+
+/**
  * Takes a list of items, checks which ones we've already cached in our database,
  * and returns a list of new items that we haven't reported on yet.
  *
@@ -76,15 +98,7 @@ export const removeCached = async (task, items) => {
   if (items.length === 0) return []
 
   const ids = items.map(item => item.id)
-  const sql = (`
-    select id, task
-    from cached_items
-    where id in (${new Array(ids.length).fill('?').join(', ')})
-    and task = ?
-  `)
-
-  const stmt = await db.prepare(sql)
-  const results = await stmt.all([...ids, task])
+  const results = await filterCachedIDs(task, ids)
 
   // We now have an array of objects with 'id' and 'task' from the database.
   // Make it an array of just IDs so we can check our list for previously seen items.
@@ -99,10 +113,28 @@ export const removeCached = async (task, items) => {
  */
 export const cacheItems = async (task, items) => {
   if (items.length === 0) return
-
   const stmt = await db.prepare(`insert into cached_items values (?, ?, ?, ?)`)
-  items.forEach(i => stmt.run(i.id, task, i.title, null));
-  stmt.finalize();
+
+  // If we try to cache something that's already cached, we should always be notified in the log.
+  try {
+    await Promise.all(items.map(i => new Promise(async (resolve, reject) => {
+      // Warn if a single ID insertion goes wrong.
+      try {
+        await stmt.run(i.id, task, i.title, null)
+        resolve()
+      }
+      catch (err) {
+        logger.error(`${err} id: ${i.id}, task: ${task}`)
+        reject({ id: i.id })
+      }
+    })))
+  }
+  catch (err) {
+    // Warn if any of the IDs could not be inserted.
+    logger.warn(`cacheItems: caching did not complete, ID was already found: ${err.id}`)
+  }
+
+  stmt.finalize()
   return stmt;
 }
 
