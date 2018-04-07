@@ -14,6 +14,16 @@ const mentions = new RegExp('<@[0-9]+>', 'g')
 const split = new RegExp('\\S+', 'g')
 
 /**
+ * Promisified version of setInterval() for use with await.
+ * Use like: await wait(1000) to halt execution 1 second.
+ */
+export const wait = (ms) => (
+  new Promise((resolve) => (
+    setInterval(() => resolve(), ms)
+  ))
+)
+
+/**
  * Runs a script inside of a sandboxed VM to extract its data.
  */
 export const findScriptData = (scriptContent) => {
