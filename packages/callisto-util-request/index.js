@@ -41,12 +41,13 @@ export const loadCookies = (cookieOverride) => {
  *
  * This mimics a browser request to ensure we don't hit an anti-bot wall.
  */
-export const requestAsBrowser = (url, extraHeaders = {}, gzip = true, noCookies = false) => (
+export const requestAsBrowser = (url, extraHeaders = {}, gzip = true, noCookies = false, resolveWithFullResponse = false) => (
   request({
     url,
     headers: { ...browserHeaders, ...extraHeaders },
     jar: noCookies ? null : cookies.jar,
-    gzip
+    gzip,
+    resolveWithFullResponse
   })
 )
 
@@ -54,13 +55,14 @@ export const requestAsBrowser = (url, extraHeaders = {}, gzip = true, noCookies 
  * Same as requestAsBrowser, but does a POST request and includes form data.
  * This sends a form upload using application/x-www-form-urlencoded.
  */
-export const postAsBrowser = (url, form, extraHeaders = {}, gzip = true, noCookies = false) => (
+export const postAsBrowser = (url, form, extraHeaders = {}, gzip = true, noCookies = false, resolveWithFullResponse = false) => (
   request.post({
     url,
     form,
     headers: { ...browserHeaders, ...extraHeaders },
     jar: noCookies ? null : cookies.jar,
-    gzip
+    gzip,
+    resolveWithFullResponse
   })
 )
 
