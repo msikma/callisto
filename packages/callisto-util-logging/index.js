@@ -68,8 +68,9 @@ const logger = {
 /**
  * Sets up the logger by creating the log directory and then sending
  * errors to a specific error file, and everything else to a combined log file.
+ * 'consoleLevel' sets the logging level for the console only.
  */
-export const configureLogger = (baseDir) => {
+export const configureLogger = (baseDir, consoleLevel = 'verbose') => {
   // Only configure the logger once.
   if (configuredLogger) throw TypeError('Can\'t configure the logger a second time.')
 
@@ -82,6 +83,8 @@ export const configureLogger = (baseDir) => {
     .add(new winston.transports.File({ filename: `${errBase}/error.log`, level: 'error' }))
     .add(new winston.transports.File({ filename: `${errBase}/combined.log` }))
 
+  // Set console logging level. 'verbose' by default.
+  consoleLogger.transports[0].level = consoleLevel
   configuredLogger = true
 }
 
