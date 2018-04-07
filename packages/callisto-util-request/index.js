@@ -24,6 +24,13 @@ const browserHeaders = {
 }
 
 /**
+ * Sets an array of cookies directly.
+ */
+export const setCookies = (cookieStrings, url) => {
+  cookieStrings.forEach(cookieStr => cookies.jar.setCookie(request.cookie(cookieStr), url))
+}
+
+/**
  * Loads cookies from the specified cookies.txt file (or the default file)
  * and loads them into a jar so that we can make requests with them.
  */
