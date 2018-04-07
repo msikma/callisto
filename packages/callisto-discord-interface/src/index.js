@@ -10,7 +10,7 @@ import { registerBotName } from 'callisto-util-misc'
 import logger, { configureLogger } from 'callisto-util-logging'
 
 import decorateResponses from './decorator'
-import { findAndRegisterTasks } from './task-manager'
+import { findTasks, findAndRegisterTasks } from './task-manager'
 import { config, pkg } from './resources'
 
 export const discord = {
@@ -19,11 +19,26 @@ export const discord = {
   bot: null
 }
 
-export const run = async () => {
+/**
+ * Main entry point that runs the bot. Command line arguments are passed here.
+ * If 'task' is set, we'll run the bot with that one task only. Others get ignored.
+ */
+export const run = async ({ task }) => {
   // Make sure we can write logs.
   configureLogger(config.CALLISTO_BASE_DIR)
 
   logger.info(`callisto-bot ${pkg.version}`)
+
+  // Load single task if testing.
+  let taskData
+  if (task) {
+    taskData = findTasks().filter(taskData => taskData.slug === task)[0]
+    if (!taskData) {
+      logger.error(`Could not find task: callisto-task-${task}`)
+      process.exit(1)
+    }
+    logger.warn(`Testing with only this task: ${taskData.slug}`)
+  }
 
   // Saves our chosen bot name for writing responses to users instructing them to @ us.
   // TODO: this should likely be removed, since we can just pass the bot user object's name.
@@ -39,5 +54,5 @@ export const run = async () => {
   discord.bot = await discord.client.fetchUser(config.CALLISTO_BOT_CLIENT_ID)
 
   // Get a list of all installed tasks and register them.
-  findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS)
+  findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
 }

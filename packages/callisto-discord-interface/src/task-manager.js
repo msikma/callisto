@@ -14,12 +14,17 @@ const tasks = {}
 
 /**
  * Iterates through our installed tasks and registers them so they can be used.
+ * If 'singleTaskData' is set, we will ignore every task except that one.
  */
-export const findAndRegisterTasks = (discordClient, user, taskConfig) => {
-  findTasks().forEach(({ name, file }) => {
+export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTaskData) => {
+  const tasks = findTasks()
+  tasks.forEach(({ name, file, slug, version }) => {
+    if (singleTaskData && slug !== singleTaskData.slug) {
+      return
+    }
     try {
       const taskInfo = require(file).getTaskInfo()
-      registerTask(discordClient, user, taskInfo)
+      registerTask(discordClient, user, taskInfo, slug, version)
     }
     catch (err) {
       logger.error(`Task ${name} could not be imported:\n${err.stack}`)
@@ -67,18 +72,33 @@ const startTimedTasks = (discordClient, user, taskConfig) => {
 /**
  * Registers a task, making it possible to access its functionality.
  */
-const registerTask = (discordClient, user, { id, formats, triggerActions, scheduledActions }) => {
+const registerTask = (discordClient, user, { id, formats, triggerActions, scheduledActions }, slug, version) => {
   tasks[id] = { id, formats, triggerActions, scheduledActions }
-  logger.verbose(`Registered task: ${id}`)
+  logger.verbose(`Registered task: ${slug} (${version})`)
   triggerActions.forEach(a => discordClient.on(a[0], a[1]))
 }
 
 /**
+ * Returns the slug of a task name, e.g. for 'callisto-task-asdf' this is 'asdf'.
+ */
+const taskSlug = (taskName) => (
+  taskName.trim().substr('callisto-task-'.length)
+)
+
+/**
  * Finds all usable tasks.
  */
-const findTasks = () => {
+export const findTasks = () => {
   const base = `${config.CALLISTO_BASE_DIR}/packages/`
-  return listTaskDirs(base).map(i => ({ name: i, file: `${base}${i}/index.js` }))
+  return listTaskDirs(base).map(i => {
+    const packageData = require(`${base}${i}/package.json`)
+    return {
+      name: i,
+      version: packageData.version,
+      file: `${base}${i}/index.js`,
+      slug: taskSlug(i)
+    }
+  })
 }
 
 /**

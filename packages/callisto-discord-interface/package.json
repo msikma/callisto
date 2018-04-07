@@ -1,6 +1,6 @@
 {
   "name": "callisto-discord-interface",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "argparse": "^1.0.9"
   },
   "dependencies": {
+    "argparse": "^1.0.10",
     "babel-eslint": "^7.2.3",
     "babel-plugin-transform-class-properties": "^6.1.0",
     "babel-plugin-transform-object-rest-spread": "^6.1.0",
