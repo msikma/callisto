@@ -22,10 +22,11 @@ export const discord = {
 /**
  * Main entry point that runs the bot. Command line arguments are passed here.
  * If 'task' is set, we'll run the bot with that one task only. Others get ignored.
+ * 'level' sets the console logging verbosity.
  */
-export const run = async ({ task }) => {
+export const run = async ({ task, level }) => {
   // Make sure we can write logs.
-  configureLogger(config.CALLISTO_BASE_DIR)
+  configureLogger(config.CALLISTO_BASE_DIR, level)
 
   logger.info(`callisto-bot ${pkg.version}`)
 
