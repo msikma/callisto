@@ -1,6 +1,6 @@
 {
-	"name": "callisto-bot",
-  "version": "1.0.0",
+  "name": "callisto-bot",
+  "version": "1.1.0",
   "description": "Private Discord bot for the Ganymede server",
   "private": true,
   "license": "SEE LICENSE IN <readme.md>",

@@ -46,6 +46,14 @@ export const requestAsBrowser = (url, extraHeaders = {}, gzip = true) => (
 )
 
 /**
+ * Same as requestAsBrowser, but does a POST request and includes form data.
+ * This sends a form upload using application/x-www-form-urlencoded.
+ */
+export const postAsBrowser = (url, form, extraHeaders = {}, gzip = true) => (
+  request.post({ url, form, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip })
+)
+
+/**
  * Alternate version of requestAsBrowser() that takes a callback instead.
  * This is used because request-promise-native currently has a bug related to piping to a file,
  * which we use to download files.
