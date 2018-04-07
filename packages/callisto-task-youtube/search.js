@@ -81,6 +81,7 @@ const findVideos = (initialData) => {
   // Extract all useful information from each video.
   return videos.map(video => {
     const data = video.videoRenderer
+    if (!data) return false
     const id = data.videoId
     const link = videoURL(id)
     const title = data.title.simpleText
@@ -108,7 +109,7 @@ const findVideos = (initialData) => {
       durationAria,
       is4K
     }
-  })
+  }).filter(v => v !== false)
 }
 
 /**
