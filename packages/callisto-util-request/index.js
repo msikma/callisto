@@ -10,7 +10,7 @@ import FileCookieStore from 'file-cookie-store'
 // Cookie file and jar container.
 const cookies = {
   file: process.env.COOKIE_FILE,
-  jar: null
+  jar: request.jar()
 }
 
 // These headers are sent with each request to make us look more like a real browser.
@@ -41,16 +41,27 @@ export const loadCookies = (cookieOverride) => {
  *
  * This mimics a browser request to ensure we don't hit an anti-bot wall.
  */
-export const requestAsBrowser = (url, extraHeaders = {}, gzip = true) => (
-  request({ url, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip })
+export const requestAsBrowser = (url, extraHeaders = {}, gzip = true, noCookies = false) => (
+  request({
+    url,
+    headers: { ...browserHeaders, ...extraHeaders },
+    jar: noCookies ? null : cookies.jar,
+    gzip
+  })
 )
 
 /**
  * Same as requestAsBrowser, but does a POST request and includes form data.
  * This sends a form upload using application/x-www-form-urlencoded.
  */
-export const postAsBrowser = (url, form, extraHeaders = {}, gzip = true) => (
-  request.post({ url, form, headers: { ...browserHeaders, ...extraHeaders }, jar: cookies.jar, gzip })
+export const postAsBrowser = (url, form, extraHeaders = {}, gzip = true, noCookies = false) => (
+  request.post({
+    url,
+    form,
+    headers: { ...browserHeaders, ...extraHeaders },
+    jar: noCookies ? null : cookies.jar,
+    gzip
+  })
 )
 
 /**
