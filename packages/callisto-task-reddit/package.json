@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-reddit",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Reddit scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "discord.js": "^11.3.0",
-    "callisto-util-misc": "^1.0.0",
-    "cheerio": "^1.0.0-rc.2"
+    "reddit-rss-scrape": "^1.0.1",
+    "callisto-util-misc": "^1.0.0"
   }
 }

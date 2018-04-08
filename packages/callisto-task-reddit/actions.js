@@ -5,6 +5,7 @@
 
 import { RichEmbed } from 'discord.js'
 
+import logger from 'callisto-util-logging'
 import { config } from 'callisto-discord-interface/src/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { rssParse, embedTitle, embedDescription } from 'callisto-util-misc'
@@ -13,16 +14,24 @@ import { color } from './index'
 
 // URL to the icon.
 const REDDIT_ICON = 'https://i.imgur.com/pWjcLbF.png'
-const SUB_URL = sub => `https://www.reddit.com/r/${sub}/.rss`
 
 /**
  * Find new topics on Reddit.
  */
 export const actionSubTopics = (discordClient, user, taskConfig) => {
   taskConfig.subs.forEach(async ({ name, target }) => {
-    const url = SUB_URL(name)
-    const results = await findNewTopics(url, name)
-    target.forEach(t => reportResults(t[0], t[1], results, name))
+    logger.debug(`reddit: Searching for updates from sub ${name}`)
+    try {
+      const results = await findNewTopics(name)
+      if (results) {
+        logger.debug(`reddit: Found ${results.length} item(s) in sub ${name}`)
+        target.forEach(t => reportResults(t[0], t[1], results, name))
+      }
+    }
+    catch (err) {
+      logger.error(`reddit: Error occurred while searching in sub ${name}`)
+      logger.error(err.stack)
+    }
   })
 }
 
