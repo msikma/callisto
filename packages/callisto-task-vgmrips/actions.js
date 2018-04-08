@@ -5,6 +5,7 @@
 
 import { RichEmbed } from 'discord.js'
 
+import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runVGMRipsSearch } from './search'
@@ -28,7 +29,10 @@ export const actionRecentReleases = async (discordClient, user, taskConfig) => {
   const results = await runVGMRipsSearch(VGMRIPS_URL)
 
   // Now we just send these results to every channel we configured.
-  target.forEach(t => reportResults(t[0], t[1], results))
+  if (results.length) {
+    logger.debug(`vgmrips: Posting new update`)
+    target.forEach(t => reportResults(t[0], t[1], results))
+  }
 }
 
 /**

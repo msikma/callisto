@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-vgmrips",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "VGMRips scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {
