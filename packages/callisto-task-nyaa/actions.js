@@ -6,6 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { embedTitle } from 'callisto-util-misc'
 import { runNyaaSearch } from './search'
 import * as categories from './categories'
 import * as filters from './filters'
@@ -68,7 +69,7 @@ const reportResults = (server, channel, results, search) => {
 const formatMessage = (item, searchDetails) => {
   const embed = new RichEmbed();
   embed.setAuthor('New torrent file on Nyaa.si', NYAA_ICON)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   embed.addField('Category', item['nyaa:category']['#'])
   embed.addField('Size', item['nyaa:size']['#'])
   embed.setURL(item.link)

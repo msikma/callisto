@@ -8,7 +8,7 @@ import moment from 'moment'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { setCookies } from 'callisto-util-request'
-import { wait } from 'callisto-util-misc'
+import { wait, embedTitle } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { findNewEpisode, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
 import { color } from './index'
@@ -76,7 +76,7 @@ export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
 const formatMessage = (item, show) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New episode of ${show.name}`, show.icon || ICON_FALLBACK)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.addField('Episode', `${item.seasonNumber} ${item.episodeNumber}`)
   embed.addField('Torrent', `${item.filename}`)

@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-nyaa",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Nyaa scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "devDependencies": {
   },
   "dependencies": {
-    "discord.js": "^11.3.0"
+    "discord.js": "^11.3.0",
+    "callisto-util-misc": "^1.0.0"
   }
 }

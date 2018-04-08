@@ -7,7 +7,7 @@ import { RichEmbed } from 'discord.js'
 
 import { config } from 'callisto-discord-interface/src/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { rssParse } from 'callisto-util-misc'
+import { rssParse, embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewTopics } from './search'
 import { color } from './index'
 
@@ -40,8 +40,8 @@ const reportResults = (server, channel, results, name) => {
 const formatMessage = (item, name) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New topic on /r/${name}`, REDDIT_ICON)
-  embed.setTitle(item.title)
-  embed.setDescription(item.descriptionText)
+  embed.setTitle(embedTitle(item.title))
+  embed.setDescription(embedDescription(item.descriptionText))
   embed.setURL(item.link)
   embed.setFooter(`By ${item.author}`)
   embed.setColor(color)

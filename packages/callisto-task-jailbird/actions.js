@@ -7,6 +7,7 @@ import { RichEmbed } from 'discord.js'
 import moment from 'moment'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { runSearch } from './search'
 import { color } from './index'
 
@@ -27,9 +28,9 @@ const reportResults = (server, channel, results) => {
 const formatMessage = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor('New Jailbird chapter', ICON)
-  embed.setTitle(item.header)
+  embed.setTitle(embedTitle(item.header))
   embed.setImage(item.image)
-  embed.setDescription(item.descriptionText)
+  embed.setDescription(embedDescription(item.descriptionText))
   embed.setURL(item.link)
   embed.setFooter(`Posted on ${moment(item.pubTime).format('MMMM D, YYYY')}`)
   embed.setColor(color)

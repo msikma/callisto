@@ -6,6 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { runHorribleSubsSearch } from './search'
 import * as res from './res'
 import { color } from './index'
@@ -59,14 +60,14 @@ const reportResults = (server, channel, results, search, link) => {
 const formatMessage = (item, searchDetails, link) => {
   const embed = new RichEmbed();
   embed.setAuthor('New torrent file on HorribleSubs', HORRIBLESUBS_ICON)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   if (link) {
     embed.setURL(link)
   }
   else {
-    embed.setDescription(item.link)
+    embed.setDescription(embedDescription(item.link))
   }
   embed.setColor(color)
-  embed.setFooter(`Searched for keyword "${searchDetails.query}"`)
+  embed.setFooter(embedDescription(`Searched for keyword "${searchDetails.query}"`))
   return embed
 }

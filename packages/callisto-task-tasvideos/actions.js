@@ -5,7 +5,7 @@
 
 import { RichEmbed } from 'discord.js'
 
-import { rssParse } from 'callisto-util-misc'
+import { rssParse, embedTitle, embedDescription } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { findNewTASes } from './search'
@@ -38,9 +38,9 @@ const reportResults = (server, channel, results, type) => {
 const formatMessage = (item, type = '', showCategories = false) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New publication on TASVideos`, ICON)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
-  embed.setDescription(item.description)
+  embed.setDescription(embedDescription(item.description))
   if (showCategories) {
     embed.addField('Categories', item.categoriesWithoutGenre.join(', '))
   }

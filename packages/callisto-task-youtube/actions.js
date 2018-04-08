@@ -11,6 +11,7 @@ import path from 'path'
 import logger from 'callisto-util-logging'
 import { config } from 'callisto-discord-interface/src/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
 import { color } from './index'
 
@@ -88,14 +89,14 @@ const formatMessage = (item, file = '', query = '') => {
   const baseFile = file && path.basename(file)
   const embed = new RichEmbed();
   embed.setAuthor(`New Youtube video by ${item.author}`, YOUTUBE_ICON)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   if (file && !query) {
     embed.setFooter(`Sourced from subscriptions file: ${baseFile}`)
     embed.setImage(item.image.url)
   }
   if (query && !file) {
     if (item.description) {
-      embed.setDescription(item.description)
+      embed.setDescription(embedDescription(item.description))
     }
     embed.setFooter(`Searched for keyword: ${query}`)
     embed.addField('Views', `${item.views}`)

@@ -24,6 +24,16 @@ export const wait = (ms) => (
 )
 
 /**
+ * Limits a string to a specific length. Adds ellipsis if it exceeds.
+ */
+const limitString = (value) => (str) => (
+  str.length > value ? `${str.substr(0, value - 3)}...` : str
+)
+
+export const embedTitle = limitString(256)
+export const embedDescription = limitString(2048)
+
+/**
  * Runs a script inside of a sandboxed VM to extract its data.
  */
 export const findScriptData = (scriptContent) => {

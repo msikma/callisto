@@ -6,6 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { embedTitle } from 'callisto-util-misc'
 import { runSearch } from './search'
 import { color } from './index'
 
@@ -26,7 +27,7 @@ const reportResults = (server, channel, results) => {
 const formatMessage = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor('New Camp Weedonwantcha chapter', ICON)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.setURL(item.link)
   embed.setFooter(`Posted on ${item.pubTime}`)
