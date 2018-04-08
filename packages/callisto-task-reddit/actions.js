@@ -19,17 +19,17 @@ const REDDIT_ICON = 'https://i.imgur.com/pWjcLbF.png'
  * Find new topics on Reddit.
  */
 export const actionSubTopics = (discordClient, user, taskConfig) => {
-  taskConfig.subs.forEach(async ({ name, target }) => {
-    logger.debug(`reddit: Searching for updates from sub ${name}`)
+  taskConfig.subs.forEach(async ({ name, type, target }) => {
+    logger.debug(`reddit: Searching for updates from sub ${name}, type ${type}`)
     try {
-      const results = await findNewTopics(name)
+      const results = await findNewTopics(name, type)
       if (results) {
-        logger.debug(`reddit: Found ${results.length} item(s) in sub ${name}`)
+        logger.debug(`reddit: Found ${results.length} item(s) in sub ${name}, type ${type}`)
         target.forEach(t => reportResults(t[0], t[1], results, name))
       }
     }
     catch (err) {
-      logger.error(`reddit: Error occurred while searching in sub ${name}`)
+      logger.error(`reddit: Error occurred while searching in sub ${name}, type ${type}`)
       logger.error(err.stack)
     }
   })

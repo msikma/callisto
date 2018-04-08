@@ -8,8 +8,8 @@ import { cacheItems, removeCached } from 'callisto-util-cache'
 import { rssParse } from 'callisto-util-misc'
 import { id } from './index'
 
-export const findNewTopics = async (sub) => {
-  const items = await findTopics(sub)
+export const findNewTopics = async (sub, type) => {
+  const items = await findTopics(sub, type)
   if (items.length === 0) return []
 
   // Caching ID specific to this subreddit.
