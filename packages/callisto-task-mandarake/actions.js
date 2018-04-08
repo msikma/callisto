@@ -7,6 +7,8 @@ import { RichEmbed } from 'discord.js'
 import { categories, shops } from 'mdrscr'
 
 import { sendMessage, test } from 'callisto-discord-interface/src/responder'
+import { embedTitle } from 'callisto-util-misc'
+import { logger } from 'callisto-util-logging'
 import { runMandarakeSearch } from './search'
 import { color } from './index'
 
@@ -38,9 +40,6 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
     const msgLang = lang ? lang : defaultLang
     const searchDetails = { ...defaultDetails, ...details }
 
-    // 'result' contains everything needed to send a message to the user.
-    // Previously reported items have already been removed, and the items
-    // we found have been added to the cache.
     try {
       const results = await runMandarakeSearch(searchDetails, msgLang)
 
@@ -48,10 +47,10 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails))
     }
     catch (err) {
-      console.log('---error')
-      console.log(searchDetails)
-      console.log(new Date().toString())
-      console.log(err)
+      logger.error(`mandarake: Caught error during search at ${new Date().toString()}:`)
+      logger.error(err)
+      logger.error(`mandarake: Associated search:`)
+      logger.error(searchDetails)
     }
   })
 }
@@ -92,7 +91,7 @@ const formatMessage = (item, searchDetails, fields = ['price', 'category', 'adul
   embed.setImage(item.image)
   embed.setURL(item.link)
   embed.setColor(color)
-  embed.setTitle(item.title)
+  embed.setTitle(embedTitle(item.title))
   embed.setFooter(`Searched for keyword "${searchDetails.keyword}"`)
   return embed
 }

@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-mandarake",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Mandarake scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "callisto-util-cache": "^1.0.0",
     "callisto-util-misc": "^1.0.0",
+    "callisto-util-logging": "^1.0.0",
     "discord.js": "^11.3.0",
     "mdrscr": "^1.0.4"
   }
