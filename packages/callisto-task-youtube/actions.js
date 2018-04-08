@@ -24,9 +24,10 @@ const parser = new xml2js.Parser()
 /**
  * Parses the subscriptions XML file.
  */
-const readSubscriptions = (url) => (
+const readSubscriptions = (url, slug) => (
   new Promise((resolve, reject) => {
     parser.reset()
+    logger.debug(`youtube: ${slug}: Reading subscriptions XML file: ${url.replace(config.CALLISTO_BASE_DIR, '')}`)
     fs.readFile(url, (errFs, data) => {
       parser.parseString(data, (errParse, result) => {
         if (errFs || errParse) return reject(errFs, errParse, result)
@@ -41,20 +42,29 @@ const readSubscriptions = (url) => (
  */
 const parseSubscriptionTask = async (accountData) => {
   const subscriptionsFile = accountData.subscriptions.replace('<%base%>', config.CALLISTO_BASE_DIR)
-  const subscriptionData = await readSubscriptions(subscriptionsFile)
+  const subscriptionData = await readSubscriptions(subscriptionsFile, accountData.slug)
+  logger.debug(`youtube: ${accountData.slug}: Iterating through subscriptions`)
   const subscriptions = subscriptionData.opml.body[0].outline[0].outline.map(n => n.$)
+
+  const updates = []
 
   for (const sub of subscriptions) {
     const { title, xmlUrl } = sub
     try {
       // Pass on the 'slug' from the account data, which we'll use for caching.
       const results = await findNewSubscriptionVideos(xmlUrl, accountData.slug)
-      accountData.target.forEach(t => reportResults(t[0], t[1], results, subscriptionsFile))
+      updates.push({ target: accountData.target, results, subscriptionsFile })
     }
     catch (err) {
       // Nothing. Sometimes the RSS parser complains if it can't find any items.
     }
   }
+
+  // Post all updates we've gathered.
+  logger.debug(`youtube: ${accountData.slug}: Posting ${updates.length} new ${updates.length === 1 ? 'item' : 'items'}`)
+  updates.forEach(update =>
+    update.target.forEach(t => reportResults(t[0], t[1], update.results, update.subscriptionsFile))
+  )
 }
 
 /**
