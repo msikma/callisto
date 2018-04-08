@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-weedonwantcha",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Camp Weedonwantcha scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {

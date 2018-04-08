@@ -5,6 +5,7 @@
 
 import { RichEmbed } from 'discord.js'
 
+import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runSearch } from './search'
@@ -16,7 +17,10 @@ const ICON = 'https://i.imgur.com/uQIcnQq.png'
 export const actionNewChapters = async (discordClient, user, taskConfig) => {
   const { target } = taskConfig
   const results = await runSearch(BASE_URL)
-  target.forEach(t => reportResults(t[0], t[1], results))
+  if (results.length) {
+    logger.debug('weedonwantcha: Posting new update')
+    target.forEach(t => reportResults(t[0], t[1], results))
+  }
 }
 
 const reportResults = (server, channel, results) => {
