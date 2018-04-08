@@ -61,10 +61,12 @@ const parseSubscriptionTask = async (accountData) => {
   }
 
   // Post all updates we've gathered.
-  logger.debug(`youtube: ${accountData.slug}: Posting ${updates.length} new ${updates.length === 1 ? 'item' : 'items'}`)
-  updates.forEach(update =>
-    update.target.forEach(t => reportResults(t[0], t[1], update.results, update.subscriptionsFile))
-  )
+  if (updates.length) {
+    logger.debug(`youtube: ${accountData.slug}: Posting ${updates.length} new ${updates.length === 1 ? 'item' : 'items'}`)
+    updates.forEach(update =>
+      update.target.forEach(t => reportResults(t[0], t[1], update.results, update.subscriptionsFile))
+    )
+  }
 }
 
 /**
