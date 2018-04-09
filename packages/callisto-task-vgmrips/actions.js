@@ -50,7 +50,7 @@ const formatMessage = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor('New pack on VGMRips', VGMRIPS_ICON)
   embed.setTitle(embedTitle(item.title))
-  embed.setImage(item.image)
+  embed.setThumbnail(item.image)
   embed.setURL(item.download.link)
   if (item.chips) {
     embed.addField('Chip', item.chips.join(', '))
