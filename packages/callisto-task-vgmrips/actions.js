@@ -20,18 +20,24 @@ const VGMRIPS_ICON = 'https://i.imgur.com/rb5dl18.png'
  * Runs VGMRips searches.
  */
 export const actionRecentReleases = async (discordClient, user, taskConfig) => {
-  // Default search parameters.
-  const { target } = taskConfig
+  try {
+    // Default search parameters.
+    const { target } = taskConfig
 
-  // 'result' contains everything needed to send a message to the user.
-  // Previously reported items have already been removed, and the items
-  // we found have been added to the cache.
-  const results = await runVGMRipsSearch(VGMRIPS_URL)
+    // 'result' contains everything needed to send a message to the user.
+    // Previously reported items have already been removed, and the items
+    // we found have been added to the cache.
+    const results = await runVGMRipsSearch(VGMRIPS_URL)
 
-  // Now we just send these results to every channel we configured.
-  if (results.length) {
-    logger.debug(`vgmrips: Posting new update`)
-    target.forEach(t => reportResults(t[0], t[1], results))
+    // Now we just send these results to every channel we configured.
+    if (results.length) {
+      logger.debug(`vgmrips: Posting new update`)
+      target.forEach(t => reportResults(t[0], t[1], results))
+    }
+  }
+  catch (err) {
+    logger.error('vgmrips: An error occurred while searching for new releases')
+    logger.error(err.stack)
   }
 }
 
