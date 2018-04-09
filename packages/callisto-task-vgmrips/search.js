@@ -9,8 +9,10 @@ import { requestAsBrowser } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
-export const runVGMRipsSearch = async (url) => {
-  const html = await requestAsBrowser(url)
+const VGMRIPS_URL = 'http://vgmrips.net/packs/latest'
+
+export const runVGMRipsSearch = async () => {
+  const html = await requestAsBrowser(VGMRIPS_URL)
   const $html = cheerio.load(html)
 
   const items = findReleases($html)

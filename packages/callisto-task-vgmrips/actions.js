@@ -11,10 +11,8 @@ import { embedTitle } from 'callisto-util-misc'
 import { runVGMRipsSearch } from './search'
 import { color } from './index'
 
-const VGMRIPS_URL = 'http://vgmrips.net/packs/latest'
-
 // URL to the VGMRips icon.
-const VGMRIPS_ICON = 'https://i.imgur.com/rb5dl18.png'
+const ICON = 'https://i.imgur.com/rb5dl18.png'
 
 /**
  * Runs VGMRips searches.
@@ -27,7 +25,7 @@ export const actionRecentReleases = async (discordClient, user, taskConfig) => {
     // 'result' contains everything needed to send a message to the user.
     // Previously reported items have already been removed, and the items
     // we found have been added to the cache.
-    const results = await runVGMRipsSearch(VGMRIPS_URL)
+    const results = await runVGMRipsSearch()
 
     // Now we just send these results to every channel we configured.
     if (results.length) {
@@ -54,7 +52,7 @@ const reportResults = (server, channel, results) => {
  */
 const formatMessage = (item) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New pack on VGMRips', VGMRIPS_ICON)
+  embed.setAuthor('New pack on VGMRips', ICON)
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
   embed.setURL(item.download.link)
