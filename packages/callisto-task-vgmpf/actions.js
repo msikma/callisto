@@ -11,10 +11,8 @@ import { embedTitle } from 'callisto-util-misc'
 import { runVGMPFSearch } from './search'
 import { color } from './index'
 
-const VGMPF_URL = 'http://www.vgmpf.com/Wiki/index.php?title=Main_Page'
-
 // URL to the VGMPF icon.
-const VGMPF_ICON = 'https://i.imgur.com/C9kyOuE.png'
+const ICON = 'https://i.imgur.com/C9kyOuE.png'
 
 /**
  * Runs VGMPF searches.
@@ -22,7 +20,7 @@ const VGMPF_ICON = 'https://i.imgur.com/C9kyOuE.png'
 export const actionRecentReleases = async (discordClient, user, taskConfig) => {
   try {
     const { target } = taskConfig
-    const results = await runVGMPFSearch(VGMPF_URL)
+    const results = await runVGMPFSearch()
       logger.debug(`vgmpf: Posting new update`)
     target.forEach(t => reportResults(t[0], t[1], results))
   }
@@ -45,7 +43,7 @@ const reportResults = (server, channel, results) => {
  */
 const formatMessage = (item) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New soundtrack on VGMPF', VGMPF_ICON)
+  embed.setAuthor('New soundtrack on VGMPF', ICON)
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
   embed.setURL(item.link)

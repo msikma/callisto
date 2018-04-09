@@ -10,9 +10,10 @@ import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
 const VGMPF_BASE = 'http://www.vgmpf.com'
+const VGMPF_URL = 'http://www.vgmpf.com/Wiki/index.php?title=Main_Page'
 
-export const runVGMPFSearch = async (url) => {
-  const html = await requestAsBrowser(url)
+export const runVGMPFSearch = async () => {
+  const html = await requestAsBrowser(VGMPF_URL)
   const $html = cheerio.load(html)
 
   const items = findReleases($html)
