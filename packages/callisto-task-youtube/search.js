@@ -4,32 +4,28 @@
  */
 
 import cheerio from 'cheerio'
+import moment from 'moment'
+import momentDurationFormatSetup from 'moment-duration-format'
 
+import logger from 'callisto-util-logging'
 import { requestAsBrowser } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import { rssParse, findScriptData } from 'callisto-util-misc'
+import { rssParse } from 'callisto-util-misc'
+import { videoURL, getVideoExtendedInfo, getPageInitialData, getBestThumbnail } from './util'
 import { id } from './index'
 
-const videoID = new RegExp('watch\\?v=(.+?)$')
-
+// Produces a search URL for a given query.
 const searchURL = (params, query) => (
   `https://www.youtube.com/results?sp=${params}&search_query=${encodeURIComponent(query)}`
 )
 
-const videoURL = (watch, prefix = '/watch?v=') => (
-  `https://www.youtube.com${prefix}${watch}`
-)
+// Extend Moment to be able to format durations.
+// See <https://github.com/jsmreese/moment-duration-format>.
+momentDurationFormatSetup(moment)
 
-const getVideoID = (url) => {
-  const idMatch = url.match(videoID)
-  return videoID && videoID[1].trim()
-}
-
-// Turns e.g. '1.6K views' into '1.6K'.
-const viewsPlain = (views) => {
-  return views.split(' ')[0]
-}
-
+/**
+ * Runs a search for new videos from a subscriptions RSS file.
+ */
 export const findNewSubscriptionVideos = async (url, slug) => {
   const items = await rssParse(url)
   if (items.length === 0) return []
@@ -38,26 +34,52 @@ export const findNewSubscriptionVideos = async (url, slug) => {
   const accountCacheID = `${id}$${slug}$subscription`
 
   // Copy 'guid' to 'id' for caching.
-  const allItems = items.map(entry => ({ ...entry, id: entry.guid }))
+  const allItems = items.map(entry => ({ ...entry, id: entry.guid })).slice(0, 1)
   const newItems = await removeCached(accountCacheID, allItems)
+  const extendedInfoItems = newItems.length ? await addExtendedInfo(newItems) : []
 
   // Add the remaining items to the database.
-  cacheItems(accountCacheID, newItems)
+  cacheItems(accountCacheID, extendedInfoItems)
 
   // Now we can send these results to the channel.
-  return newItems
+  return extendedInfoItems
 }
 
-/**
- * Finds the <script> tag containing the 'ytInitialData' object.
- */
-const findDataContent = ($) => (
-  $('script')
-    .filter((n, el) => $(el).html().indexOf('window["ytInitialData"]') !== -1)
-    .map((n, el) => $(el).html())
-    .get()[0]
+// Adds extended information to a list of items.
+// This is done to get e.g. the description of a video for RSS entries,
+// which normally do not have this information.
+const addExtendedInfo = (rssItems) => (
+  Promise.all(rssItems.map(entry => new Promise(async (resolve) => {
+    const data = await getVideoExtendedInfo(entry.link)
+
+    // If something went wrong, resolve with our basic info instead.
+    if (!data) return resolve({ ...entry })
+    const info = data.videoDetails
+    const description = info.shortDescription
+    const thumbnails = info.thumbnail.thumbnails
+    const { keywords, lengthSeconds, viewCount } = info
+
+    resolve({
+      ...entry,
+      imageURL: entry.image.url,
+      duration: moment.duration({ seconds: lengthSeconds }).format(),
+      description,
+      thumbnails,
+      keywords,
+      lengthSeconds,
+      views: viewCount
+    });
+  })))
 )
 
+/**
+ * Searches Youtube using a specified search query and returns whatever videos it finds.
+ *
+ * The search parameters should be encoded in the way that Youtube itself does it,
+ * so you can only get the parameters by running the search in Youtube and copying the URL string.
+ * E.g. searching for 'test', sorted by upload date, produces ?search_query=test&sp=CAI%253D.
+ * The 'sp' (search parameters) string should be URL decoded, making it 'CAI%3D' in this example.
+ */
 export const findNewSearchVideos = async (params, query, slug) => {
   const url = searchURL(params, query)
   const searchCacheID = `${id}$${slug}$search`
@@ -65,15 +87,14 @@ export const findNewSearchVideos = async (params, query, slug) => {
   const html = await requestAsBrowser(url)
   const $html = cheerio.load(html)
   // Get content of the right <script> tag
-  const pageDataString = findDataContent($html)
-  const pageData = findScriptData(pageDataString)
-  const items = findVideos(pageData.sandbox.window.ytInitialData)
+  const items = findVideos(getPageInitialData($html).ytInitialData)
   if (items.length === 0) return []
   const newItems = await removeCached(searchCacheID, items)
   cacheItems(searchCacheID, newItems)
   return newItems
 }
 
+// Returns videos found in a search page's initial data.
 const findVideos = (initialData) => {
   // The actual video data is hidden deep within the data structure.
   if (!initialData) return []
@@ -91,7 +112,7 @@ const findVideos = (initialData) => {
     const description = data.descriptionSnippet ? data.descriptionSnippet.runs[0].text : ''
     const duration = data.lengthText.simpleText
     const durationAria = data.lengthText.accessibility.accessibilityData.label
-    const image = data.thumbnail.thumbnails[0].url
+    const imageURL = getBestThumbnail(data.thumbnail.thumbnails)
     const badges = data.badges.map(badge => badge.metadataBadgeRenderer.label)
     const is4K = badges.indexOf('4K') !== -1
 
@@ -104,49 +125,10 @@ const findVideos = (initialData) => {
       views,
       uploadTime,
       description,
-      image,
+      imageURL,
       duration,
       durationAria,
       is4K
     }
   }).filter(v => v !== false)
-}
-
-/**
- * Retrieves videos from HTML.
- * Currently unused because Youtube doesn't render the HTML right away.
- */
-const findVideosHTML = ($) => {
-  return $('#contents .ytd-item-section-renderer').map((n, el) => {
-    const $el = $(el)
-    const image = $('.ytd-thumbnail img', el).attr('src')
-    const durationNode = $('.ytd-thumbnail-overlay-time-status-renderer', el)
-    const duration = durationNode.text().trim()
-    const durationAria = durationNode.attr('aria-label').trim()
-    const title = $('.text-wrapper h3 #video-title', el).text().trim()
-    const author = $('#metadata > #byline-container #byline-inner-container', el).text().trim()
-    const viewsRaw = $('#metadata > #metadata-line > .ytd-video-meta-block:nth-child(1)', el).text().trim()
-    const views = plainViews(viewsRaw)
-    const uploadTime = $('#metadata > #metadata-line > .ytd-video-meta-block:nth-child(2)', el).text().trim()
-    const description = $('#description-text', el).text().trim()
-    const badges = $('#badges span.ytd-badge-supported-renderer', el)
-      .map((m, badgeEl) => badgeEl.text().trim()).get()
-    const is4K = badges.indexOf('4K') !== -1
-    const link = videoURL($('#video-title', el).attr('href'), '')
-    const id = getVideoID(link)
-
-    return {
-      id,
-      link,
-      title,
-      author,
-      views,
-      uploadTime,
-      description,
-      image,
-      duration,
-      durationAria,
-      is4K
-    }
-  }).get()
 }
