@@ -46,7 +46,7 @@ const formatMessage = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor('New soundtrack on VGMPF', VGMPF_ICON)
   embed.setTitle(embedTitle(item.title))
-  embed.setImage(item.image)
+  embed.setThumbnail(item.image)
   embed.setURL(item.link)
   embed.setFooter('From the Video Game Music Preservation Foundation Wiki')
   embed.setColor(color)
