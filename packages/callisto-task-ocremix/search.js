@@ -38,9 +38,9 @@ const findNewAlbums = ($) => {
   if (!albumWidgets.length) return []
   const albumWidget = albumWidgets[0]
   const items = $('.widget-content a', albumWidget).map((n, el) => {
-    const link = `${URL}${$(el).attr('href')}`
+    const link = `${URL}${fixSlashes($(el).attr('href'))}`
     const $img = $('img', el)
-    const image = `${URL}${enlargeImage($img.attr('src'))}`
+    const image = `${URL}${fixSlashes(enlargeImage($img.attr('src')))}`
     const fullTitle = $img.attr('title')
     const { title, date } = getDate(fullTitle)
 
@@ -48,8 +48,8 @@ const findNewAlbums = ($) => {
       title,
       id: slugify(title),
       pubDate: date,
-      image: fixSlashes(image),
-      link: fixSlashes(link)
+      image,
+      link
     }
   }).get()
 
@@ -75,8 +75,9 @@ const enlargeGameThumb = (imageURL) => (
 const fixSlashes = (url) => {
   const lead = url[0] === '/' ? '/' : ''
   const trail = url[url.length - 1] === '/' ? '/' : ''
+  const singled = url.split('/').filter(n => n !== '').join('/')
 
-  return `${lead}${url.split('/').filter(n => n !== '').join('/')}${trail}`
+  return `${lead}${singled}${trail}`
 }
 
 const findNewTracks = ($) => (
@@ -88,9 +89,9 @@ const findNewTracks = ($) => (
     const pubDate = new Date(`${day} ${year}`)
 
     const $remixNode = $('a.jukebox-link.remix', el)
-    const image = `${URL}${enlargeGameThumb($('img', $remixNode).attr('src'))}`
+    const image = `${URL}${fixSlashes(enlargeGameThumb($('img', $remixNode).attr('src')))}`
     const href = $remixNode.attr('href')
-    const link = `${URL}${href}`
+    const link = `${URL}${fixSlashes(href)}`
 
     const $gameNode = $('.color-bodytext.single-line-item a', el)
     const gameName = $gameNode.text().trim()
@@ -105,8 +106,8 @@ const findNewTracks = ($) => (
     return {
       title,
       id: slugify(href),
-      image: fixSlashes(image),
-      link: fixSlashes(link),
+      image,
+      link,
       pubDate,
       game: {
         gameName,
