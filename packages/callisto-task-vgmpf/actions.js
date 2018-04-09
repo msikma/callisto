@@ -5,6 +5,7 @@
 
 import { RichEmbed } from 'discord.js'
 
+import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runVGMPFSearch } from './search'
@@ -19,16 +20,16 @@ const VGMPF_ICON = 'https://i.imgur.com/C9kyOuE.png'
  * Runs VGMPF searches.
  */
 export const actionRecentReleases = async (discordClient, user, taskConfig) => {
-  // Default search parameters.
-  const { target } = taskConfig
-
-  // 'result' contains everything needed to send a message to the user.
-  // Previously reported items have already been removed, and the items
-  // we found have been added to the cache.
-  const results = await runVGMPFSearch(VGMPF_URL)
-
-  // Now we just send these results to every channel we configured.
-  target.forEach(t => reportResults(t[0], t[1], results))
+  try {
+    const { target } = taskConfig
+    const results = await runVGMPFSearch(VGMPF_URL)
+      logger.debug(`vgmpf: Posting new update`)
+    target.forEach(t => reportResults(t[0], t[1], results))
+  }
+  catch (err) {
+    logger.error('vgmpf: An error occurred while searching for updates')
+    logger.error(err.stack)
+  }
 }
 
 /**
