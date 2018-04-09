@@ -61,7 +61,7 @@ const formatMessageTrack = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New track on OverClocked ReMix`, ICON)
   embed.setTitle(embedTitle(item.title))
-  embed.setImage(item.image)
+  embed.setThumbnail(item.image)
   embed.setURL(item.link)
   embed.addField('Author', item.artist.artistName)
   embed.addField('Game', item.game.gameName)

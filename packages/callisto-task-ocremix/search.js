@@ -10,7 +10,7 @@ import { cacheItems, removeCached } from 'callisto-util-cache'
 import { requestAsBrowser } from 'callisto-util-request'
 import { id } from './index'
 
-const URL = 'https://ocremix.org/'
+const URL = 'https://ocremix.org'
 const dateTitle = new RegExp('^(.+?) \\((.+?)\\)')
 
 export const findNewItems = async () => {
