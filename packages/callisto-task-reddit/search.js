@@ -5,7 +5,6 @@
 
 import findTopics from 'reddit-rss-scrape'
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import { rssParse } from 'callisto-util-misc'
 import { id } from './index'
 
 export const findNewTopics = async (sub, type) => {

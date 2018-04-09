@@ -8,7 +8,7 @@ import { RichEmbed } from 'discord.js'
 import logger from 'callisto-util-logging'
 import { config } from 'callisto-discord-interface/src/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { rssParse, embedTitle, embedDescription } from 'callisto-util-misc'
+import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewTopics } from './search'
 import { color } from './index'
 
