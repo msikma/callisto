@@ -423,9 +423,9 @@ readable-stream@^2.2.2:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
-reddit-rss-scrape@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/reddit-rss-scrape/-/reddit-rss-scrape-1.0.1.tgz#13c0a224c7cf804435d030c2e2b5062ecb40a074"
+reddit-rss-scrape@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/reddit-rss-scrape/-/reddit-rss-scrape-1.1.0.tgz#29731da14d70c4606496aaeec581fc3aee99e798"
   dependencies:
     cheerio "^1.0.0-rc.2"
     parse-rss "^1.0.3"
