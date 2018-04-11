@@ -1,8 +1,8 @@
 {
-  "name": "callisto-task-jailbird",
+  "name": "callisto-task-hiveworks",
   "private": true,
-  "version": "1.0.1",
-  "description": "Jailbird scraping task for the Callisto bot",
+  "version": "1.0.0",
+  "description": "Hiveworks Comics scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,9 +13,10 @@
   },
   "dependencies": {
     "discord.js": "^11.3.0",
-    "callisto-util-misc": "^1.0.0",
     "cheerio": "^1.0.0-rc.2",
     "moment": "^2.0.0",
+    "turndown": "^4.0.0",
+    "callisto-util-misc": "^1.0.0",
     "slugify": "^1.2.9"
   }
 }
