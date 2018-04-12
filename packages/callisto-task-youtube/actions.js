@@ -96,7 +96,9 @@ const formatMessage = (item, file = '', query = '') => {
   const embed = new RichEmbed();
   embed.setAuthor(`New Youtube video by ${item.author}`, ICON)
   if (item.title) embed.setTitle(embedTitle(item.title))
-  if (item.description) embed.setDescription(embedDescription(item.description))
+  if (item.description && item.description !== item.title) {
+    embed.setDescription(embedDescription(item.description))
+  }
   if (item.views) embed.addField('Views', `${item.views}`)
   if (item.duration) embed.addField('Duration', `${item.duration}`)
   if (item.imageURL) embed.setImage(item.imageURL)

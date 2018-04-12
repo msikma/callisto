@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-youtube",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Youtube scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {
