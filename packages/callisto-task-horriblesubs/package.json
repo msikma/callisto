@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-horriblesubs",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "HorribleSubs scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {

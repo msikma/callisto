@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-vgmpf",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "VGMPF scraping task for the Callisto bot",
   "main": "index.js",
   "scripts": {

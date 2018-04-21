@@ -1,4 +1,4 @@
-Callisto - callisto-task-youtube
-================================
+Callisto - callisto-task-tasvideos
+==================================
 
-Returns new videos from a subscriptions XML file.
+Scrapes new videos from [TASVideos.org](http://tasvideos.org/).
