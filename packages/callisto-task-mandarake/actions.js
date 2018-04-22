@@ -124,19 +124,25 @@ const formatMessageAuction = (item, searchDetails, fields) => {
     embed.addField('Current price', `¥${item.currentPrice} (±€${(item.currentPrice / 125).toFixed(2)})`)
   }
 
-  const daysLeft = `${item.timeLeft.days} day${item.timeLeft.days !== 1 ? 's' : ''}`
-  const hoursLeft = `${item.timeLeft.hours} hour${item.timeLeft.hours !== 1 ? 's' : ''}`
-  const minutesLeft = `${item.timeLeft.minutes} minute${item.timeLeft.minutes !== 1 ? 's' : ''}`
-  const timeLeftBits = [
-    ...(item.timeLeft.days > 0 ? [daysLeft] : []),
-    ...(item.timeLeft.hours > 0 ? [hoursLeft] : []),
-    ...(item.timeLeft.minutes > 0 ? [minutesLeft] : []),
-  ]
-  const timeLeft = timeLeftBits.length === 3
-    ? `${timeLeftBits.slice(0, 1)[0]}, ${timeLeftBits.slice(1, 3).join(' and ')}`
-    : (timeLeftBits.length === 2 ? timeLeftBits.join(' and ') : timeLeftBits[0])
+  if (item.timeLeft.type === 'pre-bidding') {
+    embed.addField('Time left', 'Auction has not started yet')
+  }
+  else {
+    const daysLeft = `${item.timeLeft.days} day${item.timeLeft.days !== 1 ? 's' : ''}`
+    const hoursLeft = `${item.timeLeft.hours} hour${item.timeLeft.hours !== 1 ? 's' : ''}`
+    const minutesLeft = `${item.timeLeft.minutes} minute${item.timeLeft.minutes !== 1 ? 's' : ''}`
+    const timeLeftBits = [
+      ...(item.timeLeft.days > 0 ? [daysLeft] : []),
+      ...(item.timeLeft.hours > 0 ? [hoursLeft] : []),
+      ...(item.timeLeft.minutes > 0 ? [minutesLeft] : []),
+    ]
+    const timeLeft = timeLeftBits.length === 3
+      ? `${timeLeftBits.slice(0, 1)[0]}, ${timeLeftBits.slice(1, 3).join(' and ')}`
+      : (timeLeftBits.length === 2 ? timeLeftBits.join(' and ') : timeLeftBits[0])
 
-  embed.addField('Time left', timeLeft)
+    embed.addField('Time left', timeLeft)
+  }
+
   if (fields.indexOf('store') !== -1) {
     embed.addField('Store', shopsByCode.en[item.shopCode])
   }
