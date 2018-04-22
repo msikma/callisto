@@ -12,6 +12,7 @@ import { actionRunSearches } from './actions'
 export const id = 'mandarake'
 const name = 'Mandarake'
 export const color = 0xaf031d
+export const colorAuctions = 0x106770
 const formats = [
 //  ['add', ['keyword'], ['category', 'maxPrice'], 'Adds a new search command', commandAdd],
 //  ['list', [], [], 'Lists all active search queries', commandList],
@@ -23,7 +24,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [120000, 'run Mandarake searches', actionRunSearches]
+  [120000, 'run Mandarake searches', actionRunSearches, true]
 ]
 
 export const getTaskInfo = () => {
