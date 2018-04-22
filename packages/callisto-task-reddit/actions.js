@@ -23,7 +23,7 @@ export const actionSubTopics = (discordClient, user, taskConfig) => {
     logger.debug(`reddit: Searching for updates from sub ${name}, type ${type}`)
     try {
       const results = await findNewTopics(name, type)
-      if (results) {
+      if (results.length) {
         logger.debug(`reddit: Found ${results.length} item(s) in sub ${name}, type ${type}`)
         target.forEach(t => reportResults(t[0], t[1], results, name))
       }
