@@ -11,7 +11,7 @@ const name = 'Rarbg Torrents'
 const formats = []
 const triggerActions = []
 const scheduledActions = [
-  [1800000, 'find new episodes for various shows on Rarbg Torrents', actionNewEpisodes, true]
+  [7200000, 'find new episodes for various shows on Rarbg Torrents', actionNewEpisodes, true]
 ]
 
 export const getTaskInfo = () => {
