@@ -21,7 +21,23 @@ export const sendMessage = (serverID, channelID, message = null, embed = null) =
   const payload = Object.keys(segments)
     .filter(i => segments[i] != undefined && segments[i] !== '')
     .reduce((acc, i) => ({ [i]: segments[i] }), {})
-  channel.send(payload)
+
+  return sendPayload(channel, payload)
+}
+
+/**
+ * Low level send interface. Passes on a message to Discord.
+ * All code should send their messages to Discord through this function,
+ * not through any other means. That way we can ensure the --no-post
+ * command line argument is honored.
+ */
+const sendPayload = (sender, payload) => {
+  // Don't send anything if noPost is on.
+  if (discord.noPost === true) {
+    logger.verbose(`Did not send Payload to Discord (noPost)`)
+    return false
+  }
+  return sender.send(payload)
 }
 
 /**
@@ -93,6 +109,6 @@ const getCommandResponse = (id, formats, messageObject) => {
 export const commandResponder = (id, name, color, formats) => (messageObject) => {
   const response = getCommandResponse(id, formats, messageObject)
   if (response) {
-    return messageObject.channel.send(makeMessage(name, color, response))
+    return sendPayload(messageObject.channel, makeMessage(name, color, response))
   }
 }

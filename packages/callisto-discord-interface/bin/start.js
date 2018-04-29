@@ -34,6 +34,7 @@ parser.formatHelp = () => {
   return removeUnnecessaryLines(formatter.formatHelp())
 }
 parser.addArgument('--test', { help: 'Runs the bot with a single task only for testing.', dest: 'task' })
+parser.addArgument('--no-post', { help: 'Replaces Discord posting code with a no-op.', action: 'storeTrue', dest: 'noPost' })
 parser.addArgument('--log', { help: `Sets console logging level. Default: 'verbose'.`, dest: 'level', choices: ['error', 'warn', 'info', 'verbose', 'debug'], defaultValue: 'verbose' })
 // 'task' is null or a string, e.g. 'rarbg'. Do not add the 'callisto-task' part.
 // 'level' is one of the logging choices, except 'silly' because we don't use it. It's 'verbose' by default.

@@ -16,7 +16,8 @@ import { config, pkg } from './resources'
 export const discord = {
   client: null,
   settings: null,
-  bot: null
+  bot: null,
+  noPost: false
 }
 
 /**
@@ -24,7 +25,10 @@ export const discord = {
  * If 'task' is set, we'll run the bot with that one task only. Others get ignored.
  * 'level' sets the console logging verbosity.
  */
-export const run = async ({ task, level }) => {
+export const run = async ({ task, level, noPost = false }) => {
+  // Prevent us from being able to actually post to Discord if --no-post was passed.
+  discord.noPost = noPost
+  
   // Make sure we can write logs.
   configureLogger(config.CALLISTO_BASE_DIR, level)
 
