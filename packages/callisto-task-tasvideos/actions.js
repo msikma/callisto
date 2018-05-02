@@ -35,7 +35,7 @@ const reportResults = (server, channel, results, type) => {
 /**
  * Returns a RichEmbed describing a new item.
  */
-const formatMessage = (item, type = '', showCategories = false) => {
+const formatMessage = (item, type = '', showCategories = false, useYoutubeLink = false) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New publication on TASVideos`, ICON)
   embed.setTitle(embedTitle(item.title))
@@ -47,7 +47,8 @@ const formatMessage = (item, type = '', showCategories = false) => {
   // Sometimes there is no Youtube link.
   // I can only assume that the RSS feed is constructed at publication time,
   // and if the link hasn't already been added at that time it just isn't in there.
-  embed.setURL(item.youtubeLink ? item.youtubeLink : item.link)
+  // We don't really want it anyway, to be honest. Linking to the publication page is preferable.
+  embed.setURL(item.youtubeLink && useYoutubeLink ? item.youtubeLink : item.link)
   embed.setColor(color)
   return embed
 }

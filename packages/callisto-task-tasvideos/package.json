@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-tasvideos",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "TASVideos RSS parsing task for the Callisto bot",
   "main": "index.js",
   "scripts": {
