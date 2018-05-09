@@ -43,7 +43,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       const results = await runMandarakeSearch(searchDetails, msgLang)
 
       // Now we just send these results to every channel we configured.
-      //msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'main'))
+      msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'main'))
     }
     catch (err) {
       logger.error(`mandarake: Caught error during search`)
