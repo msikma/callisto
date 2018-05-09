@@ -32,7 +32,7 @@ const MANDARAKE_EKIZO_ICON = 'https://i.imgur.com/KsL3wSY.png'
  */
 export const actionRunSearches = (discordClient, user, taskConfig) => {
   // Runs the main searches.
-  taskConfig.main.searches.forEach(async ({ details, target, lang }) => {
+  taskConfig.main && taskConfig.main.searches.forEach(async ({ details, target, lang }) => {
     // Only perform the search if the details have been set.
     if (!details) return false
     const msgTarget = target ? target : taskConfig.main.defaultTarget
@@ -54,7 +54,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
   })
 
   // Runs the auction searches.
-  taskConfig.auction.searches.forEach(async ({ details, target }) => {
+  taskConfig.auction && taskConfig.auction.searches.forEach(async ({ details, target }) => {
     if (!details) return false
     const msgTarget = target ? target : taskConfig.auction.defaultTarget
     const searchDetails = { ...taskConfig.auction.defaultDetails, ...details }
