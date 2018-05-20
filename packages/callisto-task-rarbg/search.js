@@ -11,7 +11,7 @@ import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
 import logger from 'callisto-util-logging'
 import { id } from './index'
 
-const episodeID = new RegExp('^episode_(.+?)$', 'i')
+const episodeIDRe = new RegExp('^episode_(.+?)$', 'i')
 
 /**
  * Report a problem with the request. This occurs when we've been flagged for suspicious activity.
@@ -26,19 +26,22 @@ const reportError = (html) => {
  * Retrieves the latest episode from a show's overview URL.
  * We check to see if we have already posted this URL. If so, null is returned.
  */
-export const findNewEpisode = async (url, show) => {
+export const findNewEpisodes = async (url, show) => {
   const html = await requestAsBrowser(url)
-  const showInfo = getLatestShowInfo(cheerio.load(html))
-  // If we didn't get an ID, it means we couldn't load any HTML properly.
-  if (showInfo.id === '') return reportError(html)
-  const inCache = await filterCachedIDs(id, [showInfo.id])
-  if (inCache.length > 0) {
-    // No new item.
+  const showInfo = getLatestEpisodesInfo(cheerio.load(html))
+  // If we didn't get any results, it means we couldn't load any HTML properly.
+  if (showInfo.length === 0) return reportError(html)
+  // Construct IDs using 'rarbg', the show's slug (e.g. tt3061046) and the episode slugified title.
+  const showInfoWithIDs = showInfo.map(s => ({ ...s, id: `${id}$${show.slug}$${s.slug}` }))
+  const showIDs = showInfoWithIDs.map(s => s.id)
+  const inCache = (await filterCachedIDs(id, showIDs)).map(c => c.id)
+  const newItems = showInfoWithIDs.filter(s => inCache.indexOf(s.id) === -1)
+  if (newItems.length === 0) {
     return null
   }
 
-  // We have a new item to scrape and display.
-  return showInfo
+  // We have new items to scrape and display.
+  return newItems
 }
 
 /**
@@ -108,36 +111,32 @@ const getBestEpisodeInfo = ($) => {
 }
 
 /**
- * Returns information about the latest show from a show's overview listing.
+ * Returns information about the latest episodes from a show's overview listing.
  */
-const getLatestShowInfo = ($) => {
+const getLatestEpisodesInfo = ($) => {
   // Get latest season name and list of episodes.
   const seasonHeaders = $('.content-rounded h1.black')
   const seasonNumber = seasonHeaders.length && $(seasonHeaders[0]).text().trim()
   const tvContentLists = $('.content-rounded .tvcontent')
+  // 'Latest content list' will contain episodes from the latest season.
   const latestContentList = tvContentLists.length && $(tvContentLists[0])
-  const latestEpisode = $('> div', latestContentList).get().reduce((acc, episode) => {
-    if (acc != null) return acc
-    const $episode = $(episode)
-    const id = $episode.attr('id')
-    if (!id) return acc
-    const epMatch = $episode.attr('id').match(episodeID)
-    const validEpisode = epMatch && epMatch[1]
-    if (validEpisode) return validEpisode
-  }, null)
 
-  const latestEpisodeNode = $(`div#episode_${latestEpisode} .tvshowClick`, latestContentList)
-  const episodeNumber = $('.tvshowEpNum', latestEpisodeNode).text().trim()
-  const releaseDate = $('.tvshowRelDate', latestEpisodeNode).text().trim()
-  latestEpisodeNode.find('.tvshowEpNum, .tvshowRelDate').remove()
-  const title = latestEpisodeNode.text().trim()
-
-  return {
-    title,
-    id: slugify(title),
-    releaseDate,
-    episodeID: latestEpisode,
-    episodeNumber,
-    seasonNumber
-  }
+  // Gather information about all listed episodes.
+  return $('> div[id*="episode"]', latestContentList).get().map(ep => {
+    const episodeNumber = $('.tvshowEpNum', ep).text().trim()
+    const episodeIDBits = $(ep).attr('id').match(episodeIDRe)
+    const episodeID = episodeIDBits.length > 0 ? episodeIDBits[1] : null
+    const releaseDate = $('.tvshowRelDate', ep).text().trim()
+    const episodeNode = $('.tvshowClick', ep)
+    episodeNode.find('.tvshowEpNum, .tvshowRelDate').remove()
+    const title = episodeNode.text().trim()
+    return {
+      title,
+      slug: slugify(title),
+      releaseDate,
+      episodeID,
+      episodeNumber,
+      seasonNumber
+    }
+  })
 }

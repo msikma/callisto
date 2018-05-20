@@ -10,7 +10,7 @@ import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { setCookies } from 'callisto-util-request'
 import { wait, embedTitle } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
-import { findNewEpisode, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
+import { findNewEpisodes, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
 import { color } from './index'
 
 const BASE_URL = 'https://rarbg.to'
@@ -42,30 +42,45 @@ export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
     // We then check if this is a new item. Normally we do this at the end of the scraping cycle
     // because it's simpler, but we need to conserve requests here so we're doing it as early as possible.
     const url = getShowURL(show.slug)
-    const latestEpisode = await findNewEpisode(url, show)
-    if (latestEpisode) {
-      // We have a new episode to display. The next step is to request 'tv.php'
-      // to get a piece of HTML containing the links to the episode.
-      // We will return whichever link has the largest filesize (the highest quality version).
-      await wait(randDelay)
+    const latestEpisodes = await findNewEpisodes(url, show)
+    if (latestEpisodes) {
+      // We have new episodes to display.
+      for (let epN = 0; epN < latestEpisodes.length; ++epN) {
+        // An episode example:
+        //
+        // { title: 'Stuck Together',
+        //   slug: 'Stuck-Together',
+        //   releaseDate: '2017-05-29',
+        //   episodeID: 'episode_293146',
+        //   episodeNumber: 'Episode 1',
+        //   seasonNumber: 'Season 5',
+        //   id: 'rarbg$tt3061046$Stuck-Together' }
 
-      // Retrieve list of torrent links for this episode.
-      logger.debug(`rarbg: new episode found (delay until next: ${randDelay} ms)`)
-      const urlTV = getTVURL(latestEpisode.episodeID)
-      const episodeLink = await getEpisodeInfo(urlTV, url)
-      await wait(randDelay)
+        const episode = latestEpisodes[epN]
 
-      // Retrieve torrent and image URLs.
-      logger.debug(`rarbg: new episode torrent code is ${episodeLink.code} (delay until next: ${randDelay} ms)`)
-      const urlDetails = getTorrentDetailURL(episodeLink.code)
-      const torrentDetails = await getTorrentDetails(urlDetails, urlTV)
+        // The next step is to request 'tv.php'
+        // to get a piece of HTML containing the links to the episode.
+        // We will return whichever link has the largest filesize (the highest quality version).
+        await wait(randDelay)
 
-      // Send results to Discord.
-      logger.debug(`rarbg: caching new episode and its information to Discord`)
-      const episodeFullData = { ...latestEpisode, ...episodeLink, ...torrentDetails }
-      await cacheEpisode(episodeFullData)
+        // Retrieve list of torrent links for this episode.
+        logger.debug(`rarbg: new episode found (delay until next: ${randDelay} ms)`)
+        const urlTV = getTVURL(episode.episodeID)
+        const episodeLink = await getEpisodeInfo(urlTV, url)
+        await wait(randDelay)
 
-      show.target.forEach(t => sendMessage(t[0], t[1], null, formatMessage(episodeFullData, show)))
+        // Retrieve torrent and image URLs.
+        logger.debug(`rarbg: new episode torrent code is ${episodeLink.code} (delay until next: ${randDelay} ms)`)
+        const urlDetails = getTorrentDetailURL(episodeLink.code)
+        const torrentDetails = await getTorrentDetails(urlDetails, urlTV)
+
+        // Send results to Discord.
+        logger.debug(`rarbg: caching new episode and its information to Discord`)
+        const episodeFullData = { ...episode, ...episodeLink, ...torrentDetails }
+        await cacheEpisode(episodeFullData)
+
+        show.target.forEach(t => sendMessage(t[0], t[1], null, formatMessage(episodeFullData, show, urlDetails, url)))
+      }
     }
 
     // Wait a while to avoid getting banned.
@@ -73,16 +88,17 @@ export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
   }
 }
 
-const formatMessage = (item, show) => {
+const formatMessage = (item, show, urlDetails, urlTVGuide) => {
   const embed = new RichEmbed();
+  const torrentURL = `${BASE_URL}${item.torrentURL}`
   embed.setAuthor(`New episode of ${show.name}`, show.icon || ICON_FALLBACK)
   embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
-  embed.addField('Episode', `${item.seasonNumber} ${item.episodeNumber}`)
-  embed.addField('Torrent', `${item.filename}`)
-  embed.addField('Filesize', `${item.filesize}`)
-  embed.setURL(`${BASE_URL}${item.torrentURL}`)
+  embed.addField('Episode', `${item.seasonNumber} ${item.episodeNumber}`, true)
+  embed.addField('Filesize', `${item.filesize}`, true)
+  embed.addField('Download', `• [${item.filename}](${torrentURL})\n• [Full list of episodes](${urlTVGuide})`)
+  embed.setURL(urlDetails)
   embed.setColor(show.color || color)
-  embed.setFooter(`Episode is set to air on ${moment(item.releaseDate).format('MMMM D, YYYY')}`)
+  embed.setFooter(`Air date: ${moment(item.releaseDate).format('MMMM D, YYYY')}`)
   return embed
 }
