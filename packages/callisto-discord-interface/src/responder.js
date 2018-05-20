@@ -34,7 +34,6 @@ export const sendMessage = (serverID, channelID, message = null, embed = null) =
 const sendPayload = (sender, payload) => {
   // Don't send anything if noPost is on.
   if (discord.noPost === true) {
-    logger.verbose(`Did not send Payload to Discord (noPost)`)
     return false
   }
   return sender.send(payload)
