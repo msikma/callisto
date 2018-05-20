@@ -10,6 +10,12 @@ import { parseCommand, showCommandHelp, showCommandUsage } from 'callisto-util-m
 import { config } from './resources'
 import { discord } from './index'
 
+/**
+ * Main interface for sending messages to Discord.
+ *
+ * This requires a server ID and channel ID, and can send either a message
+ * or an embed, or both.
+ */
 export const sendMessage = (serverID, channelID, message = null, embed = null) => {
   if (!message && !embed) return
   const channel = discord.client.channels.get(channelID)
