@@ -4,6 +4,7 @@
  */
 
 import { RichEmbed } from 'discord.js'
+
 import logger from 'callisto-util-logging'
 import { parseCommand, showCommandHelp, showCommandUsage } from 'callisto-util-misc'
 
