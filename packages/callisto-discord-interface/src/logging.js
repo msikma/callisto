@@ -57,7 +57,7 @@ const separateMsg = (msg) => {
   const matches = msg.match(TASK_NAME_RE)
   // If no task at the start, just use the warn level as title.
   if (!matches) return { title: null, desc: msg }
-  const desc = msg.substr(matches[0]).trim()
+  const desc = msg.substr(matches[0].length).trim()
   return { title: capitalizeFirst(matches[0]), desc }
 }
 
