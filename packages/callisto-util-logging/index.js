@@ -6,6 +6,9 @@
 import winston, { createLogger, transports, format } from 'winston'
 import chalk from 'chalk'
 import mkdirp from 'mkdirp'
+export { default as severity } from './severity'
+
+import { logToDiscord } from 'callisto-discord-interface/src/logging'
 
 let configuredLogger = false
 
@@ -48,6 +51,7 @@ const consoleLogger = createLogger({
  * This passes on whatever we want to log to both the fileLogger and consoleLogger.
  */
 const log = (verbosity) => (arg) => {
+  logToDiscord(verbosity, arg)
   fileLogger[verbosity](arg)
   consoleLogger[verbosity](arg)
 }
