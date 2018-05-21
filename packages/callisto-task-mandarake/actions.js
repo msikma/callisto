@@ -9,7 +9,7 @@ import { uniq } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
-import { logger } from 'callisto-util-logging'
+import logger from 'callisto-util-logging'
 import { runMandarakeSearch, runMandarakeAuctionSearch } from './search'
 import { color, colorAuctions } from './index'
 
@@ -46,10 +46,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'main'))
     }
     catch (err) {
-      logger.error(`mandarake: Caught error during search`)
-      logger.error(err.stack)
-      logger.error(`mandarake: Associated search:`)
-      logger.error(searchDetails)
+      logger.error(`mandarake: Caught error during regular search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
     }
   })
 
@@ -63,10 +60,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'auction'))
     }
     catch (err) {
-      logger.error(`mandarake: Caught error during search`)
-      logger.error(err.stack)
-      logger.error(`mandarake: Associated search:`)
-      logger.error(searchDetails)
+      logger.error(`mandarake: Caught error during auction search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
     }
   })
 }
