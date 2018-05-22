@@ -1,6 +1,6 @@
 {
   "name": "callisto-discord-interface",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -35,6 +35,7 @@
     "eslint-plugin-jsx-a11y": "^5.1.0",
     "eslint-plugin-react": "^7.2.0",
     "eslint": "^4.4.1",
+    "lodash": "^4.0.0",
     "include-path": "^0.4.7",
     "moment": "^2.21.0",
     "regenerator-runtime": "^0.10.5",

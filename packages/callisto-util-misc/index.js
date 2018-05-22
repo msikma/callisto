@@ -32,6 +32,8 @@ const limitString = (value) => (str) => (
 
 export const embedTitle = limitString(256)
 export const embedDescription = limitString(2048)
+// Like embedDescription, but with a bit of extra room for formatting.
+export const embedDescriptionShort = limitString(2000)
 
 /**
  * Runs a script inside of a sandboxed VM to extract its data.

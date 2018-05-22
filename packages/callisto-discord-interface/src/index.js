@@ -28,22 +28,9 @@ export const discord = {
 export const run = async ({ task, level, noPost = false }) => {
   // Prevent us from being able to actually post to Discord if --no-post was passed.
   discord.noPost = noPost
-  
+
   // Make sure we can write logs.
   configureLogger(config.CALLISTO_BASE_DIR, level)
-
-  logger.info(`callisto-bot ${pkg.version}`)
-
-  // Load single task if testing.
-  let taskData
-  if (task) {
-    taskData = findTasks().filter(taskData => taskData.slug === task)[0]
-    if (!taskData) {
-      logger.error(`Could not find task: callisto-task-${task}`)
-      process.exit(1)
-    }
-    logger.warn(`Testing with only this task: ${taskData.slug}`)
-  }
 
   // Saves our chosen bot name for writing responses to users instructing them to @ us.
   // TODO: this should likely be removed, since we can just pass the bot user object's name.
@@ -57,6 +44,20 @@ export const run = async ({ task, level, noPost = false }) => {
   // Log in to the server.
   await discord.client.login(config.CALLISTO_BOT_TOKEN)
   discord.bot = await discord.client.fetchUser(config.CALLISTO_BOT_CLIENT_ID)
+
+  // Print info about the current runtime.
+  logger.info(`callisto-bot ${pkg.version}`, true)
+
+  // Load single task if testing.
+  let taskData
+  if (task) {
+    taskData = findTasks().filter(taskData => taskData.slug === task)[0]
+    if (!taskData) {
+      logger.error(`Could not find task: callisto-task-${task}`)
+      process.exit(1)
+    }
+    logger.warn(`Testing with only this task: ${taskData.slug}`)
+  }
 
   // Get a list of all installed tasks and register them.
   findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
