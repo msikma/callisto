@@ -7,8 +7,8 @@ import { RichEmbed } from 'discord.js'
 
 import logger from 'callisto-util-logging'
 import { parseCommand, showCommandHelp, showCommandUsage } from 'callisto-util-misc'
+import { config } from 'callisto-util-misc/resources'
 
-import { config } from './resources'
 import { discord } from './index'
 
 /**

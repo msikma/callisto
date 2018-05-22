@@ -6,11 +6,12 @@
 import { RichEmbed } from 'discord.js'
 
 import logger, { severity } from 'callisto-util-logging'
-import { embedTitle, embedDescription, embedDescriptionShort } from 'callisto-util-misc'
+import { embedTitle, embedDescription, embedDescriptionShort, getSystemInfo, getFormattedTime } from 'callisto-util-misc'
+import { config, pkg } from 'callisto-util-misc/resources'
 import { sendMessage } from './responder'
-import { config } from './resources'
 
 // The colors in which our log RichEmbeds are displayed.
+const SUCCESS_COLOR = 0x35ed36
 const VERBOSE_COLOR = 0x424555
 const INFO_COLOR = 0x17a1eb
 const WARNING_COLOR = 0xffaa02
@@ -19,6 +20,43 @@ const ERROR_COLOR = 0xff034a
 // Used to grab the task name. TODO: just pass it on explicitly.
 const TASK_NAME_RE = new RegExp('([^:]+):', 'i')
 
+// Thumbnail we display during boot up.
+const bootupThumbnail = 'https://i.imgur.com/TugT1K5.jpg'
+
+/**
+ * Sends a message to Discord on bootup. This is done after we've retrieved a list
+ * of tasks, so that full information on what's running is available to the user.
+ */
+export const logCallistoBootup = async (tasks, singleTaskData) => {
+  // Channels we'll send the output to.
+  const logChannels = config.CALLISTO_SETTINGS.logChannels
+  const avatar = config.CALLISTO_BOT_AVATAR
+  const url = pkg.homepage
+  const tasksList = bulletizeTasks(tasks, singleTaskData)
+  const systemInfo = await getSystemInfo()
+  const time = getFormattedTime()
+
+  // Create a RichEmbed to send directly to the channel.
+  const embed = new RichEmbed()
+  embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
+  embed.setTimestamp(new Date())
+  embed.setThumbnail(bootupThumbnail)
+  embed.addField('Commit', `[\`${systemInfo.formatted}\`](${systemInfo.commitLink})`, true)
+  embed.addField('Server', systemInfo.server, true)
+  embed.addField('Tasks', tasksList)
+  embed.setDescription(`Callisto Bot is launching. Time: ${time}.`)
+  embed.setColor(SUCCESS_COLOR)
+
+  logChannels.forEach(c => sendMessage(c[0], c[1], null, embed))
+}
+
+/**
+ * Creates a bulletized list of tasks.
+ */
+const bulletizeTasks = (tasks, singleTaskData) => (
+  tasks.map(t => `• ${t.name} (${t.version})${singleTaskData && singleTaskData.slug === t.slug ? ' - testing with only this task' : ''}`)
+)
+
 /**
  * Logs a debugging message to Discord. We check if the severity is high enough
  * for it to be worth logging and grab the target channels from the config.
@@ -26,27 +64,30 @@ const TASK_NAME_RE = new RegExp('([^:]+):', 'i')
  * If 'force' is true, the message is logged regardless of severity.
  */
 export const logToDiscord = (msgLevel, msgObject, force = false) => {
-  const severityLimit = severity[config.CALLISTO_SETTINGS.errorLevel]
+  const severityLimit = severity[config.CALLISTO_SETTINGS.logLevel]
   // Don't log if the message is not as important as the minimum specified in the config.
   // If no error level is specified at all, don't log anything.
   if ((severity[msgLevel] < severityLimit || severityLimit == null) && force !== true) {
     return
   }
-  const errorChannels = config.CALLISTO_SETTINGS.errorChannel
-  const { title, desc } = prepareMessage(msgObject)
+  const logChannels = config.CALLISTO_SETTINGS.logChannels
+
+  // Retrieve the title and description either from the msgObject directly
+  // (if it comes pre-formatted) or determine it using code (if it comes from the logger).
+  const { title, desc } = msgObject.title && msgObject.desc ? msgObject : prepareMessage(msgObject)
 
   // Log based on severity.
   if (msgLevel === 'verbose') {
-    logVerboseToDiscord(title ? title : 'Verbose', desc, errorChannels)
+    logVerboseToDiscord(title ? title : 'Verbose', desc, logChannels)
   }
   if (msgLevel === 'info') {
-    logInfoToDiscord(title ? title : 'Info', desc, errorChannels)
+    logInfoToDiscord(title ? title : 'Info', desc, logChannels)
   }
   if (msgLevel === 'warn') {
-    logWarnToDiscord(title ? title : 'Warning', desc, errorChannels)
+    logWarnToDiscord(title ? title : 'Warning', desc, logChannels)
   }
   if (msgLevel === 'error') {
-    logErrorToDiscord(title ? title : 'Error', desc, errorChannels)
+    logErrorToDiscord(title ? title : 'Error', desc, logChannels)
   }
 }
 

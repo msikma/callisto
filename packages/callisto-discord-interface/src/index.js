@@ -7,11 +7,11 @@ import Discord from 'discord.js'
 
 import { dbInit, getSettings } from 'callisto-util-cache'
 import { registerBotName } from 'callisto-util-misc'
+import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
 import decorateResponses from './decorator'
 import { findTasks, findAndRegisterTasks } from './task-manager'
-import { config, pkg } from './resources'
 
 export const discord = {
   client: null,
@@ -46,7 +46,7 @@ export const run = async ({ task, level, noPost = false }) => {
   discord.bot = await discord.client.fetchUser(config.CALLISTO_BOT_CLIENT_ID)
 
   // Print info about the current runtime.
-  logger.info(`callisto-bot ${pkg.version}`, true)
+  logger.info(`callisto-bot ${pkg.version}`, false)
 
   // Load single task if testing.
   let taskData
@@ -56,7 +56,7 @@ export const run = async ({ task, level, noPost = false }) => {
       logger.error(`Could not find task: callisto-task-${task}`)
       process.exit(1)
     }
-    logger.warn(`Testing with only this task: ${taskData.slug}`)
+    logger.warn(`Testing with only this task: ${taskData.slug}`, false)
   }
 
   // Get a list of all installed tasks and register them.

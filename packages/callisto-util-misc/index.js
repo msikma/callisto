@@ -5,6 +5,9 @@
 
 import rssParser from 'parse-rss'
 import vm from 'vm'
+import moment from 'moment'
+import { exec } from 'child_process'
+import { config, pkg } from './resources'
 
 let callistoName
 
@@ -12,6 +15,52 @@ let callistoName
 const mentions = new RegExp('<@[0-9]+>', 'g')
 // Splits up commands by whitespace.
 const split = new RegExp('\\S+', 'g')
+
+/**
+ * Retrieves information about the system that the code is currently running on.
+ */
+export const getSystemInfo = async () => {
+  const [branch, hash, hashFull, commits, server] = await Promise.all([
+    callExternal('git describe --all | sed s@heads/@@'),
+    callExternal('git rev-parse --short head'),
+    callExternal('git rev-parse head'),
+    callExternal('git rev-list head --count'),
+    callExternal('uname -n')
+  ])
+  const commitLink = callistoCommitURL(hashFull)
+
+  return {
+    formatted: `${branch}-${commits}`,
+    branch,
+    hash,
+    hashFull,
+    commits,
+    server,
+    commitLink
+  }
+}
+
+/**
+ * Simply returns a timestamp in the format '2018-05-23 01:09:21 +0200'.
+ */
+export const getFormattedTime = () => (
+  moment().format('Y-MM-DD HH:mm:ss ZZ')
+)
+
+/**
+ * Calls an external program and returns the result.
+ */
+const callExternal = (cmd) => (
+  new Promise((resolve, reject) => {
+    exec(cmd, (error, stdout = '', stderr = '') => {
+      if (error) return reject(stdout.trim(), stderr.trim(), error)
+      else resolve(stdout.trim(), stderr.trim())
+    })
+  })
+)
+
+// Links to a commit URL.
+export const callistoCommitURL = hash => `${pkg._callisto_commit_url}${hash}`
 
 /**
  * Promisified version of setInterval() for use with await.

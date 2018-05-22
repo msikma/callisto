@@ -1,11 +1,16 @@
 {
   "_callisto_copyright": "Copyright © Michiel Sikma, 2018. All rights reserved.\nSend questions and comments to @michielsikma on Twitter.",
+  "_callisto_commit_url": "https://bitbucket.org/msikma/callisto-bot/commits/",
   "name": "callisto-bot",
-  "version": "1.1.0",
+  "version": "1.4.2",
   "description": "A private Discord bot that periodically queries websites and posts updates.",
   "private": true,
+  "homepage": "https://bitbucket.org/msikma/callisto-bot",
   "license": "SEE LICENSE IN <readme.md>",
   "devDependencies": {
     "lerna": "^2.9.0"
+  },
+  "dependencies": {
+    "npm": "^6.0.1"
   }
 }

@@ -7,8 +7,9 @@ import moment from 'moment'
 import fs from 'fs'
 import path from 'path'
 import logger from 'callisto-util-logging'
+import { config } from 'callisto-util-misc/resources'
 
-import { config } from './resources'
+import { logCallistoBootup } from './logging'
 
 const tasks = {}
 
@@ -18,6 +19,7 @@ const tasks = {}
  */
 export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTaskData) => {
   const tasks = findTasks()
+  logCallistoBootup(tasks, singleTaskData)
   tasks.forEach(({ name, file, slug, version }) => {
     if (singleTaskData && slug !== singleTaskData.slug) {
       return
