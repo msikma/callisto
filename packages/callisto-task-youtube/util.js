@@ -9,7 +9,7 @@ import xml2js from 'xml2js'
 
 import logger from 'callisto-util-logging'
 import { findScriptData } from 'callisto-util-misc'
-import { config } from 'callisto-discord-interface/src/resources'
+import { config } from 'callisto-util-misc/resources'
 import { requestAsBrowser } from 'callisto-util-request'
 
 const parser = new xml2js.Parser()

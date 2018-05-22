@@ -7,7 +7,7 @@ import { RichEmbed } from 'discord.js'
 import path from 'path'
 
 import logger from 'callisto-util-logging'
-import { config } from 'callisto-discord-interface/src/resources'
+import { config } from 'callisto-util-misc/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'

@@ -5,6 +5,7 @@
 
 import cheerio from 'cheerio'
 import moment from 'moment'
+import { get } from 'lodash'
 import momentDurationFormatSetup from 'moment-duration-format'
 
 import logger from 'callisto-util-logging'
@@ -105,14 +106,21 @@ const findVideos = (initialData) => {
     if (!data) return false
     const id = data.videoId
     const link = videoURL(id)
+    if (!data.title) {
+      logger.warn(data)
+    }
     const title = data.title.simpleText
     const author = data.ownerText ? data.ownerText.runs[0].text : '(unknown)'
-    const views = data.viewCountText.simpleText
-    const uploadTime = data.publishedTimeText.simpleText
+
+    if (!data.viewCountText) {
+      logger.warn(data)
+    }
+    const views = get(data, 'viewCountText.simpleText', '0')
+    const uploadTime = get(data, 'publishedTimeText.simpleText', '(unknown)')
     const description = data.descriptionSnippet ? data.descriptionSnippet.runs[0].text : ''
-    const duration = data.lengthText.simpleText
-    const durationAria = data.lengthText.accessibility.accessibilityData.label
-    const imageURL = getBestThumbnail(data.thumbnail.thumbnails)
+    const duration = get(data, 'lengthText.simpleText', '(unknown)')
+    const durationAria = get(data, 'lengthText.accessibility.accessibilityData.label', '(unknown)')
+    const imageURL = getBestThumbnail(get(data, 'thumbnail.thumbnails', []))
     const badges = data.badges.map(badge => badge.metadataBadgeRenderer.label)
     const is4K = badges.indexOf('4K') !== -1
 
