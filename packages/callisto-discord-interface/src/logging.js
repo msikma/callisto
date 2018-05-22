@@ -23,6 +23,11 @@ const TASK_NAME_RE = new RegExp('([^:]+):', 'i')
 // Thumbnail we display during boot up.
 const bootupThumbnail = 'https://i.imgur.com/TugT1K5.jpg'
 
+// Include our own package. We're checking the version number against the version of the main package.
+// They should be the same, because the Discord interface is the 'main' code.
+// If there's a discrepancy, this is logged to the user.
+const interfacePkg = require('../package.json')
+
 /**
  * Sends a message to Discord on bootup. This is done after we've retrieved a list
  * of tasks, so that full information on what's running is available to the user.
@@ -48,6 +53,16 @@ export const logCallistoBootup = async (tasks, singleTaskData) => {
   embed.setColor(SUCCESS_COLOR)
 
   logChannels.forEach(c => sendMessage(c[0], c[1], null, embed))
+}
+
+/**
+ * Verifies whether the callisto-discord-interface version is identical to the
+ * main package version. Warns if they are not.
+ */
+export const checkVersion = () => {
+  const localVersion = interfacePkg.version
+  const globalVersion = pkg.version
+  logger.warn(`Version discrepancy: callisto-bot is ${globalVersion}, callisto-discord-interface is ${localVersion}`, false)
 }
 
 /**

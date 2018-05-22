@@ -11,6 +11,7 @@ import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
 import decorateResponses from './decorator'
+import { checkVersion } from './logging'
 import { findTasks, findAndRegisterTasks } from './task-manager'
 
 export const discord = {
@@ -58,6 +59,9 @@ export const run = async ({ task, level, noPost = false }) => {
     }
     logger.warn(`Testing with only this task: ${taskData.slug}`, false)
   }
+
+  // Check whether we are reporting the right version.
+  checkVersion()
 
   // Get a list of all installed tasks and register them.
   findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
