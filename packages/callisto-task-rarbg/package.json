@@ -1,8 +1,10 @@
 {
+  "_siteShort": "rarbg.to",
+  "_site": "https://rarbg.to/",
   "name": "callisto-task-rarbg",
   "private": true,
-  "version": "1.1.0",
-  "description": "Rarbg Torrents scraping task for the Callisto bot",
+  "version": "1.1.1",
+  "description": "Posts TV series updates released on Rarbg",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,8 +1,10 @@
 {
+  "_siteShort": "hiveworkscomics.com",
+  "_site": "https://hiveworkscomics.com/",
   "name": "callisto-task-hiveworks",
   "private": true,
-  "version": "1.0.1",
-  "description": "Hiveworks Comics scraping task for the Callisto bot",
+  "version": "1.0.2",
+  "description": "Posts new comics added to any configured Hiveworks Comics site",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

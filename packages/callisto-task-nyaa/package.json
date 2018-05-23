@@ -1,8 +1,10 @@
 {
+  "_siteShort": "nyaa.si",
+  "_site": "http://nyaa.si/",
   "name": "callisto-task-nyaa",
   "private": true,
-  "version": "1.0.2",
-  "description": "Nyaa scraping task for the Callisto bot",
+  "version": "1.0.3",
+  "description": "Posts torrent links to new anime and manga uploads on Nyaa.si",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

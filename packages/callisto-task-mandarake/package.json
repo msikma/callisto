@@ -1,8 +1,10 @@
 {
+  "_siteShort": "horriblesubs.info",
+  "_site": "http://horriblesubs.info/",
   "name": "callisto-task-mandarake",
   "private": true,
-  "version": "1.1.4",
-  "description": "Mandarake scraping task for the Callisto bot",
+  "version": "1.1.5",
+  "description": "Posts new items added to the Mandarake shop and its auction site",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

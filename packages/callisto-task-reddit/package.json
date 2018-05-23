@@ -1,8 +1,10 @@
 {
+  "_siteShort": "reddit.com",
+  "_site": "http://reddit.com/",
   "name": "callisto-task-reddit",
   "private": true,
-  "version": "1.2.4",
-  "description": "Reddit scraping task for the Callisto bot",
+  "version": "1.2.5",
+  "description": "Posts new topics made to specified Reddit subs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

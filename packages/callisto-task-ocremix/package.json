@@ -1,8 +1,10 @@
 {
+  "_siteShort": "ocremix.org",
+  "_site": "https://ocremix.org/",
   "name": "callisto-task-ocremix",
   "private": true,
-  "version": "1.0.2",
-  "description": "OverClocked ReMix scraping task for the Callisto bot",
+  "version": "1.0.3",
+  "description": "Posts new video game music remixes, covers and albums released on OverClocked ReMix",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

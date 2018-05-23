@@ -1,8 +1,10 @@
 {
+  "_siteShort": "parisa-comic.tumblr.com",
+  "_site": "http://parisa-comic.tumblr.com/",
   "name": "callisto-task-parisa",
   "private": true,
-  "version": "1.0.1",
-  "description": "Parisa scraping task for the Callisto bot",
+  "version": "1.0.2",
+  "description": "Posts updates to the Parisa comic",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

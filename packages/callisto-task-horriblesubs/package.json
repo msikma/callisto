@@ -1,8 +1,10 @@
 {
+  "_siteShort": "horriblesubs.info",
+  "_site": "http://horriblesubs.info/",
   "name": "callisto-task-horriblesubs",
   "private": true,
-  "version": "1.0.2",
-  "description": "HorribleSubs scraping task for the Callisto bot",
+  "version": "1.0.3",
+  "description": "Posts new torrent uploads for anime shows on HorribleSubs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

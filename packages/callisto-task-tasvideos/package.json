@@ -1,8 +1,10 @@
 {
+  "_siteShort": "tasvideos.org",
+  "_site": "http://tasvideos.org/",
   "name": "callisto-task-tasvideos",
   "private": true,
-  "version": "1.0.3",
-  "description": "TASVideos RSS parsing task for the Callisto bot",
+  "version": "1.0.4",
+  "description": "Posts new tool-assisted speedruns released on TASVideos",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

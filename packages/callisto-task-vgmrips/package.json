@@ -1,8 +1,10 @@
 {
+  "_siteShort": "vgmrips.net",
+  "_site": "http://vgmrips.net/",
   "name": "callisto-task-vgmrips",
   "private": true,
-  "version": "1.0.6",
-  "description": "VGMRips scraping task for the Callisto bot",
+  "version": "1.0.7",
+  "description": "Posts new video game soundtracks released on VGMRips",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
