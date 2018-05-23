@@ -88,6 +88,37 @@ const reportResults = (server, channel, results, file, query) => {
 }
 
 /**
+ * Reduces the length of a description. Most Youtube descriptions are gigantic.
+ * We try to reduce them to a specific paragraph.
+ */
+const shortenDescription = (desc, maxLength = 400, errorRatio = 100) => {
+  // Low and high end.
+  const low = maxLength - errorRatio
+  const high = maxLength + errorRatio
+
+  // If str is already within tolerance, leave it.
+  if (desc.length < high) {
+    return desc
+  }
+  // Split into paragraphs, then keep removing one until we reach the tolerance point.
+  // If we accidentally go too low, making a description that is too short,
+  // we'll instead add a paragraph back on and cull the description with an ellipsis.
+  const bits = desc.split('\n\n')
+  let item
+  while ((item = bits.pop()) != null) {
+    const remainder = bits.join('\n\n')
+    if (remainder.length < high && remainder.length > low) {
+      // Perfect.
+      return `${remainder}\n\n[...]`
+    }
+    if (remainder.length < high && remainder.length < low) {
+      // Too small. TODO: cut off words one at a time instead?
+      return `${[remainder, item].join('\n\n').substr(0, maxLength)} [...]`
+    }
+  }
+}
+
+/**
  * Returns a RichEmbed describing a new found item.
  * This is used for both videos from subscription files, and videos from searches.
  */
@@ -96,7 +127,7 @@ const formatMessage = (item, file = '', query = '') => {
   embed.setAuthor(`New Youtube video by ${item.author}`, ICON)
   if (item.title) embed.setTitle(embedTitle(item.title))
   if (item.description && item.description !== item.title) {
-    embed.setDescription(embedDescription(item.description))
+    embed.setDescription(embedDescription(shortenDescription(item.description)))
   }
   if (item.views) embed.addField('Views', `${item.views === '0' ? 'No views' : item.views}`)
   if (item.duration) embed.addField('Duration', `${item.duration}`)
