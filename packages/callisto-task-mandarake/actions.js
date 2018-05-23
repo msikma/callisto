@@ -46,7 +46,14 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'main'))
     }
     catch (err) {
-      logger.error(`mandarake: Caught error during regular search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
+      if (err.code === 'ENOTFOUND') {
+        logger.debug(`mandarake: Ignored ENOTFOUND error during regular search:\n${JSON.stringify(searchDetails)}`)
+      }
+      else {
+        logger.error(`mandarake: Caught error during regular search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
+        logger.warn(err)
+        logger.warn(err.code)
+      }
     }
   })
 
@@ -60,7 +67,14 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'auction'))
     }
     catch (err) {
-      logger.error(`mandarake: Caught error during auction search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
+      if (err.code === 'ENOTFOUND') {
+        logger.debug(`mandarake: Ignored ENOTFOUND error auction regular search:\n${JSON.stringify(searchDetails)}`)
+      }
+      else {
+        logger.error(`mandarake: Caught error during auction search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
+        logger.warn(err)
+        logger.warn(err.code)
+      }
     }
   })
 }
