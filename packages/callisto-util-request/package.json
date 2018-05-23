@@ -10,9 +10,6 @@
   "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "SEE LICENSE IN <readme.md>",
   "dependencies": {
-    "fake-useragent": "^1.0.1",
-    "file-cookie-store": "msikma/file-cookie-store",
-    "request-promise-native": "^1.0.5",
-    "request": "^2.83.0"
+    "requestAsBrowser": "git://github.com/msikma/requestAsBrowser#8615ccf1bcbeb86352179f86f549ec1348bc5c9a"
   }
 }
