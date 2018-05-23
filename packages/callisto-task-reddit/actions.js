@@ -29,8 +29,7 @@ export const actionSubTopics = (discordClient, user, taskConfig) => {
       }
     }
     catch (err) {
-      logger.error(`reddit: Error occurred while searching in sub ${name}, type ${type}`)
-      logger.error(err.stack)
+      logger.error(`reddit: Error occurred while searching in sub ${name}, type ${type}\n\n${err.stack}`)
     }
   })
 }
