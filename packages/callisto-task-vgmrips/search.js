@@ -5,14 +5,14 @@
 
 import cheerio from 'cheerio'
 import slugify from 'slugify'
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
 const VGMRIPS_URL = 'http://vgmrips.net/packs/latest'
 
 export const runVGMRipsSearch = async () => {
-  const html = await requestAsBrowser(VGMRIPS_URL)
+  const html = await requestURL(VGMRIPS_URL)
   const $html = cheerio.load(html)
 
   const items = findReleases($html)

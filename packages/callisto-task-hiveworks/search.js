@@ -7,7 +7,7 @@ import cheerio from 'cheerio'
 import slugify from 'slugify'
 
 import logger from 'callisto-util-logging'
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
 import { separateDateTitle, getMarkdownFromHTML, urlComic, urlArchive, getYear } from './util'
 import { id } from './index'
@@ -44,7 +44,7 @@ export const runComicSearch = async (urlBase, slug) => {
  * information from that page, e.g. its full size image and publishing date.
  */
 const getComicInfo = async (item, link) => {
-  const html = await requestAsBrowser(link)
+  const html = await requestURL(link)
   const $html = cheerio.load(html)
   return { ...item, ...findComicInfo($html) }
 }
@@ -82,7 +82,7 @@ const findComicInfo = ($) => {
  * Requests the comic's archive page HTML and returns its latest chapters.
  */
 const getLatestChapter = async (urlBase, slug) => {
-  const html = await requestAsBrowser(urlArchive(urlBase))
+  const html = await requestURL(urlArchive(urlBase))
   const $html = cheerio.load(html)
   return findLatestChapter($html, urlBase, slug)
 }

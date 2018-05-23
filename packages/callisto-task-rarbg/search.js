@@ -6,7 +6,7 @@
 import cheerio from 'cheerio'
 import slugify from 'slugify'
 
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
 import logger from 'callisto-util-logging'
 import { id } from './index'
@@ -27,7 +27,7 @@ const reportError = (html) => {
  * We check to see if we have already posted this URL. If so, null is returned.
  */
 export const findNewEpisodes = async (url, show) => {
-  const html = await requestAsBrowser(url)
+  const html = await requestURL(url)
   const showInfo = getLatestEpisodesInfo(cheerio.load(html))
   // If we didn't get any results, it means we couldn't load any HTML properly.
   if (showInfo.length === 0) return reportError(html)
@@ -56,7 +56,7 @@ export const cacheEpisode = async (episode) => (
  * If no image can be found, null is returned instead.
  */
 export const getTorrentDetails = async (url, referrer) => {
-  const html = await requestAsBrowser(url, { 'Referer': referrer })
+  const html = await requestURL(url, { 'Referer': referrer })
   const torrentInfo = getTorrentInfo(cheerio.load(html))
   if (false) return reportError(html)
   return torrentInfo
@@ -67,7 +67,7 @@ export const getTorrentDetails = async (url, referrer) => {
  * We usually get multiple links. We'll return whichever has the biggest filesize.
  */
 export const getEpisodeInfo = async (url, referrer) => {
-  const html = await requestAsBrowser(url, { 'Referer': referrer, 'X-Requested-With': 'XMLHttpRequest' })
+  const html = await requestURL(url, { 'Referer': referrer, 'X-Requested-With': 'XMLHttpRequest' })
   const bestEpisodeInfo = getBestEpisodeInfo(cheerio.load(html))
   if (false) return reportError(html)
   return bestEpisodeInfo

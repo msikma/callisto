@@ -6,7 +6,7 @@
 import cheerio from 'cheerio'
 import slugify from 'slugify'
 
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
@@ -14,7 +14,7 @@ const parseDate = new RegExp('post/([0-9]+)$')
 const parseChapterNumber = new RegExp('#([0-9]+) ')
 
 export const runSearch = async (url) => {
-  const html = await requestAsBrowser(url)
+  const html = await requestURL(url)
   const $html = cheerio.load(html)
 
   const items = findChapters($html)

@@ -10,7 +10,7 @@ import xml2js from 'xml2js'
 import logger from 'callisto-util-logging'
 import { findScriptData } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 
 const parser = new xml2js.Parser()
 
@@ -46,7 +46,7 @@ export const readSubscriptions = (url, slug) => (
 // This contains all of the video's extended information such as the description,
 // keywords, thumbnails, view count, etc.
 export const getVideoExtendedInfo = async (videoURL) => {
-  const html = await requestAsBrowser(videoURL)
+  const html = await requestURL(videoURL)
   const $html = cheerio.load(html)
   const { ytInitialPlayerResponse } = getPageInitialData($html)
   return ytInitialPlayerResponse

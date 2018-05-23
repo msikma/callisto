@@ -5,7 +5,7 @@
 
 import cheerio from 'cheerio'
 import slugify from 'slugify'
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
@@ -13,7 +13,7 @@ const VGMPF_BASE = 'http://www.vgmpf.com'
 const VGMPF_URL = 'http://www.vgmpf.com/Wiki/index.php?title=Main_Page'
 
 export const runVGMPFSearch = async () => {
-  const html = await requestAsBrowser(VGMPF_URL)
+  const html = await requestURL(VGMPF_URL)
   const $html = cheerio.load(html)
 
   const items = findReleases($html)

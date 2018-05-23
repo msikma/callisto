@@ -7,14 +7,14 @@ import cheerio from 'cheerio'
 import slugify from 'slugify'
 
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { id } from './index'
 
 const URL = 'https://ocremix.org'
 const dateTitle = new RegExp('^(.+?) \\((.+?)\\)')
 
 export const findNewItems = async () => {
-  const html = await requestAsBrowser(URL)
+  const html = await requestURL(URL)
   const $html = cheerio.load(html)
   const rawTracks = findNewTracks($html)
   const rawAlbums = findNewAlbums($html)

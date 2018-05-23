@@ -9,7 +9,7 @@ import { get } from 'lodash'
 import momentDurationFormatSetup from 'moment-duration-format'
 
 import logger from 'callisto-util-logging'
-import { requestAsBrowser } from 'callisto-util-request'
+import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { rssParse } from 'callisto-util-misc'
 import { videoURL, getVideoExtendedInfo, getPageInitialData, getBestThumbnail } from './util'
@@ -85,7 +85,7 @@ export const findNewSearchVideos = async (params, query, slug) => {
   const url = searchURL(params, query)
   const searchCacheID = `${id}$${slug}$search`
 
-  const html = await requestAsBrowser(url)
+  const html = await requestURL(url)
   const $html = cheerio.load(html)
   // Get content of the right <script> tag
   const items = findVideos(getPageInitialData($html).ytInitialData)
