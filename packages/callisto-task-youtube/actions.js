@@ -52,8 +52,7 @@ const parseSubscriptionTask = async (accountData) => {
       // Only report an error if it's something else.
       const badStatusCode = String(err).indexOf('Bad status code') > 0
       if (err !== 'no articles' && !badStatusCode) {
-        logger.error(`youtube: ${path.basename(subscriptionsFile)}: channel: ${title}: An error occurred while scraping subscription videos`)
-        logger.error(err.stack)
+        logger.error(`youtube: ${path.basename(subscriptionsFile)}: channel: ${title}: An error occurred while scraping subscription videos\n\n${err.stack}`)
       }
     }
   }
