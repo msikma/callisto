@@ -96,6 +96,9 @@ export const findTasks = () => {
     const packageData = require(`${base}${i}/package.json`)
     return {
       name: i,
+      site: packageData._site,
+      siteShort: packageData._siteShort,
+      description: packageData.description,
       version: packageData.version,
       file: `${base}${i}/index.js`,
       slug: taskSlug(i)

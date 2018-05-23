@@ -66,3 +66,19 @@ export const run = async ({ task, level, noPost = false }) => {
   // Get a list of all installed tasks and register them.
   findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
 }
+
+/**
+ * Entry point used by packages.js. This lists the packages we currently support
+ * along with a description. The output format is Markdown.
+ */
+export const listPackages = () => {
+  const tasks = findTasks()
+  const taskInfo = tasks.map(task => `| ${task.slug} | ${task.description} | [${task.site}](${task.siteShort}) |`)
+  const md = [
+    '| Name | Description | Site |',
+    '|:-----|:------------|:-----|',
+    ...taskInfo
+  ]
+  console.log(md.join('\n'))
+  process.exit(0)
+}

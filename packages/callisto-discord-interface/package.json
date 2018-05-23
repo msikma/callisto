@@ -7,7 +7,8 @@
     "lint": "cross-env NODE_PATH=./ eslint src; exit 0"
   },
   "bin": {
-    "start": "./bin/start.js"
+    "start": "./bin/start.js",
+    "packages": "./bin/packages.js"
   },
   "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "SEE LICENSE IN <readme.md>",
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "argparse": "^1.0.10",
+    "argparse-longhelp": "^1.0.3",
     "babel-eslint": "^7.2.3",
     "babel-plugin-transform-class-properties": "^6.1.0",
     "babel-plugin-transform-object-rest-spread": "^6.1.0",
