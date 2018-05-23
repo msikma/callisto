@@ -99,7 +99,7 @@ const formatMessage = (item, file = '', query = '') => {
   if (item.description && item.description !== item.title) {
     embed.setDescription(embedDescription(item.description))
   }
-  if (item.views) embed.addField('Views', `${item.views}`)
+  if (item.views) embed.addField('Views', `${item.views === '0' ? 'No views' : item.views}`)
   if (item.duration) embed.addField('Duration', `${item.duration}`)
   if (item.imageURL) embed.setImage(item.imageURL)
   if (item.link) embed.setURL(item.link)
