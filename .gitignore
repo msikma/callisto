@@ -9,6 +9,10 @@ cache/
 
 # Development files.
 _source
+_html
+_old
+_screenshots
+_wip
 
 ## Mac OS X
 
