@@ -69,7 +69,7 @@ export const checkVersion = () => {
  * Creates a bulletized list of tasks.
  */
 const bulletizeTasks = (tasks, singleTaskData) => (
-  tasks.map(t => `• ${t.name} (${t.version})${singleTaskData && singleTaskData.slug === t.slug ? ' - testing with only this task' : ''}`)
+  tasks.map(t => `• ${t.slug} (${t.version})${singleTaskData && singleTaskData.slug === t.slug ? ' - testing with only this task' : ''}`)
 )
 
 /**
