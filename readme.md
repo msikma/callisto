@@ -18,7 +18,7 @@ Node can be easily installed using [Homebrew](https://brew.sh/) or via your pack
 
 You can make a new bot by going to the [applications section](https://discordapp.com/developers/applications/me) of Discord's developer portal. You don't need to set a redirect URI.
 
-Once the bot is set up, you'll get a client ID and secret. They need to be entered into the config later, and you must keep these values secret or anyone can take over your bot. I recommend you keep the "public bot" setting off, since there's no point to Callisto being in any server other than the one it's configured to post to.
+Once the bot is set up, you'll get a client ID and secret. They need to be entered into the config later, and *you must keep these values secret* or anyone can take over your bot. I recommend you keep the "public bot" setting off, since there's no point to Callisto being in any server other than the one it's configured to post to.
 
 To add your bot to a server, visit the following link (replacing the `client_id` value with your own):
 
@@ -50,7 +50,7 @@ Currently, these tasks are available:
 |:-----|:------------|:-----|
 | hiveworks | Posts new comics added to any configured Hiveworks Comics site | [hiveworkscomics.com](https://hiveworkscomics.com/) |
 | horriblesubs | Posts new torrent uploads for anime shows on HorribleSubs | [horriblesubs.info](http://horriblesubs.info/) |
-| mandarake | Posts new items added to the Mandarake shop and its auction site | [horriblesubs.info](http://horriblesubs.info/) |
+| mandarake | Posts new items added to the Mandarake shop and its auction site | [mandarake.co.jp](http://mandarake.co.jp/) |
 | nyaa | Posts torrent links to new anime and manga uploads on Nyaa.si | [nyaa.si](http://nyaa.si/) |
 | ocremix | Posts new video game music remixes, covers and albums released on OverClocked ReMix | [ocremix.org](https://ocremix.org/) |
 | parisa | Posts updates to the Parisa comic | [parisa-comic.tumblr.com](http://parisa-comic.tumblr.com/) |
