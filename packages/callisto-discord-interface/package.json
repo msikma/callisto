@@ -25,6 +25,7 @@
     "babel-preset-env": "^1.6.0",
     "babel-register": "^6.1.0",
     "bufferutil": "^3.0.3",
+    "humanize-duration": "^3.14.0",
     "callisto-task-mandarake": "^1.0.0",
     "callisto-util-cache": "^1.0.0",
     "callisto-util-logging": "^1.0.0",

@@ -4,6 +4,7 @@
  */
 
 import { RichEmbed } from 'discord.js'
+import humanizeDuration from 'humanize-duration'
 
 import logger, { severity } from 'callisto-util-logging'
 import { embedTitle, embedDescription, embedDescriptionShort, getSystemInfo, getFormattedTime } from 'callisto-util-misc'
@@ -16,6 +17,9 @@ const VERBOSE_COLOR = 0x424555
 const INFO_COLOR = 0x17a1eb
 const WARNING_COLOR = 0xffaa02
 const ERROR_COLOR = 0xff034a
+
+// Used to keep track of uptime.
+let startTime
 
 // Used to grab the task name. TODO: just pass it on explicitly.
 const TASK_NAME_RE = new RegExp('([^:]+):', 'i')
@@ -41,6 +45,8 @@ export const logCallistoBootup = async (tasks, singleTaskData) => {
   const systemInfo = await getSystemInfo()
   const time = getFormattedTime()
 
+  startTime = +new Date()
+
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()
   embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
@@ -64,12 +70,14 @@ export const logCallistoShutdown = () => {
   const avatar = config.CALLISTO_BOT_AVATAR
   const url = pkg.homepage
   const time = getFormattedTime()
+  const uptime = (+new Date()) - startTime
+  const uptimeString = humanizeDuration(uptime, { round: true })
 
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()
   embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
   embed.setTimestamp(new Date())
-  embed.setDescription(`Callisto Bot is shutting down. Time: ${time}.`)
+  embed.setDescription(`Callisto Bot is shutting down. Time: ${time}.\nUptime: ${uptimeString}.`)
   embed.setColor(ERROR_COLOR)
 
   return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
