@@ -56,13 +56,35 @@ export const logCallistoBootup = async (tasks, singleTaskData) => {
 }
 
 /**
+ * Display a final shutdown message.
+ */
+export const logCallistoShutdown = () => {
+  const logChannels = config.CALLISTO_SETTINGS.logChannels
+
+  const avatar = config.CALLISTO_BOT_AVATAR
+  const url = pkg.homepage
+  const time = getFormattedTime()
+
+  // Create a RichEmbed to send directly to the channel.
+  const embed = new RichEmbed()
+  embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
+  embed.setTimestamp(new Date())
+  embed.setDescription(`Callisto Bot is shutting down. Time: ${time}.`)
+  embed.setColor(ERROR_COLOR)
+
+  return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
+}
+
+/**
  * Verifies whether the callisto-discord-interface version is identical to the
  * main package version. Warns if they are not.
  */
 export const checkVersion = () => {
   const localVersion = interfacePkg.version
   const globalVersion = pkg.version
-  logger.warn(`Version discrepancy: callisto-bot is ${globalVersion}, callisto-discord-interface is ${localVersion}`, false)
+  if (localVersion !== globalVersion) {
+    logger.warn(`Version discrepancy: callisto-bot is ${globalVersion}, callisto-discord-interface is ${localVersion}`, false)
+  }
 }
 
 /**

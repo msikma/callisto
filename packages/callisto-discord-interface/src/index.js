@@ -10,6 +10,7 @@ import { registerBotName } from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
+import { shutdown } from './shutdown'
 import decorateResponses from './decorator'
 import { checkVersion } from './logging'
 import { findTasks, findAndRegisterTasks } from './task-manager'
@@ -82,3 +83,8 @@ export const listPackages = () => {
   console.log(md.join('\n'))
   process.exit(0)
 }
+
+/**
+ * Listen for SIGINT and perform a graceful shutdown.
+ */
+process.on('SIGINT', shutdown)
