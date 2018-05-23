@@ -5,6 +5,7 @@
 ## Application specific
 
 config.js
+cache/
 
 # Development files.
 _source
