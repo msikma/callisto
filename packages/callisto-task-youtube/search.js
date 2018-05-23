@@ -106,15 +106,8 @@ const findVideos = (initialData) => {
     if (!data) return false
     const id = data.videoId
     const link = videoURL(id)
-    if (!data.title) {
-      logger.warn(data)
-    }
     const title = data.title.simpleText
     const author = data.ownerText ? data.ownerText.runs[0].text : '(unknown)'
-
-    if (!data.viewCountText) {
-      logger.warn(data)
-    }
     const views = get(data, 'viewCountText.simpleText', '0')
     const uploadTime = get(data, 'publishedTimeText.simpleText', '(unknown)')
     const description = data.descriptionSnippet ? data.descriptionSnippet.runs[0].text : ''
