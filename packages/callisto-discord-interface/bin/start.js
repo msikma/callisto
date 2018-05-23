@@ -14,6 +14,7 @@ addLongHelp(parser, 'To run this bot, you need to register an application in the
 parser.addArgument('--test', { help: 'Runs the bot with a single task only for testing.', dest: 'task' })
 parser.addArgument('--no-post', { help: 'Replaces Discord posting code with a no-op.', action: 'storeTrue', dest: 'noPost' })
 parser.addArgument('--log', { help: `Sets console logging level. Default: 'verbose'.`, dest: 'level', choices: ['error', 'warn', 'info', 'verbose', 'debug'], defaultValue: 'verbose' })
+parser.addArgument('--list-tasks', { help: 'Lists supported tasks in Markdown format and exits.', action: 'storeTrue' })
 // 'task' is null or a string, e.g. 'rarbg'. Do not add the 'callisto-task' part.
 // 'level' is one of the logging choices, except 'silly' because we don't use it. It's 'verbose' by default.
 const parsed = { ...parser.parseArgs() }
@@ -31,5 +32,11 @@ require('babel-register')({
   ]
 })
 
-// Fire up the main application.
-require('../src/index').run(parsed)
+if (parsed['list_tasks']) {
+  // List tasks and exit.
+  require('../src/index').listPackages()
+}
+else {
+  // Main application.
+  require('../src/index').run(parsed)
+}
