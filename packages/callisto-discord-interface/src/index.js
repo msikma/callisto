@@ -73,7 +73,7 @@ export const run = async ({ task, level, noPost = false }) => {
  */
 export const listPackages = () => {
   const tasks = findTasks()
-  const taskInfo = tasks.map(task => `| ${task.slug} | ${task.description} | [${task.site}](${task.siteShort}) |`)
+  const taskInfo = tasks.map(task => `| ${task.slug} | ${task.description} | [${task.siteShort}](${task.site}) |`)
   const md = [
     '| Name | Description | Site |',
     '|:-----|:------------|:-----|',

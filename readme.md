@@ -48,18 +48,18 @@ Currently, these tasks are available:
 
 | Name | Description | Site |
 |:-----|:------------|:-----|
-| hiveworks | Posts new comics added to any configured Hiveworks Comics site | [https://hiveworkscomics.com/](hiveworkscomics.com) |
-| horriblesubs | Posts new torrent uploads for anime shows on HorribleSubs | [http://horriblesubs.info/](horriblesubs.info) |
-| mandarake | Posts new items added to the Mandarake shop and its auction site | [http://horriblesubs.info/](horriblesubs.info) |
-| nyaa | Posts torrent links to new anime and manga uploads on Nyaa.si | [http://nyaa.si/](nyaa.si) |
-| ocremix | Posts new video game music remixes, covers and albums released on OverClocked ReMix | [https://ocremix.org/](ocremix.org) |
-| parisa | Posts updates to the Parisa comic | [http://parisa-comic.tumblr.com/](parisa-comic.tumblr.com) |
-| rarbg | Posts TV series updates released on Rarbg | [https://rarbg.to/](rarbg.to) |
-| reddit | Posts new topics made to specified Reddit subs | [http://reddit.com/](reddit.com) |
-| tasvideos | Posts new tool-assisted speedruns released on TASVideos | [http://tasvideos.org/](tasvideos.org) |
-| vgmpf | Posts new video game soundtrack releases from VGMPF | [http://www.vgmpf.com/](vgmpf.com) |
-| vgmrips | Posts new video game soundtracks released on VGMRips | [http://vgmrips.net/](vgmrips.net) |
-| youtube | Posts new videos released by specified Youtube channels and reports on new videos for search queries | [https://youtube.com/](youtube.com) |
+| hiveworks | Posts new comics added to any configured Hiveworks Comics site | [hiveworkscomics.com](https://hiveworkscomics.com/) |
+| horriblesubs | Posts new torrent uploads for anime shows on HorribleSubs | [horriblesubs.info](http://horriblesubs.info/) |
+| mandarake | Posts new items added to the Mandarake shop and its auction site | [horriblesubs.info](http://horriblesubs.info/) |
+| nyaa | Posts torrent links to new anime and manga uploads on Nyaa.si | [nyaa.si](http://nyaa.si/) |
+| ocremix | Posts new video game music remixes, covers and albums released on OverClocked ReMix | [ocremix.org](https://ocremix.org/) |
+| parisa | Posts updates to the Parisa comic | [parisa-comic.tumblr.com](http://parisa-comic.tumblr.com/) |
+| rarbg | Posts TV series updates released on Rarbg | [rarbg.to](https://rarbg.to/) |
+| reddit | Posts new topics made to specified Reddit subs | [reddit.com](http://reddit.com/) |
+| tasvideos | Posts new tool-assisted speedruns released on TASVideos | [tasvideos.org](http://tasvideos.org/) |
+| vgmpf | Posts new video game soundtrack releases from VGMPF | [vgmpf.com](http://www.vgmpf.com/) |
+| vgmrips | Posts new video game soundtracks released on VGMRips | [vgmrips.net](http://vgmrips.net/) |
+| youtube | Posts new videos released by specified Youtube channels and reports on new videos for search queries | [youtube.com](https://youtube.com/) |
 
 ## Copyright
 
