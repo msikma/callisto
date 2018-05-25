@@ -3,7 +3,7 @@
   "_site": "http://reddit.com/",
   "name": "callisto-task-reddit",
   "private": true,
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Posts new topics made to specified Reddit subs",
   "main": "index.js",
   "scripts": {

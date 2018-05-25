@@ -3,7 +3,7 @@
   "_site": "http://tasvideos.org/",
   "name": "callisto-task-tasvideos",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Posts new tool-assisted speedruns released on TASVideos",
   "main": "index.js",
   "scripts": {

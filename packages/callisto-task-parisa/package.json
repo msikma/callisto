@@ -3,7 +3,7 @@
   "_site": "http://parisa-comic.tumblr.com/",
   "name": "callisto-task-parisa",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Posts updates to the Parisa comic",
   "main": "index.js",
   "scripts": {
