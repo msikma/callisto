@@ -4,8 +4,8 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import moment from 'moment'
 
+import { getFormattedDate } from 'callisto-util-misc'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { runSearch } from './search'
 import { color } from './index'
@@ -30,7 +30,7 @@ const formatMessage = (item) => {
   embed.setTitle(`Chapter #${item.chapterNumber}`)
   embed.setImage(item.image)
   embed.setURL(item.link)
-  embed.setFooter(`Posted on ${moment(item.pubTime).format('MMMM D, YYYY')}`)
+  embed.setFooter(`Posted on ${getFormattedDate(item.pubTime)}`)
   embed.setColor(color)
   return embed
 }

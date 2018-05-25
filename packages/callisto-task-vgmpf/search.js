@@ -4,9 +4,10 @@
  */
 
 import cheerio from 'cheerio'
-import slugify from 'slugify'
+
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
+import { slugify } from 'callisto-util-misc'
 import { id } from './index'
 
 const VGMPF_BASE = 'http://www.vgmpf.com'

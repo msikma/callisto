@@ -4,14 +4,12 @@
  */
 
 import cheerio from 'cheerio'
-import moment from 'moment'
 import { get } from 'lodash'
-import momentDurationFormatSetup from 'moment-duration-format'
 
 import logger from 'callisto-util-logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import { rssParse } from 'callisto-util-misc'
+import { rssParse, getExactDuration } from 'callisto-util-misc'
 import { videoURL, getVideoExtendedInfo, getPageInitialData, getBestThumbnail } from './util'
 import { id } from './index'
 
@@ -19,10 +17,6 @@ import { id } from './index'
 const searchURL = (params, query) => (
   `https://www.youtube.com/results?sp=${params}&search_query=${encodeURIComponent(query)}`
 )
-
-// Extend Moment to be able to format durations.
-// See <https://github.com/jsmreese/moment-duration-format>.
-momentDurationFormatSetup(moment)
 
 /**
  * Runs a search for new videos from a subscriptions RSS file.
@@ -63,7 +57,7 @@ const addExtendedInfo = (rssItems) => (
     resolve({
       ...entry,
       imageURL: entry.image.url,
-      duration: moment.duration({ seconds: lengthSeconds }).format(),
+      duration: getExactDuration(lengthSeconds),
       description,
       thumbnails,
       keywords,

@@ -28,19 +28,35 @@ https://discordapp.com/api/oauth2/authorize?client_id=1234&scope=bot&permissions
 
 ### Setup
 
-This project is a monorepo managed via [Lerna](https://lernajs.io/), which should be installed globally first. To install dependencies, run Lerna's bootstrap command:
+Install the bot via npm:
 
-    lerna bootstrap
+    npm i -g callisto-bot
 
-Now you need to setup your config file. Copy `config.example.js` to `config.js` and fill in the missing data, including the client ID and secret you got when you registered your bot.
+Now you need to setup your config file. Callisto will look for your config file in `~/.config/callisto/config.js` as per the XDG specification. Copy [`config.example.js`](https://bitbucket.org/msikma/callisto-bot/src/master/config.md) to `config.js` and fill in the missing data, including the client ID and secret you got when you registered your bot.
 
-You will need to setup *task settings* for each task you want to run. Each task has an example task settings file that you can copy and edit.
+You will need to setup *task settings* for each task you want to run. Each task has an example task settings file that you can copy and edit. Look in the subdirectories in [`packages`](https://bitbucket.org/msikma/callisto-bot/src/master/packages/) to find them.
 
 After that, you should be able to run the bot:
 
-    ./start.js
+    callisto.js
 
-This will start the bot and allow it to start responding to user input in the channels you've invited it to.
+This will start the bot and allow it to start responding to user input in the channels you've invited it to. Press `CTRL+C` to quit.
+
+### Development
+
+Installing the project for development purposes is a little more involved. This project is a monorepo managed via [Lerna](https://lernajs.io/), which should be installed globally first. We also need to install dependencies in the root package. Finally, we use [hoisting](https://github.com/lerna/lerna/blob/master/doc/hoist.md) to simplify the modules structure.
+
+Run the following commands in order:
+
+    npm i
+    lerna bootstrap
+    lerna bootstrap --hoist
+
+Finally, we need to manually link the CLI tool:
+
+    npm link
+
+Now our local `bin/callisto.js` is on the path.
 
 ## Tasks
 

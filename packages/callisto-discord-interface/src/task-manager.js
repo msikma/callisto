@@ -3,10 +3,10 @@
  * Copyright © 2018, Michiel Sikma
  */
 
-import moment from 'moment'
 import fs from 'fs'
 import path from 'path'
 import logger from 'callisto-util-logging'
+import { getSimpleDuration } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 
 import { logCallistoBootup } from './logging'
@@ -58,7 +58,7 @@ const startTimedTasks = (discordClient, user, taskConfig) => {
       return
     }
     t.scheduledActions.forEach(a => {
-      logger.verbose(`Task: ${t.id}: ${a[1]} (delay: ${moment.duration(a[0]).humanize()}${a[3] ? ', runs on boot' : ''})`)
+      logger.verbose(`Task: ${t.id}: ${a[1]} (delay: ${getSimpleDuration(a[0])}${a[3] ? ', runs on boot' : ''})`)
       discordClient.setInterval(safeCall(a[2]), a[0], discordClient, user, taskConfig[t.id], t.id)
 
       // If the fourth item is set to true, we'll run the code right away instead of waiting.

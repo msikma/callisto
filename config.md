@@ -1,3 +1,8 @@
+### Config example
+
+Place this file in `~/.config/callisto/config.js` and edit it. You will need to add *task settings* as well for any of them to work. Even though your config file is a plain JS file, it should only contain plain objects, arrays, numbers and strings.
+
+```js
 const EXAMPLE_SERVER = '8342'
 const EXAMPLE_GENERAL_CHANNEL = '1234'
 const EXAMPLE_LOG_CHANNEL = '21334'
@@ -27,3 +32,6 @@ module.exports = {
     // Add task settings here.
   }
 }
+```
+
+You can use `<%base%>` to represent Callisto's installation directory. To refer to the config directory in your home dir, use `<%config%>`.

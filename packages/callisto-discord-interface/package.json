@@ -2,46 +2,21 @@
   "name": "callisto-discord-interface",
   "version": "1.4.4",
   "private": true,
-  "main": "index.js",
-  "scripts": {
-    "lint": "cross-env NODE_PATH=./ eslint src; exit 0"
-  },
+  "main": "src/index.js",
   "bin": {
-    "start": "./bin/start.js",
-    "packages": "./bin/packages.js"
+    "start": "./bin/start.js"
   },
   "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "SEE LICENSE IN <readme.md>",
   "devDependencies": {
-    "argparse": "^1.0.9"
   },
   "dependencies": {
     "argparse": "^1.0.10",
     "argparse-longhelp": "^1.0.3",
-    "babel-eslint": "^7.2.3",
-    "babel-plugin-transform-class-properties": "^6.1.0",
-    "babel-plugin-transform-object-rest-spread": "^6.1.0",
-    "babel-polyfill": "^6.1.0",
-    "babel-preset-env": "^1.6.0",
     "babel-register": "^6.1.0",
-    "bufferutil": "^3.0.3",
-    "humanize-duration": "^3.14.0",
-    "callisto-task-mandarake": "^1.0.0",
     "callisto-util-cache": "^1.0.0",
     "callisto-util-logging": "^1.0.0",
-    "callisto-util-misc": "^1.0.0",
-    "cross-env": "^4.0.0",
-    "discord.js": "^11.3.0",
-    "erlpack": "^0.1.2",
-    "eslint-config-airbnb": "^15.1.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^5.1.0",
-    "eslint-plugin-react": "^7.2.0",
-    "eslint": "^4.4.1",
-    "lodash": "^4.0.0",
-    "include-path": "^0.4.7",
-    "moment": "^2.21.0",
-    "regenerator-runtime": "^0.10.5",
-    "uws": "^9.14.0"
+    "callisto-util-misc": "^1.4.0",
+    "include-path": "^0.4.7"
   }
 }

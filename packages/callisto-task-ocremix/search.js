@@ -4,10 +4,10 @@
  */
 
 import cheerio from 'cheerio'
-import slugify from 'slugify'
 
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { requestURL } from 'callisto-util-request'
+import { slugify } from 'callisto-util-misc'
 import { id } from './index'
 
 const URL = 'https://ocremix.org'

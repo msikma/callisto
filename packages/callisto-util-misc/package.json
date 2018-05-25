@@ -11,6 +11,9 @@
   "license": "SEE LICENSE IN <readme.md>",
   "dependencies": {
     "parse-rss": "^1.0.3",
-    "moment": "^2.0.0"
+    "humanize-duration": "^3.14.0",
+    "moment": "^2.0.0",
+    "moment-duration-format": "^2.0.0",
+    "slugify": "^1.2.9"
   }
 }

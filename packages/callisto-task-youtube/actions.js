@@ -29,7 +29,7 @@ export const actionSearchUpdates = (discordClient, user, taskConfig) => {
  * Find new subscription videos.
  */
 const parseSubscriptionTask = async (accountData) => {
-  const subscriptionsFile = accountData.subscriptions.replace('<%base%>', config.CALLISTO_BASE_DIR)
+  const subscriptionsFile = accountData.subscriptions
   const subscriptionData = await readSubscriptions(subscriptionsFile, accountData.slug)
   logger.debug(`youtube: ${accountData.slug}: Iterating through subscriptions`)
   const subscriptions = subscriptionData.opml.body[0].outline[0].outline.map(n => n.$)

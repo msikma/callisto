@@ -4,11 +4,10 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import moment from 'moment'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { setCookies } from 'callisto-util-request'
-import { wait, embedTitle } from 'callisto-util-misc'
+import { wait, embedTitle, getFormattedDate } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { findNewEpisodes, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
 import { color } from './index'
@@ -99,6 +98,6 @@ const formatMessage = (item, show, urlDetails, urlTVGuide) => {
   embed.addField('Download', `• [${item.filename}](${torrentURL})\n• [Full list of episodes](${urlTVGuide})`)
   embed.setURL(urlDetails)
   embed.setColor(show.color || color)
-  embed.setFooter(`Air date: ${moment(item.releaseDate).format('MMMM D, YYYY')}`)
+  embed.setFooter(`Air date: ${getFormattedDate(item.releaseDate)}`)
   return embed
 }

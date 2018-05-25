@@ -14,10 +14,9 @@
   "devDependencies": {
   },
   "dependencies": {
-    "discord.js": "^11.3.0",
     "cheerio": "^1.0.0-rc.2",
-    "moment": "^2.21.0",
-    "slugify": "^1.2.9",
-    "callisto-util-misc": "^1.0.0"
+    "callisto-util-cache": "^1.1.0",
+    "callisto-util-logging": "^1.3.0",
+    "callisto-util-misc": "^1.4.0"
   }
 }

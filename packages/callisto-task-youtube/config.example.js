@@ -12,12 +12,14 @@ module.exports = {
       subscriptions: [
         {
           slug: 'dada78641',
-          subscriptions: '<%base%>/yt-dada78641.xml',
+          // To keep your xml files inside your home config folder,
+          // prefix your files with <%config%> and trailing slash.
+          subscriptions: '<%config%>/yt-dada78641.xml',
           target: [[MY_SERVER, CHANNEL_YOUTUBE]]
         },
         {
           slug: 'dada78641-news',
-          subscriptions: '<%base%>/yt-dada78641-news.xml',
+          subscriptions: '<%config%>/yt-dada78641-news.xml',
           target: [[MY_SERVER, CHANNEL_NEWS]]
         }
       ],

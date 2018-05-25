@@ -4,10 +4,16 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import humanizeDuration from 'humanize-duration'
 
 import logger, { severity } from 'callisto-util-logging'
-import { embedTitle, embedDescription, embedDescriptionShort, getSystemInfo, getFormattedTime } from 'callisto-util-misc'
+import {
+  embedDescription,
+  embedDescriptionShort,
+  embedTitle,
+  getDuration,
+  getFormattedTime,
+  getSystemInfo
+} from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
 import { sendMessage } from './responder'
 
@@ -71,7 +77,7 @@ export const logCallistoShutdown = () => {
   const url = pkg.homepage
   const time = getFormattedTime()
   const uptime = (+new Date()) - startTime
-  const uptimeString = humanizeDuration(uptime, { round: true })
+  const uptimeString = getDuration(uptime)
 
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()

@@ -1,3 +1,8 @@
+/**
+ * Callisto - callisto-discord-interface <https://bitbucket.org/msikma/callisto-bot>
+ * Copyright © 2018, Michiel Sikma
+ */
+
 const fs = require('fs')
 const path = require('path')
 const ArgumentParser = require('argparse').ArgumentParser

@@ -7,6 +7,9 @@ import rssParser from 'parse-rss'
 import vm from 'vm'
 import moment from 'moment'
 import { exec } from 'child_process'
+import humanizeDuration from 'humanize-duration'
+import momentDurationFormatSetup from 'moment-duration-format'
+
 import { config, pkg } from './resources'
 
 let callistoName
@@ -15,6 +18,10 @@ let callistoName
 const mentions = new RegExp('<@[0-9]+>', 'g')
 // Splits up commands by whitespace.
 const split = new RegExp('\\S+', 'g')
+
+// Extend Moment to be able to format durations.
+// See <https://github.com/jsmreese/moment-duration-format>.
+momentDurationFormatSetup(moment)
 
 /**
  * Retrieves information about the system that the code is currently running on.
@@ -39,6 +46,37 @@ export const getSystemInfo = async () => {
     commitLink
   }
 }
+
+// Export slugify directly.
+export { default as slugify } from 'slugify'
+
+/**
+ * Returns a formatted date.
+ */
+export const getFormattedDate = (dateObject) => (
+  moment(dateObject).format('MMMM D, YYYY')
+)
+
+/**
+ * Returns an exact duration.
+ */
+export const getExactDuration = (seconds) => (
+  moment.duration({ seconds }).format()
+)
+
+/**
+ * Returns a duration, e.g. '1 day, 43 minutes, 31 seconds'
+ */
+export const getDuration = (time) => (
+  humanizeDuration(time, { round: true })
+)
+
+/**
+ * Returns a simplified humanized duration, e.g. '1 hour'.
+ */
+export const getSimpleDuration = (time) => (
+  moment.duration(time).humanize()
+)
 
 /**
  * Simply returns a timestamp in the format '2018-05-23 01:09:21 +0200'.

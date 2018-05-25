@@ -4,7 +4,8 @@
  */
 
 import cheerio from 'cheerio'
-import slugify from 'slugify'
+
+import { slugify } from 'callisto-util-misc'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'

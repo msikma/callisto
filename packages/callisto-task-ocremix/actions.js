@@ -4,11 +4,10 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import moment from 'moment'
 
 import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription } from 'callisto-util-misc'
+import { embedTitle, embedDescription, getFormattedDate } from 'callisto-util-misc'
 import { findNewItems } from './search'
 import { color } from './index'
 
@@ -65,7 +64,7 @@ const formatMessageTrack = (item) => {
   embed.setURL(item.link)
   embed.addField('Author', item.artist.artistName)
   embed.addField('Game', item.game.gameName)
-  embed.setFooter(`Published on ${moment(item.pubDate).format('MMMM D, YYYY')}`)
+  embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
   embed.setColor(color)
   return embed
 }
@@ -79,7 +78,7 @@ const formatMessageAlbum = (item) => {
   embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.setURL(item.link)
-  embed.setFooter(`Published on ${moment(item.pubDate).format('MMMM D, YYYY')}`)
+  embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
   embed.setColor(color)
   return embed
 }

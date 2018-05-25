@@ -4,11 +4,10 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import moment from 'moment'
 
 import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription } from 'callisto-util-misc'
+import { embedTitle, embedDescription, getFormattedDate } from 'callisto-util-misc'
 import { runComicSearch } from './search'
 import { color } from './index'
 
@@ -39,7 +38,7 @@ const formatMessage = (item, comic) => {
   if (item.image) embed.setImage(item.image)
   if (item.description) embed.setDescription(embedDescription(item.description))
   embed.setURL(item.link)
-  embed.setFooter(`Posted on ${moment(new Date(item.date)).format('MMMM D, YYYY')}`)
+  embed.setFooter(`Posted on ${getFormattedDate(new Date(item.date))}`)
   embed.setColor(comic.color || color)
   return embed
 }

@@ -4,7 +4,6 @@
  */
 
 import cheerio from 'cheerio'
-import slugify from 'slugify'
 
 import logger from 'callisto-util-logging'
 import { requestURL } from 'callisto-util-request'
