@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [120000, 'find new topics on Reddit', actionSubTopics, true]
+  { delay: 120000, desc: 'find new topics on Reddit', fn: actionSubTopics, runOnBoot: true, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

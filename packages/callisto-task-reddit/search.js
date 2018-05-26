@@ -8,16 +8,16 @@ import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
 export const findNewTopics = async (sub, type) => {
-  const items = await findTopics(sub, type)
-  if (items.length === 0) return []
+  const results = await findTopics(sub, type)
+  if (results.items.length === 0) return results
 
   // Caching ID specific to this subreddit.
   const accountCacheID = `${id}$${sub}`
-  const newItems = await removeCached(accountCacheID, items)
+  const newItems = await removeCached(accountCacheID, results.items)
 
   // Add the remaining items to the database.
   cacheItems(accountCacheID, newItems)
 
   // Now we can send these results to the channel.
-  return newItems
+  return { ...results, items: newItems }
 }

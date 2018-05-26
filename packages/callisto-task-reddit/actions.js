@@ -8,7 +8,7 @@ import { RichEmbed } from 'discord.js'
 import logger from 'callisto-util-logging'
 import { config } from 'callisto-util-misc/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription } from 'callisto-util-misc'
+import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { findNewTopics } from './search'
 import { color } from './index'
 
@@ -19,17 +19,22 @@ const REDDIT_ICON = 'https://i.imgur.com/pWjcLbF.png'
  * Find new topics on Reddit.
  */
 export const actionSubTopics = (discordClient, user, taskConfig) => {
-  taskConfig.subs.forEach(async ({ name, type, target }) => {
-    logger.debug(`reddit: Searching for updates from sub ${name}, type ${type}`)
+  taskConfig.subs.forEach(async ({ name, type, target }, i) => {
+    // Stagger the searches a bit.
+    await wait(i * 5000)
+    logger.debug(`reddit: Searching for updates from sub ${name}, type ${type} (wait: ${i * 5000})`)
     try {
       const results = await findNewTopics(name, type)
-      if (results.length) {
-        logger.debug(`reddit: Found ${results.length} item(s) in sub ${name}, type ${type}`)
-        target.forEach(t => reportResults(t[0], t[1], results, name))
+      if (results.items.length) {
+        logger.debug(`reddit: Found ${results.items.length} item(s) in sub: ${name}, type: ${type}, url: ${results.url}`)
+        target.forEach(t => reportResults(t[0], t[1], results.items, name))
       }
     }
     catch (err) {
-      logger.error(`reddit: Error occurred while searching in sub ${name}, type ${type}\n\n${err.stack}`)
+      if (err.error) {
+        return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}, url: ${err.url}\n\n${err.error.stack}`)
+      }
+      return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}\n\n${err.stack}`)
     }
   })
 }
