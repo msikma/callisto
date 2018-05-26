@@ -28,6 +28,8 @@ const replaceMagic = (obj, baseStr, configStr) => {
   if (isString(obj)) {
     return replaceMagicString(obj, baseStr, configStr)
   }
+  // Return anything else - probably a number.
+  return obj
 }
 
 // Handles the actual string replacement.

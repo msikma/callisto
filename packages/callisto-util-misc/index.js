@@ -5,7 +5,9 @@
 
 import rssParser from 'parse-rss'
 import vm from 'vm'
+import util from 'util'
 import moment from 'moment'
+import { isNil, omitBy } from 'lodash'
 import { exec } from 'child_process'
 import humanizeDuration from 'humanize-duration'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -83,6 +85,22 @@ export const getSimpleDuration = (time) => (
  */
 export const getFormattedTime = () => (
   moment().format('Y-MM-DD HH:mm:ss ZZ')
+)
+
+/**
+ * Returns a string representing an object (or array).
+ * This is a better way to print objects than JSON.stringify().
+ */
+export const objectInspect = (obj, noNil = false) => (
+  util.inspect(noNil ? removeNil(obj) : obj, { showHidden: false, depth: 6 })
+)
+
+/**
+ * Removes null and undefined from objects.
+ * Useful for cleaning up objects before printing/inspecting them.
+ */
+export const removeNil = (obj) => (
+  omitBy(obj, isNil)
 )
 
 /**
