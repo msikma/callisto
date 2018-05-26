@@ -6,7 +6,7 @@
 import fs from 'fs'
 import path from 'path'
 import logger from 'callisto-util-logging'
-import { getSimpleDuration } from 'callisto-util-misc'
+import { getSimpleDuration, wait } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 
 import { logCallistoBootup } from './logging'
@@ -41,10 +41,43 @@ export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTask
 const safeCall = (fn) => (discordClient, user, taskConfig, taskID) => {
   try {
     logger.debug(`Running task ${taskID}`)
-    fn.call(this, discordClient, user, taskConfig)
+    return fn.call(this, discordClient, user, taskConfig)
   }
   catch (err) {
-    logger.error(`Task ${taskID} has thrown an exception:\n${err.stack}`)
+    logger.error(`Task ${taskID} has thrown an exception:\n\n${err.stack}`)
+  }
+}
+
+/**
+ * Awaits a promise's resolution and then schedules another one per the given delay.
+ */
+const loopPromise = async (fn, delay, args) => {
+  await wait(delay)
+  await fn(...args)
+  loopPromise(fn, delay, args)
+}
+
+/**
+ * Calls the argument if it is a function, or waits for it to complete if it's a promise.
+ * This allows us to return plain functions from tasks and run them normally,
+ * or return promises from tasks which run once and only get queued for re-running
+ * after they have completely finished.
+ *
+ * New tasks should always be functions that return promises that resolve when all the work is finished.
+ */
+const scheduleTaskLoop = async (fn, type, delay, discordClient, args) => {
+  if (['Promise', 'Function'].indexOf(type) === -1) {
+    throw new TypeError(`Invalid task type: must be one of {Promise, Function} (received: ${type})`)
+  }
+
+  if (type === 'Promise') {
+    // Set up a loop that awaits the Promise's resolution, then queues another one.
+    loopPromise(safeCall(fn), delay, args)
+  }
+  if (type === 'Function') {
+    // Call the function normally in a setInterval().
+    // The interval should be long enough to cover the function's execution time and a fair delay.
+    discordClient.setInterval(safeCall(fn), delay, ...args)
   }
 }
 
@@ -54,18 +87,25 @@ const safeCall = (fn) => (discordClient, user, taskConfig, taskID) => {
 const startTimedTasks = (discordClient, user, taskConfig) => {
   logger.info('Starting timed actions.')
   Object.values(tasks).forEach(t => {
-    if (!t.scheduledActions.length) {
-      return
-    }
+    if (!t.scheduledActions.length) return
     t.scheduledActions.forEach(a => {
-      logger.verbose(`Task: ${t.id}: ${a[1]} (delay: ${getSimpleDuration(a[0])}${a[3] ? ', runs on boot' : ''})`)
-      discordClient.setInterval(safeCall(a[2]), a[0], discordClient, user, taskConfig[t.id], t.id)
+      logger.verbose(`Task: ${t.id}: ${a.desc} (delay: ${getSimpleDuration(a.delay)}, type: ${a.type}${a.runOnBoot ? ', runs on boot' : ''})`)
 
-      // If the fourth item is set to true, we'll run the code right away instead of waiting.
-      // Useful for making sure tasks with long delays at least run once on bot bootup.
-      if (a[3]) {
-        logger.debug(`Calling task at startup: ${t.id}`)
-        safeCall(a[2]).call(null, discordClient, user, taskConfig[t.id], t.id)
+      try {
+        // Tasks can return either a function, or a promise. If it's a function,
+        // we will queue it with a simple setInterval(). If it's a promise,
+        // we'll run it, wait for it to finish, and then queue the next one.
+        scheduleTaskLoop(a.fn, a.type, a.delay, discordClient, [discordClient, user, taskConfig[t.id], t.id])
+
+        // If the fourth item is set to true, we'll run the code right away instead of waiting.
+        // Useful for making sure tasks with long delays at least run once on bot bootup.
+        if (a.runOnBoot) {
+          logger.debug(`Calling task at startup: ${t.id}`)
+          safeCall(a.fn).call(null, discordClient, user, taskConfig[t.id], t.id)
+        }
+      }
+      catch (err) {
+        logger.error(`Could not run ${t.name} task ("${a.desc}"):\n\n${err.stack}`)
       }
     })
   })
