@@ -140,7 +140,7 @@ const getQueueSpot = () => {
  *
  * This mimics a browser request to ensure we don't hit an anti-bot wall.
  */
-export const requestURL = (url, extraHeaders = {}, gzip = true) => {
-  const req = makeQueuedRequest(url, cookieJar.jar, extraHeaders, gzip, REQUEST_TRIES, WAIT_PERIOD)
+export const requestURL = async (url, extraHeaders = {}, gzip = true) => {
+  const req = await makeQueuedRequest(url, cookieJar.jar, extraHeaders, gzip, REQUEST_TRIES, WAIT_PERIOD)
   return req.body
 }
