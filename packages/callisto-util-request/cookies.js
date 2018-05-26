@@ -3,17 +3,21 @@
  * Copyright © 2018, Michiel Sikma
  */
 
+import request from 'request'
 import { loadCookieFile as loadCookieFileReq, requestCookie } from 'requestAsBrowser'
 
 // Keep our cookies globally available.
 const cookieJar = {
-  jar: null
+  jar: request.jar()
 }
 
 /**
  * Allow setting individual cookies manually, rather than loading a file.
  */
 export const setCookies = (cookieStrings, url) => {
+  if (cookieJar.jar == null) {
+    cookieJar.jar = request.jar()
+  }
   cookieStrings.forEach(cookieStr => cookieJar.jar.setCookie(requestCookie(cookieStr), url))
 }
 

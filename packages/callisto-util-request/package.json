@@ -1,7 +1,7 @@
 {
   "name": "callisto-util-request",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Small helper package for requesting HTML like a real browser request",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "license": "SEE LICENSE IN <readme.md>",
   "dependencies": {
     "uuid4": "^1.0.0",
+    "request": "^2.87.0",
     "requestAsBrowser": "git://github.com/msikma/requestAsBrowser#8615ccf1bcbeb86352179f86f549ec1348bc5c9a",
     "callisto-util-misc": "^1.4.0"
   }
