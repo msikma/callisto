@@ -5,11 +5,11 @@
 
 import winston, { createLogger, transports, format } from 'winston'
 import chalk from 'chalk'
-import util from 'util'
 import mkdirp from 'mkdirp'
 import { isObject, isArray, isString } from 'lodash'
 export { default as severity } from './severity'
 
+import { objectInspect } from 'callisto-util-misc'
 import { logToDiscord } from 'callisto-discord-interface/src/logging'
 
 let configuredLogger = false
@@ -61,7 +61,7 @@ const logObjectToString = (object) => {
     return { string: object, type: 'string' }
   }
   else if (isObject(object) || isArray(object)) {
-    return { string: util.inspect(object, { showHidden: false, depth: 6 }), type: 'object' };
+    return { string: objectInspect(object), type: 'object' };
   }
 }
 
