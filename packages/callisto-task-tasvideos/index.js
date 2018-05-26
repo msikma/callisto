@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [480000, 'find new TASes from TASVideos', actionSearchUpdates, true]
+  { delay: 480000, desc: 'find new TASes from TASVideos', fn: actionSearchUpdates, runOnBoot: true, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

@@ -11,7 +11,7 @@ const name = 'Parisa'
 const formats = []
 const triggerActions = []
 const scheduledActions = [
-  [1800000, 'find new Parisa chapters', actionNewChapters, true]
+  { delay: 1800000, desc: 'find new Parisa chapters', fn: actionNewChapters, runOnBoot: true, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

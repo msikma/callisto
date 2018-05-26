@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [120000, 'run Nyaa.si searches', actionRunSearches]
+  { delay: 120000, desc: 'run Nyaa.si searches', fn: actionRunSearches, runOnBoot: false, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

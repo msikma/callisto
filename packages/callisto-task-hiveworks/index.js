@@ -11,7 +11,7 @@ const name = 'Hiveworks Comics'
 const formats = []
 const triggerActions = []
 const scheduledActions = [
-  [1800000, 'find new Hiveworks Comics chapters for various webcomics', actionNewChapters, true]
+  { delay: 1800000, desc: 'find new Hiveworks Comics chapters for various webcomics', fn: actionNewChapters, runOnBoot: true, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

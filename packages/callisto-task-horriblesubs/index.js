@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [240000, 'run HorribleSubs searches', actionRunSearches]
+  { delay: 240000, desc: 'run HorribleSubs searches', fn: actionRunSearches, runOnBoot: false, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

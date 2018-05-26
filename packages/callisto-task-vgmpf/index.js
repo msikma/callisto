@@ -17,7 +17,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [1800000, 'find new soundtrack releases from VGMPF', actionRecentReleases]
+  { delay: 1800000, desc: 'find new soundtrack releases from VGMPF', fn: actionRecentReleases, runOnBoot: false, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {

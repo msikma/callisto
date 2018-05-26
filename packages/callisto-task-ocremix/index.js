@@ -12,7 +12,7 @@ export const color = 0xf36b00
 const formats = []
 const triggerActions = []
 const scheduledActions = [
-  [120000, 'find new albums and single tracks on OCReMix', actionRemixes, true]
+  { delay: 240000, desc: 'find new albums and single tracks on OCReMix', fn: actionRemixes, runOnBoot: true, type: 'Function' }
 ]
 
 export const getTaskInfo = () => {
