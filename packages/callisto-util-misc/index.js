@@ -7,7 +7,7 @@ import rssParser from 'parse-rss'
 import vm from 'vm'
 import util from 'util'
 import moment from 'moment'
-import { isNil, omitBy } from 'lodash'
+import { isNil, omit, omitBy } from 'lodash'
 import { exec } from 'child_process'
 import humanizeDuration from 'humanize-duration'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -101,6 +101,14 @@ export const objectInspect = (obj, noNil = false) => (
  */
 export const removeNil = (obj) => (
   omitBy(obj, isNil)
+)
+
+/**
+ * Remove the values from an object that are the same in another object.
+ * Useful for removing the default values from a configuration object that extended the defaults.
+ */
+export const removeDefaults = (details, defaults) => (
+  omit(details, Object.keys(details).filter(n => details[n] === defaults[n]))
 )
 
 /**
