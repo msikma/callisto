@@ -5,8 +5,9 @@
 
 import { RichEmbed } from 'discord.js'
 
+import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle } from 'callisto-util-misc'
+import { embedTitle, wait } from 'callisto-util-misc'
 import { runNyaaSearch } from './search'
 import * as categories from './categories'
 import * as filters from './filters'
@@ -38,7 +39,9 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
   const { defaultDetails, defaultTarget } = taskConfig
 
   // Run through each of our searches and fire off a query.
-  taskConfig.searches.forEach(async ({ details, target }) => {
+  taskConfig.searches.forEach(async ({ details, target }, i) => {
+    // Stagger our searches a bit.
+    await wait(i * 5000)
     // Only perform the search if the details have been set.
     if (!details) return false
     const msgTarget = target ? target : defaultTarget
@@ -48,10 +51,16 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
     // 'result' contains everything needed to send a message to the user.
     // Previously reported items have already been removed, and the items
     // we found have been added to the cache.
-    const results = await runNyaaSearch(url)
+    try {
+      const results = await runNyaaSearch(url)
+      logger.debug(`nyaa: Found ${results.length} item(s) for query: ${searchDetails.query}, filter: ${searchDetails.filter}, category: ${searchDetails.category}, url: ${url}`)
 
-    // Now we just send these results to every channel we configured.
-    msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails))
+      // Now we just send these results to every channel we configured.
+      msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails))
+    }
+    catch (err) {
+      return logger.error(`nyaa: Error occurred while searching in sub: ${name}, type: ${type}\n\n${err.stack}`)
+    }
   })
 }
 
