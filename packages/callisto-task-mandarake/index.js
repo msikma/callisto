@@ -24,7 +24,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  [120000, 'run Mandarake searches', actionRunSearches, true]
+  { delay: 120000, desc: 'run Mandarake searches', fn: actionRunSearches, runOnBoot: false, type: 'Promise' }
 ]
 
 export const getTaskInfo = () => {

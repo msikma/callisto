@@ -5,10 +5,10 @@
 
 import { RichEmbed } from 'discord.js'
 import { mainCategories, shops } from 'mdrscr'
-import { uniq } from 'lodash'
+import { uniq, get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle } from 'callisto-util-misc'
+import { embedTitle, wait, objectInspect, removeDefaults } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { runMandarakeSearch, runMandarakeAuctionSearch } from './search'
 import { color, colorAuctions } from './index'
@@ -28,55 +28,75 @@ const MANDARAKE_MAIN_ICON = 'https://i.imgur.com/30I7Ir1.png'
 const MANDARAKE_EKIZO_ICON = 'https://i.imgur.com/KsL3wSY.png'
 
 /**
- * Runs Mandarake searches.
+ * Wraps the search code in a single promise.
  */
-export const actionRunSearches = (discordClient, user, taskConfig) => {
+export const actionRunSearches = async (discordClient, user, taskConfig) => {
+  await actionSearch(discordClient, user, taskConfig)
+}
+
+/**
+ * Runs Mandarake searches. Always resolves.
+ */
+const actionSearch = async (discordClient, user, taskConfig) => {
+  const mainSearches = get(taskConfig.main, 'searches', [])
+  const auctionSearches = get(taskConfig.auction, 'searches', [])
+
+  const mainDefaults = taskConfig.main.defaultDetails
+
   // Runs the main searches.
-  taskConfig.main && taskConfig.main.searches.forEach(async ({ details, target, lang }) => {
+  await Promise.all(mainSearches.map(async ({ details, target, lang }, i) => {
     // Only perform the search if the details have been set.
     if (!details) return false
+    // Search staggering.
+    const waitingTime = i * 5000
+    await wait(waitingTime)
     const msgTarget = target ? target : taskConfig.main.defaultTarget
     const msgLang = lang ? lang : taskConfig.main.defaultLang
-    const searchDetails = { ...taskConfig.main.defaultDetails, ...details }
+    const searchDetails = { ...mainDefaults, ...details }
+    const searchInfo = objectInspect(removeDefaults(searchDetails, mainDefaults), true)
 
     try {
-      const results = await runMandarakeSearch(searchDetails, msgLang)
+      const { search, newItems } = await runMandarakeSearch(searchDetails, msgLang)
+      logger.debug(`mandarake: Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
 
       // Now we just send these results to every channel we configured.
-      msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'main'))
+      msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'main'))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`mandarake: Ignored ENOTFOUND error during regular search:\n${JSON.stringify(searchDetails)}`)
+        logger.debug(`mandarake: Ignored ENOTFOUND error during regular search: ${searchInfo} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`mandarake: Caught error during regular search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
-        logger.warn(err)
-        logger.warn(err.code)
+        logger.error(`mandarake: Caught error during regular search: ${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
-  })
+  }))
+
+  const auctionDefaults = taskConfig.auction.defaultDetails
 
   // Runs the auction searches.
-  taskConfig.auction && taskConfig.auction.searches.forEach(async ({ details, target }) => {
+  await Promise.all(auctionSearches.map(async ({ details, target }, i) => {
     if (!details) return false
+    const waitingTime = i * 5000
+    await wait(waitingTime)
     const msgTarget = target ? target : taskConfig.auction.defaultTarget
-    const searchDetails = { ...taskConfig.auction.defaultDetails, ...details }
+    const searchDetails = { ...auctionDefaults, ...details }
+    const searchInfo = objectInspect(removeDefaults(searchDetails, mainDefaults), true)
+
     try {
-      const results = await runMandarakeAuctionSearch(searchDetails)
-      msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, 'auction'))
+      const { search, newItems } = await runMandarakeAuctionSearch(searchDetails)
+      logger.debug(`mandarake: Searched auction: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
+      msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'auction'))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`mandarake: Ignored ENOTFOUND error auction regular search:\n${JSON.stringify(searchDetails)}`)
+        logger.debug(`mandarake: Ignored ENOTFOUND error during auction search: ${searchInfo} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`mandarake: Caught error during auction search\n${err.stack}\nAssociated search:\n${JSON.stringify(searchDetails)}`)
-        logger.warn(err)
-        logger.warn(err.code)
+        logger.error(`mandarake: Caught error during auction search: ${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
-  })
+  }))
 }
 
 /**

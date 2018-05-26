@@ -3,7 +3,7 @@
   "_site": "http://mandarake.co.jp/",
   "name": "callisto-task-mandarake",
   "private": true,
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "Posts new items added to the Mandarake shop and its auction site",
   "main": "index.js",
   "scripts": {
