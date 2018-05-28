@@ -9,6 +9,8 @@ import { id } from './index'
 
 export const findNewTopics = async (sub, type) => {
   const results = await findTopics(sub, type)
+  // Throw error if we received one.
+  if (results.error) throw results.error
   if (results.items.length === 0) return results
 
   // Caching ID specific to this subreddit.
