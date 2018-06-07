@@ -60,6 +60,13 @@ export const getFormattedDate = (dateObject) => (
 )
 
 /**
+ * Returns a timestamp for a date string.
+ */
+export const getIntegerTimestamp = (dateStr) => (
+  moment(dateStr).format('x')
+)
+
+/**
  * Returns an exact duration.
  */
 export const getExactDuration = (seconds) => (
