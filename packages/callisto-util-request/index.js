@@ -42,6 +42,7 @@ let performingRequest = false
 const makeQueuedRequest = (url, cookieJar, extraHeaders, gzip, retries = REQUEST_TRIES, waitPeriod = WAIT_PERIOD) => {
   // Add the request to the queue in whatever position is available.
   const { queueNumber, requestID } = getQueueSpot()
+  logger.silly(`callisto-util-request: created task ${requestID} (queue: ${queueNumber})`)
 
   // Return the actual task.
   return new Promise((resolve, reject) => {
@@ -54,10 +55,11 @@ const makeQueuedRequest = (url, cookieJar, extraHeaders, gzip, retries = REQUEST
 
       let tries = 0
       let latestError
+      logger.silly(`callisto-util-request: starting task ${requestID}`)
       while (tries < retries) {
         // Warn if retrying the call.
         if (tries > 0) {
-          logger.warn(`Request failed: ${lastError.code} - retry #${tries}: ${url}`)
+          logger.warn(`callisto-util-request: Request failed: ${lastError.code} - retry #${tries}: ${url}`)
         }
         tries += 1
         try {
@@ -71,6 +73,7 @@ const makeQueuedRequest = (url, cookieJar, extraHeaders, gzip, retries = REQUEST
           continue
         }
       }
+      logger.silly(`callisto-util-request: giving up on task ${requestID}`)
       cleanFromQueue(requestID, queueNumber)
       return reject(latestError)
     }, waitPeriod)
@@ -85,6 +88,7 @@ const cleanFromQueue = (requestID, queueNumber) => {
   delete queuedRequests[queueNumber]
   for (let a = 0; a < queueOrder.length; ++a) {
     if (queueOrder[a] !== queueNumber) continue
+    logger.silly(`callisto-util-request: deleting task ${requestID} (queue: ${a})`)
     delete queueOrder[a]
   }
   performingRequest = false
@@ -104,8 +108,9 @@ setInterval(() => {
     if (queueOrder[a] == null) continue
 
     // Pick the next task and activate it.
-    const requestID = queuedRequests[a]
+    const requestID = queuedRequests[queueOrder[a]]
     readyRequests[requestID] = true
+    logger.silly(`callisto-util-request: activating task ${requestID}`)
     return
   }
   // If we're here, it means the queue is completely empty.
@@ -121,8 +126,8 @@ setInterval(() => {
 const getQueueSpot = () => {
   // We iterate over the queue, plus one. If the queue is completely full,
   // we'll end up adding the request at the end.
-  for (let a = 0; a < queuedRequests.length + 1; ++a) {
-    if (queuedRequests[a] != null) continue
+  for (let a = 0; a < queueOrder.length + 1; ++a) {
+    if (queueOrder[a] != null) continue
     // Add to the empty spot we found.
     const requestID = uuid()
     queuedRequests[a] = requestID
