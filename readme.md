@@ -69,7 +69,6 @@ Currently, these tasks are available:
 | mandarake | Posts new items added to the Mandarake shop and its auction site | [mandarake.co.jp](http://mandarake.co.jp/) |
 | nyaa | Posts torrent links to new anime and manga uploads on Nyaa.si | [nyaa.si](http://nyaa.si/) |
 | ocremix | Posts new video game music remixes, covers and albums released on OverClocked ReMix | [ocremix.org](https://ocremix.org/) |
-| parisa | Posts updates to the Parisa comic | [parisa-comic.tumblr.com](http://parisa-comic.tumblr.com/) |
 | rarbg | Posts TV series updates released on Rarbg | [rarbg.to](https://rarbg.to/) |
 | reddit | Posts new topics made to specified Reddit subs | [reddit.com](http://reddit.com/) |
 | tasvideos | Posts new tool-assisted speedruns released on TASVideos | [tasvideos.org](http://tasvideos.org/) |
