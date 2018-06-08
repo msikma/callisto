@@ -101,10 +101,10 @@ const findVideos = (initialData) => {
     const id = data.videoId
     const link = videoURL(id)
     const title = data.title.simpleText
-    const author = data.ownerText ? data.ownerText.runs[0].text : '(unknown)'
+    const author = data.ownerText && data.ownerText.runs ? data.ownerText.runs[0].text : '(unknown)'
     const views = get(data, 'viewCountText.simpleText', '0')
     const uploadTime = get(data, 'publishedTimeText.simpleText', '(unknown)')
-    const description = data.descriptionSnippet ? data.descriptionSnippet.runs[0].text : ''
+    const description = data.descriptionSnippet && data.descriptionSnippet.runs ? data.descriptionSnippet.runs[0].text : ''
     const duration = get(data, 'lengthText.simpleText', '(unknown)')
     const durationAria = get(data, 'lengthText.accessibility.accessibilityData.label', '(unknown)')
     const imageURL = getBestThumbnail(get(data, 'thumbnail.thumbnails', []))
