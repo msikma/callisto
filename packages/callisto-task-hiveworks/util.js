@@ -3,13 +3,7 @@
  * Copyright © 2018, Michiel Sikma
  */
 
-import TurndownService from 'turndown'
-import cheerio from 'cheerio'
-
-// Converts HTML into Markdown.
-const turndownService = new TurndownService()
-turndownService.remove('style')
-turndownService.remove('script')
+import { htmlToMarkdown } from 'callisto-util-misc'
 
 const fourDigit = new RegExp('([0-9]{4})')
 
@@ -33,15 +27,6 @@ export const separateDateTitle = (dateTitle) => {
 }
 
 // Returns Markdown that represents an HTML string.
-export const getMarkdownFromHTML = (html) => {
-  const $ = cheerio.load(`<div id="callisto-wrapper">${html}</div>`)
-  const $html = $('#callisto-wrapper')
-  $html.find('img').remove()
-  const md = turndownService.turndown($html.html())
-  return removeEmptyLines(md)
-}
-
-// Removes extra empty lines by trimming every line, then removing the empty strings.
-const removeEmptyLines = (str) => (
-  str.split('\n').map(l => l.trim()).filter(l => l !== '').join('\n')
+export const getMarkdownFromHTML = (html) => (
+  htmlToMarkdown(html, true)
 )

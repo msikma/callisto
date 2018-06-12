@@ -3,6 +3,7 @@
  * Copyright © 2018, Michiel Sikma
  */
 
+import TurndownService from 'turndown'
 import rssParser from 'parse-rss'
 import vm from 'vm'
 import util from 'util'
@@ -11,8 +12,14 @@ import { isNil, omit, omitBy } from 'lodash'
 import { exec } from 'child_process'
 import humanizeDuration from 'humanize-duration'
 import momentDurationFormatSetup from 'moment-duration-format'
+import cheerio from 'cheerio'
 
 import { config, pkg } from './resources'
+
+// Set up the Turndown service for converting HTML to Markdown.
+const turndownService = new TurndownService()
+turndownService.remove('style')
+turndownService.remove('script')
 
 let callistoName
 
@@ -24,6 +31,22 @@ const split = new RegExp('\\S+', 'g')
 // Extend Moment to be able to format durations.
 // See <https://github.com/jsmreese/moment-duration-format>.
 momentDurationFormatSetup(moment)
+
+/**
+ * Returns Markdown from HTML.
+ */
+export const htmlToMarkdown = (html, removeEmpty = false) => {
+  const $ = cheerio.load(`<div id="callisto-wrapper">${html}</div>`)
+  const $html = $('#callisto-wrapper')
+  $html.find('img').remove()
+  const md = turndownService.turndown($html.html())
+  return removeEmpty ? removeEmptyLines(md) : md
+}
+
+// Removes extra empty lines by trimming every line, then removing the empty strings.
+export const removeEmptyLines = (str) => (
+  str.split('\n').map(l => l.trim()).filter(l => l !== '').join('\n')
+)
 
 /**
  * Retrieves information about the system that the code is currently running on.
