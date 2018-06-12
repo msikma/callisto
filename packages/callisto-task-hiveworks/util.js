@@ -8,6 +8,8 @@ import cheerio from 'cheerio'
 
 // Converts HTML into Markdown.
 const turndownService = new TurndownService()
+turndownService.remove('style')
+turndownService.remove('script')
 
 const fourDigit = new RegExp('([0-9]{4})')
 
