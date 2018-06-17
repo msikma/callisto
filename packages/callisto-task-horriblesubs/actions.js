@@ -6,7 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription } from 'callisto-util-misc'
+import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { runHorribleSubsSearch } from './search'
 import * as res from './res'
 import { color } from './index'
@@ -29,19 +29,14 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
   const { defaultDetails, defaultTarget } = taskConfig
 
   // Run through each of our searches and fire off a query.
-  taskConfig.searches.forEach(async ({ details, target, link }) => {
+  taskConfig.searches.forEach(async ({ details, target, link, wikia }, i) => {
+    await wait(i * 8000)
     // Only perform the search if the details have been set.
     if (!details) return false
     const msgTarget = target ? target : defaultTarget
     const searchDetails = { ...defaultDetails, ...details }
     const url = horribleSubsURL(searchDetails.query, searchDetails.res)
-
-    // 'result' contains everything needed to send a message to the user.
-    // Previously reported items have already been removed, and the items
-    // we found have been added to the cache.
-    const results = await runHorribleSubsSearch(url, searchDetails)
-
-    // Now we just send these results to every channel we configured.
+    const results = await runHorribleSubsSearch(url, searchDetails, link, wikia)
     msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, link))
   })
 }
@@ -61,13 +56,23 @@ const formatMessage = (item, searchDetails, link) => {
   const embed = new RichEmbed();
   embed.setAuthor('New torrent file on HorribleSubs', HORRIBLESUBS_ICON)
   embed.setTitle(embedTitle(item.title))
+  if (item._title) {
+    embed.setDescription(`Episode ${item._episodeNumber}: ${item._title}`, '')
+  }
   if (link) {
     embed.setURL(link)
   }
   else {
     embed.setDescription(embedDescription(item.link))
   }
+  if (item._seriesImage) {
+    embed.setThumbnail(item._seriesImage)
+  }
+  if (item._episodeImage) {
+    embed.setImage(item._episodeImage)
+  }
   embed.setColor(color)
+  embed.setTimestamp()
   embed.setFooter(embedDescription(`Searched for keyword "${searchDetails.query}"`))
   return embed
 }
