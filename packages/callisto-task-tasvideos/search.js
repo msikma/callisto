@@ -4,10 +4,9 @@
  */
 
 import { get } from 'lodash'
-import cheerio from 'cheerio'
 
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import { rssParse } from 'callisto-util-misc'
+import { rssParse, htmlToMarkdown } from 'callisto-util-misc'
 import { id } from './index'
 
 const titleRe = new RegExp('\\[([0-9]+)\\] (.+?) (.+?) by (.+?) in (.+?) (.+?)$')
@@ -44,9 +43,11 @@ const removeGenres = (categories) => (
   categories.filter(c => !c.startsWith('Genre:'))
 )
 
-const filterDescription = (html) => (
-  cheerio.load(html).text()
-)
+const filterDescription = (html) => {
+  const md = htmlToMarkdown(html, false, true, true, true)
+  // Fix links that don't include http. Sometimes they're used.
+  return md.split('(//tasvideos.org').join('(http://tasvideos.org')
+}
 
 const sanitizeData = (item) => {
   const youtubeLink = get(item, 'media:group.media:player.@.url')

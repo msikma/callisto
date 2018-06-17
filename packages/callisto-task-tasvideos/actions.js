@@ -42,13 +42,16 @@ const formatMessage = (item, type = '', showCategories = false, useYoutubeLink =
   embed.setImage(item.image)
   embed.setDescription(embedDescription(item.description))
   if (showCategories) {
-    embed.addField('Categories', item.categoriesWithoutGenre.join(', '))
+    embed.addField('Categories', item.categoriesWithoutGenre.join(', '), true)
   }
+  embed.setTimestamp()
   // Sometimes there is no Youtube link.
   // I can only assume that the RSS feed is constructed at publication time,
   // and if the link hasn't already been added at that time it just isn't in there.
-  // We don't really want it anyway, to be honest. Linking to the publication page is preferable.
-  embed.setURL(item.youtubeLink && useYoutubeLink ? item.youtubeLink : item.link)
+  if (item.youtubeLink && useYoutubeLink) {
+    embed.addField('Youtube', `[${item.youtubeLink}](${item.youtubeLink})`, true)
+  }
+  embed.setURL(item.link)
   embed.setColor(color)
   return embed
 }
