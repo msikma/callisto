@@ -57,6 +57,7 @@ const formatMessage = (item, name) => {
   embed.setDescription(embedDescription(item.descriptionText))
   embed.setURL(item.link)
   embed.setFooter(`By ${item.author}`)
+  embed.setTimestamp()
   embed.setColor(color)
   return embed
 }
