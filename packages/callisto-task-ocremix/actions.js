@@ -65,6 +65,7 @@ const formatMessageTrack = (item) => {
   embed.addField('Author', item.artist.artistName)
   embed.addField('Game', item.game.gameName)
   embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
+  embed.setTimestamp()
   embed.setColor(color)
   return embed
 }
@@ -79,6 +80,7 @@ const formatMessageAlbum = (item) => {
   embed.setImage(item.image)
   embed.setURL(item.link)
   embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
+  embed.setTimestamp()
   embed.setColor(color)
   return embed
 }
