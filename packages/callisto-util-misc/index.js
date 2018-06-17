@@ -16,11 +16,6 @@ import cheerio from 'cheerio'
 
 import { config, pkg } from './resources'
 
-// Set up the Turndown service for converting HTML to Markdown.
-const turndownService = new TurndownService()
-turndownService.remove('style')
-turndownService.remove('script')
-
 let callistoName
 
 // Used to match @mentions in numerical form.
@@ -35,11 +30,20 @@ momentDurationFormatSetup(moment)
 /**
  * Returns Markdown from HTML.
  */
-export const htmlToMarkdown = (html, removeEmpty = false) => {
+export const htmlToMarkdown = (html, removeEmpty = false, removeScript = true, removeStyle = true, removeHr = false, removeImages = true) => {
+  // Set up the Turndown service for converting HTML to Markdown.
+  const turndownService = new TurndownService()
+  if (removeScript) turndownService.remove('style')
+  if (removeStyle) turndownService.remove('script')
   const $ = cheerio.load(`<div id="callisto-wrapper">${html}</div>`)
   const $html = $('#callisto-wrapper')
-  $html.find('img').remove()
-  const md = turndownService.turndown($html.html())
+  if (removeImages) {
+    $html.find('img').remove()
+  }
+  if (removeHr) {
+    $html.find('hr').remove()
+  }
+  const md = turndownService.turndown($html.html()).trim()
   return removeEmpty ? removeEmptyLines(md) : md
 }
 
