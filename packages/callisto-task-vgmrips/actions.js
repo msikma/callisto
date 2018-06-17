@@ -55,7 +55,7 @@ const formatMessage = (item) => {
   embed.setAuthor('New pack on VGMRips', ICON)
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
-  embed.setURL(item.download.link)
+  embed.setURL(item.link)
   if (item.chips) {
     embed.addField('Chip', item.chips.join(', '))
   }
@@ -67,5 +67,6 @@ const formatMessage = (item) => {
   }
   //embed.addField('Size', item.download.size)
   embed.setColor(color)
+  embed.setTimestamp(new Date())
   return embed
 }
