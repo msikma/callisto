@@ -74,15 +74,19 @@ const reportResults = (server, channel, results, search) => {
 
 /**
  * Returns a RichEmbed describing a new item.
+ *
+ * Note: 'guid' links to the overview page. 'link' goes directly to the torrent.
  */
 const formatMessage = (item, searchDetails) => {
   const embed = new RichEmbed();
   embed.setAuthor('New torrent file on Nyaa.si', NYAA_ICON)
   embed.setTitle(embedTitle(item.title))
-  embed.addField('Category', item['nyaa:category']['#'])
-  embed.addField('Size', item['nyaa:size']['#'])
-  embed.setURL(item.link)
+  embed.addField('Category', item['nyaa:category']['#'], true)
+  embed.addField('Size', item['nyaa:size']['#'], true)
+  embed.addField('Torrent', `[${item.link}](${item.link})`)
+  embed.setURL(item.guid)
   embed.setColor(color)
+  embed.setTimestamp()
   embed.setFooter(`Searched for keyword "${searchDetails.query}"`)
   return embed
 }
