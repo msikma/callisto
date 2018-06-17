@@ -119,22 +119,22 @@ const formatMessageMain = (item, searchDetails, fields) => {
   const embed = new RichEmbed();
   embed.setAuthor('New item found on Mandarake', MANDARAKE_MAIN_ICON)
   if (fields.indexOf('price') !== -1) {
-    embed.addField('Price', `¥${item.price} (±€${(item.price / 125).toFixed(2)})`)
+    embed.addField('Price', `¥${item.price} (±€${(item.price / 125).toFixed(2)})`, true)
   }
   if (fields.indexOf('stock') !== -1) {
-    embed.addField('In stock', `${item.inStock ? 'Yes' : 'No'}${item.inStoreFront ? ' (store front item)' : ''}`)
+    embed.addField('In stock', `${item.inStock ? 'Yes' : 'No'}${item.inStoreFront ? ' (store front item)' : ''}`, true)
   }
   if (fields.indexOf('store') !== -1) {
-    embed.addField('Store', shopsByCode.en[item.shopCode])
+    embed.addField('Store', shopsByCode.en[item.shopCode], true)
   }
   if (fields.indexOf('category') !== -1) {
-    embed.addField('Category', categoriesByCode.en[searchDetails.categoryCode])
+    embed.addField('Category', categoriesByCode.en[searchDetails.categoryCode], true)
   }
   if (fields.indexOf('itemno') !== -1) {
-    embed.addField('Item no.', `${item.itemNo[0]} (${item.itemNo[1]})`)
+    embed.addField('Item no.', `${item.itemNo[0]} (${item.itemNo[1]})`, true)
   }
   if (fields.indexOf('adult') !== -1 && item.isAdult) {
-    embed.addField('Rating', 'Adult product')
+    embed.addField('Rating', 'Adult product', true)
   }
 
   embed.setImage(item.image)
@@ -150,7 +150,7 @@ const formatMessageAuction = (item, searchDetails, fields) => {
   const embed = new RichEmbed();
   embed.setAuthor('New item found on Mandarake Auctions', MANDARAKE_EKIZO_ICON)
   if (fields.indexOf('price') !== -1) {
-    embed.addField('Current price', `¥${item.currentPrice} (±€${(item.currentPrice / 125).toFixed(2)})`)
+    embed.addField('Current price', `¥${item.currentPrice} (±€${(item.currentPrice / 125).toFixed(2)})`, true)
   }
 
   if (item.timeLeft.type === 'pre-bidding') {
@@ -172,17 +172,17 @@ const formatMessageAuction = (item, searchDetails, fields) => {
       ? `${timeLeftBits.slice(0, 1)[0]}, ${timeLeftBits.slice(1, 3).join(' and ')}`
       : (timeLeftBits.length === 2 ? timeLeftBits.join(' and ') : timeLeftBits[0])
 
-    embed.addField('Time left', timeLeft)
+    embed.addField('Time left', timeLeft, true)
   }
 
   if (fields.indexOf('store') !== -1) {
-    embed.addField('Store', shopsByCode.en[item.shopCode])
+    embed.addField('Store', shopsByCode.en[item.shopCode], true)
   }
   if (fields.indexOf('category') !== -1) {
-    embed.addField('Category', uniq(item.categories.map(c => c.name)).join(' > '))
+    embed.addField('Category', uniq(item.categories.map(c => c.name)).join(' > '), true)
   }
   if (fields.indexOf('itemno') !== -1) {
-    embed.addField('Item no.', `${item.itemNo}`)
+    embed.addField('Item no.', `${item.itemNo}`, true)
   }
 
   embed.setImage(item.image)
