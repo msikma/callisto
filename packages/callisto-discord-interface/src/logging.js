@@ -190,6 +190,7 @@ const logMsgToDiscord = (color) => (title, desc, channels) => {
   embed.setTitle(embedTitle(title))
   embed.setDescription(embedDescription(desc))
   embed.setColor(color)
+  embed.setTimestamp()
   channels.forEach(c => sendMessage(c[0], c[1], null, embed))
 }
 
