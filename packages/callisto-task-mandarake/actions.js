@@ -141,6 +141,7 @@ const formatMessageMain = (item, searchDetails, fields) => {
   embed.setURL(item.link)
   embed.setColor(color)
   embed.setTitle(embedTitle(item.title))
+  embed.setTimestamp()
   embed.setFooter(`Searched for keyword "${searchDetails.keyword}"`)
   return embed
 }
@@ -156,6 +157,9 @@ const formatMessageAuction = (item, searchDetails, fields) => {
     embed.addField('Time left', 'Auction has not started yet')
   }
   else {
+    // TEMPORARY
+    console.log(item.timeLeft)
+    logger.warn(item.timeLeft)
     const daysLeft = `${item.timeLeft.days} day${item.timeLeft.days !== 1 ? 's' : ''}`
     const hoursLeft = `${item.timeLeft.hours} hour${item.timeLeft.hours !== 1 ? 's' : ''}`
     const minutesLeft = `${item.timeLeft.minutes} minute${item.timeLeft.minutes !== 1 ? 's' : ''}`
@@ -185,6 +189,7 @@ const formatMessageAuction = (item, searchDetails, fields) => {
   embed.setURL(item.link)
   embed.setColor(colorAuctions)
   embed.setTitle(embedTitle(item.title))
+  embed.setTimestamp()
   embed.setFooter(`Searched for keyword "${searchDetails.q}"`)
   return embed
 }
