@@ -40,11 +40,18 @@ const findReleases = ($) => {
     const $soundtrack = $(soundtrack)
     const image = `${VGMPF_BASE}${$('table p a img', $soundtrack).attr('src').trim()}`
     const titleLink = $('a', $('table p', $soundtrack)[1])
-    const title = titleLink.text().trim()
+    let title = titleLink.text().trim()
+    // Filter out the e.g. (C64) from the title.
+    let platform = title.match(/\((.+?)\)$/)
+    if (platform) {
+      title = title.split(platform[0]).join('').trim()
+      platform = platform[1]
+    }
     const link = `${VGMPF_BASE}${titleLink.attr('href').trim()}`
     const id = slugify(link)
     return {
       title,
+      platform,
       image,
       id,
       link

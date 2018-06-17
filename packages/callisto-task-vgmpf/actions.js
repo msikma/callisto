@@ -21,7 +21,7 @@ export const actionRecentReleases = async (discordClient, user, taskConfig) => {
   try {
     const { target } = taskConfig
     const results = await runVGMPFSearch()
-      logger.debug(`vgmpf: Posting new update`)
+    logger.debug(`vgmpf: Posting new update`)
     target.forEach(t => reportResults(t[0], t[1], results))
   }
   catch (err) {
@@ -45,8 +45,12 @@ const formatMessage = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor('New soundtrack on VGMPF', ICON)
   embed.setTitle(embedTitle(item.title))
+  if (item.platform) {
+    embed.addField('Platform', item.platform, true)
+  }
   embed.setThumbnail(item.image)
   embed.setURL(item.link)
+  embed.setTimestamp()
   embed.setFooter('From the Video Game Music Preservation Foundation Wiki')
   embed.setColor(color)
   return embed
