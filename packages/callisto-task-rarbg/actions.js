@@ -98,6 +98,7 @@ const formatMessage = (item, show, urlDetails, urlTVGuide) => {
   embed.addField('Download', `• [${item.filename}](${torrentURL})\n• [Full list of episodes](${urlTVGuide})`)
   embed.setURL(urlDetails)
   embed.setColor(show.color || color)
+  embed.setTimestamp()
   embed.setFooter(`Air date: ${getFormattedDate(item.releaseDate)}`)
   return embed
 }
