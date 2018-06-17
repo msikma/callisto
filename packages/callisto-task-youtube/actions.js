@@ -135,6 +135,7 @@ const formatMessage = (item, file = '', query = '') => {
   if (item.link) embed.setURL(item.link)
 
   embed.setColor(color)
+  embed.setTimestamp()
 
   // Include the source of this video.
   if (file && !query) {
