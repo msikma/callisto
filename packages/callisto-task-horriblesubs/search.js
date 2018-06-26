@@ -6,9 +6,10 @@
 import cheerio from 'cheerio'
 import URL from 'url-parse'
 
+import logger from 'callisto-util-logging'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { requestURL } from 'callisto-util-request'
-import { rssParse } from 'callisto-util-misc'
+import { rssParse, objectInspect } from 'callisto-util-misc'
 import { id } from './index'
 
 /**
@@ -26,6 +27,9 @@ export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => 
   // Copy 'guid' to 'id' for caching.
   const allItems = matchingItems.map(entry => ({ ...entry, id: entry.guid }))
   const newItems = await removeCached(id, allItems)
+  logger.debug(`horriblesubs: ${searchDetails.query}: found ${matchingItems.length} matching item(s), ${newItems.length} new item(s)`)
+
+  if (newItems.length === 0) return []
 
   // Add the remaining items to the database.
   cacheItems(id, newItems)
@@ -33,10 +37,10 @@ export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => 
     // For all matching items, retrieve an image. If there's a Wikia link, try that.
     // Otherwise, find the series image on HorribleSubs itself.
     if (wikia) {
-      return await retrieveWikiaInfo(newItems, wikia)
+      return await retrieveWikiaInfo(newItems, wikia, searchDetails.query)
     }
     else {
-      return await retrieveSeriesImage(newItems, link)
+      return await retrieveSeriesImage(newItems, link, searchDetails.query)
     }
   }
   catch (e) {
@@ -48,7 +52,7 @@ export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => 
 /**
  * Retrieves information from Wikia about this episode.
  */
-const retrieveWikiaInfo = (items, tpl) => (
+const retrieveWikiaInfo = (items, tpl, query) => (
   // Episodes all follow this naming pattern: [HorribleSubs] One Piece - 841 [1080p].mkv
   Promise.all(items.map(async item => {
     const episode = item.title.match(/- ([0-9]+) \[/)[1]
@@ -77,11 +81,18 @@ const retrieveWikiaInfo = (items, tpl) => (
     const metaDescription = $page('meta[name="description"]').attr('content')
     const correctHeader = headers.filter(h => metaDescription.toLowerCase().match(h.toLowerCase()) != null)
 
-    return {
-      ...item,
+    // All the metadata we'll add to the item.
+    const metadata = {
       _episodeNumber: episode,
       _title: correctHeader.length > 0 ? correctHeader[0] : null,
       _episodeImage: episodeImage
+    }
+
+    logger.debug(`horriblesubs: ${query}: for item "${item.title}": added metadata: ${objectInspect(metadata)}`)
+
+    return {
+      ...item,
+      ...metadata
     }
   }))
 )
@@ -89,10 +100,12 @@ const retrieveWikiaInfo = (items, tpl) => (
 /**
  * Retrieves the series image for a specific series, and adds it to the items we found.
  */
-const retrieveSeriesImage = async (items, link) => {
+const retrieveSeriesImage = async (items, link, query) => {
   const page = await requestURL(link)
   const $ = cheerio.load(page)
   const seriesImage = $('.series-image img').attr('src')
+
+  logger.debug(`horriblesubs: ${query}: added series image: ${seriesImage}`)
 
   return items.map(item => ({ ...item, _seriesImage: seriesImage }))
 }
