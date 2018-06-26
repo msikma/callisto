@@ -47,10 +47,37 @@ export const htmlToMarkdown = (html, removeEmpty = false, removeScript = true, r
   return removeEmpty ? removeEmptyLines(md) : md
 }
 
+/**
+ * Separate images from Markdown. We can't display them on Discord.
+ * This returns the Markdown text with all image tags removed, and the image tags separately.
+ */
+export const separateMarkdownImages = (md, leavePlaceholder = false) => {
+  // Matches images, e.g.: ![alt text](https://i.imgur.com/asdf.jpg title text)
+  // Or: ![alt text](https://i.imgur.com/asdf.jpg)
+  const imgRe = /!\[(.+?)\]\(([^ ]+)( (.+?))?\)/g
+  const images = []
+  let match
+  while ((match = imgRe.exec(md)) !== null) {
+    images.push({ alt: match[1], url: match[2], title: match[4] })
+  }
+  return {
+    images,
+    text: removeEmptyLines(md.replace(imgRe, leavePlaceholder ? '[image]' : ''), true)
+  }
+}
+
 // Removes extra empty lines by trimming every line, then removing the empty strings.
-export const removeEmptyLines = (str) => (
-  str.split('\n').map(l => l.trim()).filter(l => l !== '').join('\n')
-)
+// If 'leaveGap' is true, we will instead compress multiple empty lines down to a single empty line.
+export const removeEmptyLines = (str, leaveGap = false) => {
+  if (leaveGap) {
+    const split = str.split('\n').map(l => l.trim())
+    const lines = split.reduce((acc, curr) => [...acc, ...(curr === acc[acc.length - 1] ? [] : [curr])], [])
+    return lines.join('\n')
+  }
+  else {
+    return str.split('\n').map(l => l.trim()).filter(l => l !== '').join('\n')
+  }
+}
 
 /**
  * Retrieves information about the system that the code is currently running on.
