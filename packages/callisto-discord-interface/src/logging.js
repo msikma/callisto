@@ -27,9 +27,6 @@ const ERROR_COLOR = 0xff034a
 // Used to keep track of uptime.
 let startTime
 
-// Used to grab the task name. TODO: just pass it on explicitly.
-const TASK_NAME_RE = new RegExp('([^:]+):', 'i')
-
 // Thumbnail we display during boot up.
 const bootupThumbnail = 'https://i.imgur.com/TugT1K5.jpg'
 
@@ -179,7 +176,7 @@ const monospaceText = str => ['```', str, '```'].join('')
  * Send that task name as title, and the rest as description.
  */
 const separateMsg = (msg) => {
-  const matches = msg.match(TASK_NAME_RE)
+  const matches = msg.match(/([^:]+):/i)
   // If no task at the start, just use the warn level as title.
   if (!matches) return { title: null, desc: msg }
   const desc = msg.substr(matches[0].length).trim()
