@@ -61,8 +61,8 @@ export const logCallistoBootup = async (tasks, singleTaskData) => {
   embed.addField('Commit', `[\`${systemInfo.formatted}\`](${systemInfo.commitLink})`, true)
   embed.addField('Server', systemInfo.server, true)
   embed.addField('Tasks', tasksList)
-  embed.setDescription(`Callisto Bot is launching. Time: ${time}.`)
-  embed.setColor(SUCCESS_COLOR)
+  embed.setDescription(`Callisto Bot is launching${singleTaskData ? ' in testing mode' : ''}. Time: ${time}.`)
+  embed.setColor(singleTaskData ? WARNING_COLOR : SUCCESS_COLOR)
 
   logChannels.forEach(c => sendMessage(c[0], c[1], null, embed))
 }
@@ -101,11 +101,16 @@ export const checkVersion = () => {
   }
 }
 
+// Returns a string depicting a task item. Used by bulletizeTasks().
+const taskItemString = singleTask => task => `• ${task.slug} (${task.version})${singleTask ? ' - testing with only this task' : ''}`
+
 /**
  * Creates a bulletized list of tasks.
  */
 const bulletizeTasks = (tasks, singleTaskData) => (
-  tasks.map(t => `• ${t.slug} (${t.version})${singleTaskData && singleTaskData.slug === t.slug ? ' - testing with only this task' : ''}`)
+  singleTaskData
+    ? tasks.filter(t => t.slug === singleTaskData.slug).map(taskItemString(true))
+    : tasks.map(taskItemString(false))
 )
 
 /**
