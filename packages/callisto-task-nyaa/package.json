@@ -3,7 +3,7 @@
   "_site": "http://nyaa.si/",
   "name": "callisto-task-nyaa",
   "private": true,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Posts torrent links to new anime and manga uploads on Nyaa.si",
   "main": "index.js",
   "scripts": {
@@ -14,6 +14,7 @@
   "devDependencies": {
   },
   "dependencies": {
+    "cheerio": "1.0.0-rc.2",
     "discord.js": "^11.3.0",
     "callisto-util-cache": "^1.1.0",
     "callisto-util-logging": "^1.3.0",

@@ -14,7 +14,7 @@ module.exports = {
       },
       defaultTarget: null,
       searches: [
-        { details: { query: 'shark-raws pocket' }, target: [[MY_SERVER, CHANNEL_POKEMON_RAWS]] },
+        { details: { query: 'shark-raws pocket' }, thumbnail: 'https://i.imgur.com/HbK8Xs8.png', target: [[MY_SERVER, CHANNEL_POKEMON_RAWS]] },
         { details: { query: 'pokemon', category: NYAA_CATEGORY_LITERATURE }, target: [[MY_SERVER, CHANNEL_POKEMON_RAWS]] },
         { details: { query: 'pocket monsters', category: NYAA_CATEGORY_LITERATURE }, target: [[MY_SERVER, CHANNEL_POKEMON_RAWS]] },
         { details: { query: 'one piece mangastream', category: NYAA_CATEGORY_LITERATURE_ENGLISH_TRANSLATED }, target: [[MY_SERVER, CHANNEL_ONE_PIECE]] },
