@@ -67,6 +67,7 @@ Currently, these tasks are available:
 | hiveworks | Posts new comics added to any configured Hiveworks Comics site | [hiveworkscomics.com](https://hiveworkscomics.com/) |
 | horriblesubs | Posts new torrent uploads for anime shows on HorribleSubs | [horriblesubs.info](http://horriblesubs.info/) |
 | mandarake | Posts new items added to the Mandarake shop and its auction site | [mandarake.co.jp](http://mandarake.co.jp/) |
+| mangafox | Posts new manga chapters added to MangaFox | [manga-fox.com](https://manga-fox.com/) |
 | nyaa | Posts torrent links to new anime and manga uploads on Nyaa.si | [nyaa.si](http://nyaa.si/) |
 | ocremix | Posts new video game music remixes, covers and albums released on OverClocked ReMix | [ocremix.org](https://ocremix.org/) |
 | rarbg | Posts TV series updates released on Rarbg | [rarbg.to](https://rarbg.to/) |
