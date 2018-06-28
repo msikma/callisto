@@ -59,7 +59,7 @@ const makeQueuedRequest = (url, cookieJar, extraHeaders, gzip, retries = REQUEST
       while (tries < retries) {
         // Warn if retrying the call.
         if (tries > 0) {
-          logger.warn(`callisto-util-request: Request failed: ${lastError.code} - retry #${tries}: ${url}`)
+          logger.warn(`callisto-util-request: Request failed: ${latestError.code} - retry #${tries}: ${url}`)
         }
         tries += 1
         try {
