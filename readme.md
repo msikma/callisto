@@ -64,6 +64,7 @@ Currently, these tasks are available:
 
 | Name | Description | Site |
 |:-----|:------------|:-----|
+| bandcamp | Posts new albums added to Bandcamp pages | [bandcamp.com](https://bandcamp.com/) |
 | hiveworks | Posts new comics added to any configured Hiveworks Comics site | [hiveworkscomics.com](https://hiveworkscomics.com/) |
 | horriblesubs | Posts new torrent uploads for anime shows on HorribleSubs | [horriblesubs.info](http://horriblesubs.info/) |
 | mandarake | Posts new items added to the Mandarake shop and its auction site | [mandarake.co.jp](http://mandarake.co.jp/) |
