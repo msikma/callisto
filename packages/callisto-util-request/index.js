@@ -158,6 +158,9 @@ export const isTemporaryError = error => {
   if (!error || !error.code) return false
   // Check if the error code is in a list of acceptable errors.
   return [
+    // Sometimes a not found is returned as temporary error.
+    // This MIGHT be permanent, so the logs should be checked for consistency.
+    'ENOTFOUND',
     // Temporary network resolution error.
     'ETIMEDOUT',
     // Connection was reset.
