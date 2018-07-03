@@ -6,7 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import logger from 'callisto-util-logging'
-import { config } from 'callisto-util-misc/resources'
+import { isTemporaryError } from 'callisto-util-request'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { findNewTopics } from './search'
@@ -31,10 +31,15 @@ export const actionSubTopics = (discordClient, user, taskConfig) => {
       }
     }
     catch (err) {
-      if (err.error) {
+      if (isTemporaryError(err)) {
+        return logger.info(`reddit: Temporary network error (${err.code}) while searching in sub: ${name}, type: ${type}`)
+      }
+      else if (err.error) {
         return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}, url: ${err.url}\n\n${err.error.stack}`)
       }
-      return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}\n\n${err.stack}`)
+      else {
+        return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}\n\n${err.stack}`)
+      }
     }
   })
 }
