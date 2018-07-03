@@ -22,18 +22,17 @@ export const actionRemixes = async (discordClient, user, taskConfig) => {
     const { tracks, albums } = await findNewItems()
 
     if (tracks.length) {
-      logger.debug(`ocremix: Found ${tracks.length} new tracks`)
+      logger.debug(`ocremix: Found ${tracks.length} new track(s)`)
       taskConfig.tracks.target.forEach(t => reportResults(t[0], t[1], tracks, 'track'))
     }
 
     if (albums.length) {
-      logger.debug(`ocremix: Found ${albums.length} new albums`)
+      logger.debug(`ocremix: Found ${albums.length} new album(s)`)
       taskConfig.albums.target.forEach(t => reportResults(t[0], t[1], albums, 'album'))
     }
   }
   catch (err) {
-    logger.error('ocremix: Error occurred while scraping')
-    logger.error(err.stack)
+    logger.error(`ocremix: Error occurred while scraping:\n\n${err.stack}`)
   }
 }
 
@@ -62,8 +61,8 @@ const formatMessageTrack = (item) => {
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
   embed.setURL(item.link)
-  embed.addField('Author', item.artist.artistName)
-  embed.addField('Game', item.game.gameName)
+  if (item.artist.artistName) embed.addField('Author', item.artist.artistName)
+  if (item.game.gameName) embed.addField('Game', item.game.gameName)
   embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
   embed.setTimestamp()
   embed.setColor(color)
