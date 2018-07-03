@@ -100,22 +100,21 @@ const formatMessageMain = (item, searchDetails) => {
   const embed = new RichEmbed();
   if (item.type === 'album') {
     // Album type.
-    const band = get(item, 'band_name', '(unknown)')
-    const icon = get(item, 'band.image', BANDCAMP_ICON)
+    const band = get(item, 'band_name', get(item, 'detailedInfo.otherInfo.artist', '(unknown)'))
+    const icon = get(item, 'band.image')
     const linkColor = get(item, 'band.bandData.design.link_color')
     const bandColor = linkColor ? parseInt(linkColor, 16) : color
     const url = `${item.baseURL}${item.page_url}`
     const releaseDate = getFormattedDate(item.release_date)
-    embed.setAuthor(`New album by ${band} on Bandcamp`, icon)
+    embed.setAuthor(`New album by ${band} on Bandcamp`, BANDCAMP_ICON)
     embed.setImage(item._art_url)
     embed.setURL(url)
     embed.setColor(bandColor)
     embed.setTitle(item.artist === item.title || !item.artist ? embedTitle(item.title) : embedTitle(`${item.artist} - ${item.title}`))
 
     const descr = get(item, 'detailedInfo.baseInfo.about')
-    if (descr) {
-      embed.setDescription(embedDescription(descr))
-    }
+    if (descr) embed.setDescription(embedDescription(descr))
+    if (icon) embed.setThumbnail(icon)
 
     const numberOfTracks = get(item, 'detailedInfo.tracks.length', 0)
     if (numberOfTracks) {
@@ -127,7 +126,10 @@ const formatMessageMain = (item, searchDetails) => {
 
     embed.setTimestamp()
     embed.setFooter(`Released on ${releaseDate}`)
+    return embed
   }
-  return embed
+  else {
+    logger.error(`bandcamp: Invalid item type: ${item.type}\n\n${objectInspect(item)}`)
+  }
 }
 

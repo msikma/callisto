@@ -17,6 +17,7 @@ export const runBandcampSearch = async (details) => {
     // Make entries ready for easy consumption.
     .map(album => ({
       ...album,
+      type: 'album',
       band: search.band,
       baseURL: search.url,
       id: String(album.id),
