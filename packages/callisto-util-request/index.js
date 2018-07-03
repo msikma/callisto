@@ -149,3 +149,18 @@ export const requestURL = async (url, extraHeaders = {}, gzip = true) => {
   const req = await makeQueuedRequest(url, cookieJar.jar, extraHeaders, gzip, REQUEST_TRIES, WAIT_PERIOD)
   return req.body
 }
+
+/**
+ * Returns true for errors that are temporary network errors that can safely be ignored.
+ * @param {*} error Any error thrown by a network request
+ */
+export const isTemporaryError = error => {
+  if (!error || !error.code) return false
+  // Check if the error code is in a list of acceptable errors.
+  return [
+    // Temporary network resolution error.
+    'ETIMEDOUT',
+    // Connection was reset.
+    'ECONNRESET'
+  ].indexOf(error.code) > -1
+}
