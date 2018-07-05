@@ -231,9 +231,13 @@ export const findScriptData = (scriptContent) => {
 /**
  * Returns a promise which, upon resolution, contains the contents of the RSS found at the given URL.
  */
-export const rssParse = (url) => new Promise((resolve, reject) => {
+export const rssParse = (url, alwaysResolve = false) => new Promise((resolve, reject) => {
   rssParser(url, (err, rss) => {
-    if (err) return reject(err, rss)
+    if (err) {
+      // If we're always resolving, send back an empty array.
+      if (alwaysResolve) return resolve([])
+      return reject(err, rss)
+    }
     if (rss) return resolve(rss)
   })
 })

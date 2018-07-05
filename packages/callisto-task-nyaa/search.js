@@ -10,7 +10,8 @@ import { rssParse, separateMarkdownImages } from 'callisto-util-misc'
 import { id } from './index'
 
 export const runNyaaSearch = async (url) => {
-  const items = await rssParse(url)
+  // Parse RSS - on error, this resolves with an empty array.
+  const items = await rssParse(url, true)
 
   if (items.length === 0) return []
 

@@ -22,7 +22,8 @@ const searchURL = (params, query) => (
  * Runs a search for new videos from a subscriptions RSS file.
  */
 export const findNewSubscriptionVideos = async (url, slug) => {
-  const items = await rssParse(url)
+  // Parse RSS - on error, this resolves with an empty array.
+  const items = await rssParse(url, true)
   if (items.length === 0) return []
 
   // Caching ID specific to this account.

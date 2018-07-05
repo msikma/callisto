@@ -16,7 +16,8 @@ import { id } from './index'
  * Loads the HorribleSubs RSS feed and match its entries against our search query.
  */
 export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => {
-  const items = await rssParse(url)
+  // Parse RSS - on error, this resolves with an empty array.
+  const items = await rssParse(url, true)
   const queryRe = new RegExp(searchDetails.query, 'i')
 
   if (items.length === 0) return []

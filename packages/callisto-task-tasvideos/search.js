@@ -19,7 +19,8 @@ export const findNewTASes = async (type) => {
   const url = searchURL(type)
   const searchCacheID = `${id}$${type}`
 
-  const items = (await rssParse(url)).map(sanitizeData)
+  // Parse RSS - on error, this resolves with an empty array.
+  const items = (await rssParse(url, true)).map(sanitizeData)
   if (items.length === 0) return []
   const newItems = await removeCached(searchCacheID, items)
   cacheItems(searchCacheID, newItems)
