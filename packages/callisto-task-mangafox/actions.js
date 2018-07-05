@@ -9,9 +9,7 @@ import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, getFormattedDate, wait } from 'callisto-util-misc'
 import { runMangaSearch } from './search'
-import { color } from './index'
-
-const ICON = 'https://i.imgur.com/pfveukN.png'
+import { color, icon } from './index'
 
 export const actionNewChapters = async (discordClient, user, taskConfig) => {
   const { searches } = taskConfig
@@ -32,7 +30,7 @@ const reportResults = (server, channel, results, comic) => {
 
 const formatMessage = (item, comic) => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New ${comic.name} chapter on MangaFox`, comic.thumbnail || ICON)
+  embed.setAuthor(`New ${comic.name} chapter on MangaFox`, comic.thumbnail || icon)
   embed.setTitle(embedTitle(item.title))
   if (comic.thumbnail) embed.setThumbnail(comic.thumbnail)
   if (item.image) embed.setImage(item.image)

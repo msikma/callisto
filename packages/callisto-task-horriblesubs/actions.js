@@ -10,10 +10,7 @@ import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { runHorribleSubsSearch } from './search'
 import * as res from './res'
-import { color } from './index'
-
-// URL to the HorribleSubs icon.
-const HORRIBLESUBS_ICON = 'https://i.imgur.com/jjQBNkY.jpg'
+import { color, icon } from './index'
 
 /**
  * Returns an RSS feed URL for HorribleSubs.
@@ -56,7 +53,7 @@ const reportResults = (server, channel, results, search, link) => {
  */
 const formatMessage = (item, searchDetails, link) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New torrent file on HorribleSubs', HORRIBLESUBS_ICON)
+  embed.setAuthor('New torrent file on HorribleSubs', icon)
   embed.setTitle(embedTitle(item.title))
   if (item._title) {
     embed.setDescription(`Episode ${item._episodeNumber}: ${item._title}`, '')

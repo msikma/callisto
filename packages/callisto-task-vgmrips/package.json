@@ -3,7 +3,7 @@
   "_site": "http://vgmrips.net/",
   "name": "callisto-task-vgmrips",
   "private": true,
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Posts new video game soundtracks released on VGMRips",
   "main": "index.js",
   "scripts": {

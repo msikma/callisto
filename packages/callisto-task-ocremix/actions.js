@@ -9,9 +9,7 @@ import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, getFormattedDate } from 'callisto-util-misc'
 import { findNewItems } from './search'
-import { color } from './index'
-
-const ICON = 'https://i.imgur.com/4pVcJnw.png'
+import { color, icon } from './index'
 
 /**
  * Find new tracks and albums on OCReMix.
@@ -57,7 +55,7 @@ const formatMessage = (item, type) => {
  */
 const formatMessageTrack = (item) => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New track on OverClocked ReMix`, ICON)
+  embed.setAuthor(`New track on OverClocked ReMix`, icon)
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
   embed.setURL(item.link)
@@ -74,7 +72,7 @@ const formatMessageTrack = (item) => {
  */
 const formatMessageAlbum = (item) => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New album on OverClocked ReMix`, ICON)
+  embed.setAuthor(`New album on OverClocked ReMix`, icon)
   embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.setURL(item.link)

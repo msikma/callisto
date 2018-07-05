@@ -9,10 +9,7 @@ import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runVGMRipsSearch } from './search'
-import { color } from './index'
-
-// URL to the VGMRips icon.
-const ICON = 'https://i.imgur.com/rb5dl18.png'
+import { color, icon } from './index'
 
 /**
  * Runs VGMRips searches.
@@ -52,7 +49,7 @@ const reportResults = (server, channel, results) => {
  */
 const formatMessage = (item) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New pack on VGMRips', ICON)
+  embed.setAuthor('New pack on VGMRips', icon)
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
   embed.setURL(item.link)

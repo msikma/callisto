@@ -10,10 +10,7 @@ import { isTemporaryError } from 'callisto-util-request'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { findNewTopics } from './search'
-import { color } from './index'
-
-// URL to the icon.
-const REDDIT_ICON = 'https://i.imgur.com/pWjcLbF.png'
+import { color, icon } from './index'
 
 /**
  * Find new topics on Reddit.
@@ -57,7 +54,7 @@ const reportResults = (server, channel, results, name) => {
  */
 const formatMessage = (item, name) => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New topic on /r/${name}`, REDDIT_ICON)
+  embed.setAuthor(`New topic on /r/${name}`, icon)
   embed.setTitle(embedTitle(item.title))
   embed.setDescription(embedDescription(item.descriptionText))
   embed.setURL(item.link)

@@ -7,14 +7,11 @@ import { RichEmbed } from 'discord.js'
 import path from 'path'
 
 import logger from 'callisto-util-logging'
-import { config } from 'callisto-util-misc/resources'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
 import { readSubscriptions } from './util'
-import { color } from './index'
-
-const ICON = 'https://i.imgur.com/rAFBjZ4.jpg'
+import { color, icon } from './index'
 
 /**
  * Main entry point for this task.
@@ -124,7 +121,7 @@ const shortenDescription = (desc, maxLength = 400, errorRatio = 100) => {
  */
 const formatMessage = (item, file = '', query = '') => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New Youtube video by ${item.author}`, ICON)
+  embed.setAuthor(`New Youtube video by ${item.author}`, icon)
   if (item.title) embed.setTitle(embedTitle(item.title))
   if (item.description && item.description !== item.title) {
     embed.setDescription(embedDescription(shortenDescription(item.description)))

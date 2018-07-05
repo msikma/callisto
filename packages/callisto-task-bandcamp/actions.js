@@ -10,9 +10,7 @@ import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { runBandcampSearch } from './search'
-import { color } from './index'
-
-const BANDCAMP_ICON = 'https://i.imgur.com/OBJk66Q.png'
+import { color, icon } from './index'
 
 /**
  * Wraps the search code in a single promise.
@@ -101,12 +99,12 @@ const formatMessageMain = (item, searchDetails) => {
   if (item.type === 'album') {
     // Album type.
     const band = get(item, 'band_name', get(item, 'detailedInfo.otherInfo.artist', '(unknown)'))
-    const icon = get(item, 'band.image')
+    const bandIcon = get(item, 'band.image')
     const linkColor = get(item, 'band.bandData.design.link_color')
     const bandColor = linkColor ? parseInt(linkColor, 16) : color
     const url = `${item.baseURL}${item.page_url}`
     const releaseDate = getFormattedDate(item.release_date)
-    embed.setAuthor(`New album by ${band} on Bandcamp`, BANDCAMP_ICON)
+    embed.setAuthor(`New album by ${band} on Bandcamp`, icon)
     embed.setImage(item._art_url)
     embed.setURL(url)
     embed.setColor(bandColor)
@@ -114,7 +112,7 @@ const formatMessageMain = (item, searchDetails) => {
 
     const descr = get(item, 'detailedInfo.baseInfo.about')
     if (descr) embed.setDescription(embedDescription(descr))
-    if (icon) embed.setThumbnail(icon)
+    if (bandIcon) embed.setThumbnail(bandIcon)
 
     const numberOfTracks = get(item, 'detailedInfo.tracks.length', 0)
     if (numberOfTracks) {

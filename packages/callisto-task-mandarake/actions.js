@@ -11,7 +11,7 @@ import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, wait, objectInspect, removeDefaults } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { runMandarakeSearch, runMandarakeAuctionSearch } from './search'
-import { color, colorAuctions } from './index'
+import { color, colorAuctions, icon, iconAuctions } from './index'
 
 // List of shops and categories by their codes.
 const shopsByCode = {
@@ -22,10 +22,6 @@ const categoriesByCode = {
   en: Object.values(mainCategories).reduce((acc, cat) => ({ ...acc, [cat[0]]: cat[1] }), {}),
   ja: Object.values(mainCategories).reduce((acc, cat) => ({ ...acc, [cat[0]]: cat[2] }), {})
 }
-
-// URL to the Mandarake icons: for the main site, and the auction site.
-const MANDARAKE_MAIN_ICON = 'https://i.imgur.com/30I7Ir1.png'
-const MANDARAKE_EKIZO_ICON = 'https://i.imgur.com/KsL3wSY.png'
 
 /**
  * Wraps the search code in a single promise.
@@ -117,7 +113,7 @@ const formatMessage = (item, searchDetails, type, fields = ['price', 'category',
 
 const formatMessageMain = (item, searchDetails, fields) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New item found on Mandarake', MANDARAKE_MAIN_ICON)
+  embed.setAuthor('New item found on Mandarake', icon)
   if (fields.indexOf('price') !== -1) {
     embed.addField('Price', `¥${item.price} (±€${(item.price / 125).toFixed(2)})`, true)
   }
@@ -148,7 +144,7 @@ const formatMessageMain = (item, searchDetails, fields) => {
 
 const formatMessageAuction = (item, searchDetails, fields) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New item found on Mandarake Auctions', MANDARAKE_EKIZO_ICON)
+  embed.setAuthor('New item found on Mandarake Auctions', iconAuctions)
   if (fields.indexOf('price') !== -1) {
     embed.addField('Current price', `¥${item.currentPrice} (±€${(item.currentPrice / 125).toFixed(2)})`, true)
   }

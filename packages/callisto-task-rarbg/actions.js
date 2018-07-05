@@ -10,10 +10,10 @@ import { setCookies } from 'callisto-util-request'
 import { wait, embedTitle, getFormattedDate } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { findNewEpisodes, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
-import { color } from './index'
+import { color, icon } from './index'
 
 const BASE_URL = 'https://rarbg.to'
-const ICON_FALLBACK = 'https://i.imgur.com/tYMa40S.png'
+// Base amount of ms to wait in between scraping.
 const SCRAPE_DELAY = 10000
 
 // Returns URL to a show's torrent listing page.
@@ -90,7 +90,7 @@ export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
 const formatMessage = (item, show, urlDetails, urlTVGuide) => {
   const embed = new RichEmbed();
   const torrentURL = `${BASE_URL}${item.torrentURL}`
-  embed.setAuthor(`New episode of ${show.name}`, show.icon || ICON_FALLBACK)
+  embed.setAuthor(`New episode of ${show.name}`, show.icon || icon)
   embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.addField('Episode', `${item.seasonNumber} ${item.episodeNumber}`, true)

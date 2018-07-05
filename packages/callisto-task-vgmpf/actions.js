@@ -9,10 +9,7 @@ import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runVGMPFSearch } from './search'
-import { color } from './index'
-
-// URL to the VGMPF icon.
-const ICON = 'https://i.imgur.com/C9kyOuE.png'
+import { color, icon } from './index'
 
 /**
  * Runs VGMPF searches.
@@ -43,7 +40,7 @@ const reportResults = (server, channel, results) => {
  */
 const formatMessage = (item) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New soundtrack on VGMPF', ICON)
+  embed.setAuthor('New soundtrack on VGMPF', icon)
   embed.setTitle(embedTitle(item.title))
   if (item.platform) {
     embed.addField('Platform', item.platform, true)

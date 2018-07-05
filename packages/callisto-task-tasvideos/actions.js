@@ -9,9 +9,7 @@ import { rssParse, embedTitle, embedDescription } from 'callisto-util-misc'
 import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { findNewTASes } from './search'
-import { color } from './index'
-
-const ICON = 'https://i.imgur.com/wlRgRr5.png'
+import { color, icon } from './index'
 
 /**
  * Runs TASVideos searches.
@@ -37,7 +35,7 @@ const reportResults = (server, channel, results, type) => {
  */
 const formatMessage = (item, type = '', showCategories = false, useYoutubeLink = false) => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New publication on TASVideos`, ICON)
+  embed.setAuthor(`New publication on TASVideos`, icon)
   embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.setDescription(embedDescription(item.description))

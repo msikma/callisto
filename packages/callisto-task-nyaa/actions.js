@@ -11,10 +11,7 @@ import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { runNyaaSearch } from './search'
 import * as categories from './categories'
 import * as filters from './filters'
-import { color } from './index'
-
-// URL to the Mandarake icon.
-const NYAA_ICON = 'https://i.imgur.com/FfNa3D1.png'
+import { color, icon } from './index'
 
 /**
  * Returns an RSS feed URL for Nyaa.si.
@@ -80,7 +77,7 @@ const reportResults = (server, channel, results, search) => {
  */
 const formatMessage = (item, search) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New torrent file on Nyaa.si', NYAA_ICON)
+  embed.setAuthor('New torrent file on Nyaa.si', icon)
   embed.setTitle(embedTitle(item.title))
   if (item._description) {
     // Add the scraped description if it's been added.
