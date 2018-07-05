@@ -17,5 +17,5 @@ const scheduledActions = [
 ]
 
 export const getTaskInfo = () => {
-  return { id, name, color, formats, triggerActions, scheduledActions }
+  return { id, name, color, icon, formats, triggerActions, scheduledActions }
 }
