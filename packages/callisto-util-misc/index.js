@@ -147,6 +147,12 @@ export const getSimpleDuration = (time) => (
 export const getFormattedTime = () => (
   moment().format('Y-MM-DD HH:mm:ss ZZ')
 )
+/**
+ * Simply returns a timestamp in the format '01:09:21 +0200'.
+ */
+export const getFormattedTimeOnly = () => (
+  moment().format('HH:mm:ss ZZ')
+)
 
 /**
  * Returns a string representing an object (or array).

@@ -3,6 +3,9 @@
  * Copyright © 2018, Michiel Sikma
  */
 
+// All available log levels from most severe to least severe.
+export const logLevels = ['error', 'warn', 'info', 'verbose', 'debug', 'silly']
+
 const severity = {
   error: 60,
   warn: 50,

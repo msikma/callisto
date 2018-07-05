@@ -4,7 +4,7 @@
  */
 
 import sqlite from 'sqlite'
-import { isArray } from 'lodash'
+import { isArray, isNumber } from 'lodash'
 
 import logger from 'callisto-util-logging'
 
@@ -51,9 +51,11 @@ const createTables = () => (
       )
     `),
     db.run(`
-      create table settings (
-        identifier varchar(127) primary key,
-        data text
+      create table task_settings (
+        identifier varchar(127),
+        namespace varchar(127),
+        data text,
+        primary key (identifier, namespace)
       )
     `)
   ])
@@ -139,15 +141,24 @@ export const cacheItems = async (task, items) => {
 }
 
 /**
- * Returns task settings. If settings do not exist in the database,
- * we will create an empty row.
+ * Returns task settings. If settings do not exist in the database, we will create an empty row.
+ * There are two settings objects in the database: one for the task itself, and one for the system.
+ * The system task includes when the task was last run. It uses this to decide when to
+ * run the task.
+ *
+ * @param {String} $identifier Name of the task
+ * @param {String} settingsType Either 'task' or 'system'
  */
-export const getSettings = async ($identifier) => {
-  const row = await db.get(`select * from settings where identifier=$identifier`, { $identifier })
+export const loadSettings = async ($identifier, $namespace = 'task') => {
+  const row = await db.get(`
+    select * from task_settings
+    where identifier=$identifier
+    and namespace=$namespace
+  `, { $identifier, $namespace })
 
   if (!row) {
     // If no data exists, make an empty row. Data is always an object (serialized as JSON), so return {} by default.
-    await saveSettings($identifier, JSON.stringify({}));
+    await saveSettings($identifier, $namespace, {});
     return {};
   }
   else {
@@ -159,6 +170,10 @@ export const getSettings = async ($identifier) => {
 /**
  * Replaces saved task settings with a new set.
  */
-export const saveSettings = async ($identifier, $data) => (
-  db.run(`insert or replace into settings (identifier, data) values ($identifier, $data)`, { $identifier, $data })
+export const saveSettings = async ($identifier, $namespace, $data) => (
+  db.run(`
+    insert or replace into task_settings
+    (identifier, namespace, data)
+    values ($identifier, $namespace, $data)
+  `, { $identifier, $namespace, $data: JSON.stringify($data) })
 )

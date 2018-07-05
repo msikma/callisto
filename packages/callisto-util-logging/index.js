@@ -6,16 +6,16 @@
 import winston, { createLogger, transports, format } from 'winston'
 import chalk from 'chalk'
 import mkdirp from 'mkdirp'
-import { isObject, isArray, isString } from 'lodash'
+import { isObject, isArray, isString, zipObject } from 'lodash'
+import { logLevels } from './severity'
 export { default as severity } from './severity'
 
 import { objectInspect } from 'callisto-util-misc'
-import { logToDiscord } from 'callisto-discord-interface/src/logging'
 
 let configuredLogger = false
 
 // Colors that correspond to logging levels.
-const levelColors = {
+const levelConsoleColors = {
   error: chalk.red,
   warn: chalk.yellow,
   info: chalk.blue,
@@ -26,7 +26,7 @@ const levelColors = {
 
 // Formats a message for the console. All it does is add a color depending on severity.
 const consoleFormat = format.printf(info => (
-  levelColors[info.level](info.message)
+  levelConsoleColors[info.level](info.message)
 ))
 
 // Logs to text files.
@@ -68,30 +68,18 @@ const logObjectToString = (object) => {
 /**
  * Helper function for logging messages.
  * This passes on whatever we want to log to both the fileLogger and consoleLogger.
- * If 'remoteLog' is true, the message is logged remotely regardless of severity settings.
- * If it is false, the message is never logged remotely.
  */
-const log = (verbosity) => (object, forceRemoteLog = null) => {
+const log = (verbosity) => (object) => {
   const info = logObjectToString(object)
-  if (forceRemoteLog !== false) {
-    logToDiscord(verbosity, info, forceRemoteLog === true)
-  }
   fileLogger[verbosity](info.string)
   consoleLogger[verbosity](info.string)
 }
 
 /**
- * Mimic the Winston logger interface.
- * TODO: surely there's a better way to do this?
+ * Mimic the Winston logger interface. This creates an object with a function for each log level.
+ * E.g. logger.error('string'), logger.verbose('string'), etc.
  */
-const logger = {
-  error: log('error'),
-  warn: log('warn'),
-  info: log('info'),
-  verbose: log('verbose'),
-  debug: log('debug'),
-  silly: log('silly')
-}
+const logger = zipObject(logLevels, logLevels.map(l => log(l)))
 
 /**
  * Sets up the logger by creating the log directory and then sending

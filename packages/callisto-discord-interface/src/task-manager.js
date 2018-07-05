@@ -11,16 +11,16 @@ import { config } from 'callisto-util-misc/resources'
 
 import { logCallistoBootup } from './logging'
 
-const tasks = {}
+const taskDatabase = {}
 
 /**
  * Iterates through our installed tasks and registers them so they can be used.
  * If 'singleTaskData' is set, we will ignore every task except that one.
  */
-export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTaskData) => {
-  const tasks = findTasks()
-  logCallistoBootup(tasks, singleTaskData)
-  tasks.forEach(({ name, file, slug, version }) => {
+export const findAndRegisterTasks = async (discordClient, user, taskConfig, singleTaskData) => {
+  const { tasksWithConfig, tasksWithoutConfig } = findTasks(taskConfig)
+  await logCallistoBootup(tasksWithConfig, tasksWithoutConfig, singleTaskData)
+  tasksWithConfig.forEach(({ name, file, slug, version }) => {
     if (singleTaskData && slug !== singleTaskData.slug) {
       return
     }
@@ -32,7 +32,7 @@ export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTask
       logger.error(`Task ${name} could not be imported:\n${err.stack}`)
     }
   })
-  startTimedTasks(discordClient, user, taskConfig)
+  startTimedTasks(discordClient, user, taskConfig, singleTaskData)
 }
 
 /**
@@ -84,28 +84,27 @@ const scheduleTaskLoop = async (fn, type, delay, discordClient, args) => {
 /**
  * Starts all timed tasks.
  */
-const startTimedTasks = (discordClient, user, taskConfig) => {
+const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
   logger.info('Starting timed actions.')
-  Object.values(tasks).forEach(t => {
-    if (!t.scheduledActions.length) return
-    t.scheduledActions.forEach(a => {
-      logger.verbose(`Task: ${t.id}: ${a.desc} (delay: ${getSimpleDuration(a.delay)}, type: ${a.type}${a.runOnBoot ? ', runs on boot' : ''})`)
+  Object.values(taskDatabase).forEach(task => {
+    if (!task.scheduledActions.length) return
+    task.scheduledActions.forEach(action => {
+      logger.verbose(`Task: ${task.id}: ${action.desc} (delay: ${getSimpleDuration(action.delay)}, type: ${action.type}${action.runOnBoot ? ', runs on boot' : ''})`)
 
       try {
         // Tasks can return either a function, or a promise. If it's a function,
         // we will queue it with a simple setInterval(). If it's a promise,
         // we'll run it, wait for it to finish, and then queue the next one.
-        scheduleTaskLoop(a.fn, a.type, a.delay, discordClient, [discordClient, user, taskConfig[t.id], t.id])
+        scheduleTaskLoop(action.fn, action.type, action.delay, discordClient, [discordClient, user, taskConfig[task.id], task.id])
 
-        // If the fourth item is set to true, we'll run the code right away instead of waiting.
-        // Useful for making sure tasks with long delays at least run once on bot bootup.
-        if (a.runOnBoot) {
-          logger.debug(`Calling task at startup: ${t.id}`)
-          safeCall(a.fn).call(null, discordClient, user, taskConfig[t.id], t.id)
+        // If we're testing with a single task, we'll run the code right away instead of waiting.
+        if (taskSlug(singleTaskData.name) === task.id) {
+          logger.debug(`Calling task at startup: ${task.id}`)
+          safeCall(action.fn).call(null, discordClient, user, taskConfig[task.id], task.id)
         }
       }
       catch (err) {
-        logger.error(`Could not run ${t.name} task ("${a.desc}"):\n\n${err.stack}`)
+        logger.error(`Could not run ${task.name} task ("${action.desc}"):\n\n${err.stack}`)
       }
     })
   })
@@ -114,11 +113,18 @@ const startTimedTasks = (discordClient, user, taskConfig) => {
 /**
  * Registers a task, making it possible to access its functionality.
  */
-const registerTask = (discordClient, user, { id, formats, triggerActions, scheduledActions }, slug, version) => {
-  tasks[id] = { id, formats, triggerActions, scheduledActions }
+const registerTask = (discordClient, user, { id, name, icon, color, formats, triggerActions, scheduledActions }, slug, version) => {
+  taskDatabase[id] = { id, name, icon, color, formats, version, triggerActions, scheduledActions }
   logger.verbose(`Registered task: ${slug} (${version})`)
-  triggerActions.forEach(a => discordClient.on(a[0], a[1]))
+  triggerActions.forEach(action => discordClient.on(action[0], action[1]))
 }
+
+/**
+ * Returns a registered task's information.
+ */
+export const getTaskInfo = id => (
+  taskDatabase[id]
+)
 
 /**
  * Returns the slug of a task name, e.g. for 'callisto-task-asdf' this is 'asdf'.
@@ -130,9 +136,10 @@ const taskSlug = (taskName) => (
 /**
  * Finds all usable tasks.
  */
-export const findTasks = () => {
+export const findTasks = taskConfig => {
+  // Fetch tasks currently present in the /packages/ directory.
   const base = `${config.CALLISTO_BASE_DIR}/packages/`
-  return listTaskDirs(base).map(i => {
+  const existingTasks = listTaskDirs(base).map(i => {
     const packageData = require(`${base}${i}/package.json`)
     return {
       name: i,
@@ -144,6 +151,13 @@ export const findTasks = () => {
       slug: taskSlug(i)
     }
   })
+  // Make a list of the tasks we have configuration for.
+  const taskList = Object.keys(taskConfig)
+  // Separate our tasks into two lists based on whether a task has configuration.
+  const tasksWithConfig = existingTasks.filter(t => taskList.indexOf(t.slug) > -1)
+  const tasksWithoutConfig = existingTasks.filter(t => taskList.indexOf(t.slug) === -1)
+
+  return { tasksWithConfig, tasksWithoutConfig }
 }
 
 /**

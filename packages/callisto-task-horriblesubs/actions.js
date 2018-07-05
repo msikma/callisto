@@ -6,11 +6,12 @@
 import { RichEmbed } from 'discord.js'
 
 import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
+import { embedTitle, embedDescription, wait, objectInspect } from 'callisto-util-misc'
 import { runHorribleSubsSearch } from './search'
 import * as res from './res'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 /**
  * Returns an RSS feed URL for HorribleSubs.
@@ -23,8 +24,11 @@ const horribleSubsURL = (search='', res=res.RES_EVERYTHING) => (
  * Runs HorribleSubs searches.
  */
 export const actionRunSearches = (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   // Default search parameters.
   const { defaultDetails, defaultTarget } = taskConfig
+
+  taskLogger.verbose('Running searches.')
 
   // Run through each of our searches and fire off a query.
   taskConfig.searches.forEach(async ({ details, target, link, wikia }, i) => {
@@ -34,7 +38,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
     const msgTarget = target ? target : defaultTarget
     const searchDetails = { ...defaultDetails, ...details }
     const url = horribleSubsURL(searchDetails.query, searchDetails.res)
-    logger.debug(`horriblesubs: ${searchDetails.query}: loading from url: ${url}`)
+    taskLogger.verbose(`Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
     const results = await runHorribleSubsSearch(url, searchDetails, link, wikia)
     msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, link))
   })
