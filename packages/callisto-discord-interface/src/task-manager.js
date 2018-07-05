@@ -89,7 +89,7 @@ const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
   Object.values(taskDatabase).forEach(task => {
     if (!task.scheduledActions.length) return
     task.scheduledActions.forEach(action => {
-      logger.verbose(`Task: ${task.id}: ${action.desc} (delay: ${getSimpleDuration(action.delay)}, type: ${action.type}${action.runOnBoot ? ', runs on boot' : ''})`)
+      logger.verbose(`Task: ${task.id}: ${action.desc} (delay: ${getSimpleDuration(action.delay)}, type: ${action.type})`)
 
       try {
         // Tasks can return either a function, or a promise. If it's a function,
@@ -98,7 +98,7 @@ const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
         scheduleTaskLoop(action.fn, action.type, action.delay, discordClient, [discordClient, user, taskConfig[task.id], task.id])
 
         // If we're testing with a single task, we'll run the code right away instead of waiting.
-        if (taskSlug(singleTaskData.name) === task.id) {
+        if (singleTaskData && taskSlug(singleTaskData.name) === task.id) {
           logger.debug(`Calling task at startup: ${task.id}`)
           safeCall(action.fn).call(null, discordClient, user, taskConfig[task.id], task.id)
         }
