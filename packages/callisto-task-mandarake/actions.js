@@ -158,8 +158,8 @@ const formatMessageAuction = (item, searchDetails, fields) => {
   }
   else {
     // TEMPORARY
-    console.log(item.timeLeft)
-    logger.warn(item.timeLeft)
+    //console.log(item.timeLeft)
+    //logger.warn(item.timeLeft)
     const daysLeft = `${item.timeLeft.days} day${item.timeLeft.days !== 1 ? 's' : ''}`
     const hoursLeft = `${item.timeLeft.hours} hour${item.timeLeft.hours !== 1 ? 's' : ''}`
     const minutesLeft = `${item.timeLeft.minutes} minute${item.timeLeft.minutes !== 1 ? 's' : ''}`
@@ -168,9 +168,14 @@ const formatMessageAuction = (item, searchDetails, fields) => {
       ...(item.timeLeft.hours > 0 ? [hoursLeft] : []),
       ...(item.timeLeft.minutes > 0 ? [minutesLeft] : []),
     ]
+    // rework
     const timeLeft = timeLeftBits.length === 3
       ? `${timeLeftBits.slice(0, 1)[0]}, ${timeLeftBits.slice(1, 3).join(' and ')}`
-      : (timeLeftBits.length === 2 ? timeLeftBits.join(' and ') : timeLeftBits[0])
+      : (timeLeftBits.length === 2
+          ? timeLeftBits.join(' and ')
+          : (timeLeftBits.length === 0
+              ? '(unknown)'
+              : timeLeftBits[0]))
 
     embed.addField('Time left', timeLeft, true)
   }
