@@ -8,9 +8,9 @@ import { get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration } from 'callisto-util-misc'
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { runBandcampSearch } from './search'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 /**
  * Wraps the search code in a single promise.
@@ -23,6 +23,7 @@ export const actionRunSearches = async (discordClient, user, taskConfig) => {
  * Runs Bandcamp searches. Always resolves.
  */
 const actionSearch = async (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   const searches = get(taskConfig, 'searches', [])
 
   await Promise.all(searches.map(async ({ details, target }, i) => {
@@ -34,17 +35,17 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runBandcampSearch(details)
-      logger.debug(`bandcamp: Searched main: ${objectInspect(details)} - wait: ${waitingTime}, entries: ${newItems.length}, url: ${search.url}`)
+      taskLogger.debug(details.search, `Searched: ${objectInspect(details)} - wait: ${waitingTime}, entries: ${newItems.length}, url: <${search.url}>`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, details))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`bandcamp: Ignored ENOTFOUND error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
+        taskLogger.debug(details.search, `Ignored ENOTFOUND error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`bandcamp: Caught error during search: ${objectInspect(details)} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during search`, `${objectInspect(details)}\n\nWait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
@@ -127,7 +128,7 @@ const formatMessageMain = (item, searchDetails) => {
     return embed
   }
   else {
-    logger.error(`bandcamp: Invalid item type: ${item.type}\n\n${objectInspect(item)}`)
+    taskLogger.error(`Invalid item type: ${item.type}`, `${objectInspect(item)}`)
   }
 }
 

@@ -5,25 +5,26 @@
 
 import { RichEmbed } from 'discord.js'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runVGMPFSearch } from './search'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 /**
  * Runs VGMPF searches.
  */
 export const actionRecentReleases = async (discordClient, user, taskConfig) => {
   try {
+    const taskLogger = getTaskLogger(id)
     const { target } = taskConfig
     const results = await runVGMPFSearch()
-    logger.debug(`vgmpf: Posting new update`)
+    taskLogger.debug(`Posting new update`)
     target.forEach(t => reportResults(t[0], t[1], results))
   }
   catch (err) {
-    logger.error('vgmpf: An error occurred while searching for updates')
-    logger.error(err.stack)
+    const taskLogger = getTaskLogger(id)
+    taskLogger.error('An error occurred while searching for updates', `${err.stack}`)
   }
 }
 

@@ -6,12 +6,12 @@
 import { RichEmbed } from 'discord.js'
 import path from 'path'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
 import { readSubscriptions } from './util'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 /**
  * Main entry point for this task.
@@ -26,9 +26,10 @@ export const actionSearchUpdates = (discordClient, user, taskConfig) => {
  * Find new subscription videos.
  */
 const parseSubscriptionTask = async (accountData) => {
+  const taskLogger = getTaskLogger(id)
   const subscriptionsFile = accountData.subscriptions
   const subscriptionData = await readSubscriptions(subscriptionsFile, accountData.slug)
-  logger.debug(`youtube: ${accountData.slug}: Iterating through subscriptions`)
+  taskLogger.debug(`${accountData.slug}`, `Iterating through subscriptions`)
   const subscriptions = subscriptionData.opml.body[0].outline[0].outline.map(n => n.$)
 
   const updates = []
@@ -39,7 +40,7 @@ const parseSubscriptionTask = async (accountData) => {
       // Pass on the 'slug' from the account data, which we'll use for caching.
       const results = await findNewSubscriptionVideos(xmlUrl, accountData.slug)
       if (results.length) {
-        logger.silly(`youtube: ${path.basename(subscriptionsFile)}: channel: ${title}: found ${results.length} new ${results.length === 1 ? 'item' : 'items'}`)
+        taskLogger.silly(`${path.basename(subscriptionsFile)}: channel: ${title}`, `Found ${results.length} new ${results.length === 1 ? 'item' : 'items'}`)
         updates.push({ target: accountData.target, results, subscriptionsFile })
       }
     }
@@ -49,14 +50,14 @@ const parseSubscriptionTask = async (accountData) => {
       // Only report an error if it's something else.
       const badStatusCode = String(err).indexOf('Bad status code') > 0
       if (err !== 'no articles' && !badStatusCode) {
-        logger.error(`youtube: ${path.basename(subscriptionsFile)}: channel: ${title}: An error occurred while scraping subscription videos\n\n${err.stack}`)
+        taskLogger.error('An error occurred while scraping subscription videos', `File: ${path.basename(subscriptionsFile)}, channel: ${title}.\n\n${err.stack}`)
       }
     }
   }
 
   // Post all updates we've gathered.
   if (updates.length) {
-    logger.debug(`youtube: ${accountData.slug}: Posting ${updates.length} new ${updates.length === 1 ? 'item' : 'items'}`)
+    taskLogger.debug(`${accountData.slug}`, `Posting ${updates.length} new ${updates.length === 1 ? 'item' : 'items'}`)
     updates.forEach(update =>
       update.target.forEach(t => reportResults(t[0], t[1], update.results, update.subscriptionsFile))
     )
@@ -67,11 +68,12 @@ const parseSubscriptionTask = async (accountData) => {
  * Find new videos from a search task.
  */
 const parseSearchTask = async (searchData) => {
+  const taskLogger = getTaskLogger(id)
   const { slug, searchParameters, searchQuery, target } = searchData
-  logger.debug(`youtube: ${searchQuery} (${slug}): Running Youtube search`)
+  taskLogger.debug(`${searchQuery} (${slug})`, `Running Youtube search`)
   const results = await findNewSearchVideos(searchParameters, searchQuery, slug)
   if (results.length) {
-    logger.debug(`youtube: ${searchQuery} (${slug}): Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
+    taskLogger.debug(`${searchQuery} (${slug})`, `Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
     target.forEach(t => reportResults(t[0], t[1], results, null, searchQuery))
   }
 }

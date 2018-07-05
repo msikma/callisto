@@ -5,7 +5,6 @@
 
 import { RichEmbed } from 'discord.js'
 
-import logger from 'callisto-util-logging'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait, objectInspect } from 'callisto-util-misc'
@@ -38,7 +37,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
     const msgTarget = target ? target : defaultTarget
     const searchDetails = { ...defaultDetails, ...details }
     const url = horribleSubsURL(searchDetails.query, searchDetails.res)
-    taskLogger.verbose(`Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
+    taskLogger.verbose(searchDetails.query, `Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
     const results = await runHorribleSubsSearch(url, searchDetails, link, wikia)
     msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, link))
   })

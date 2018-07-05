@@ -8,9 +8,9 @@ import { RichEmbed } from 'discord.js'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { setCookies } from 'callisto-util-request'
 import { wait, embedTitle, getFormattedDate } from 'callisto-util-misc'
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { findNewEpisodes, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 const BASE_URL = 'https://rarbg.to'
 // Base amount of ms to wait in between scraping.
@@ -26,6 +26,7 @@ const getTVURL = (episodeID) => `${BASE_URL}/tv.php?ajax=1&tvepisode=${episodeID
 const getTorrentDetailURL = (torrentID) => `${BASE_URL}/torrent/${torrentID}`
 
 export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   const { items, cookies } = taskConfig
   // Set our initial cookies.
   setCookies(cookies, BASE_URL)
@@ -35,7 +36,7 @@ export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
     // We need to request our items slowly to avoid being forced to enter a captcha by the server.
     // Add a random delay up to a second to our standard delay, except the last item.
     const randDelay = Math.round(Math.random() * 1000) + SCRAPE_DELAY
-    logger.debug(`rarbg: scraping item ${show.name} (${show.slug})${n !== items.length - 1 ? ` (delay until next: ${randDelay} ms)` : ' (last)'}`)
+    taskLogger.debug(show.slug, `Scraping item ${show.name} (${show.slug})${n !== items.length - 1 ? ` (delay until next: ${randDelay} ms)` : ' (last)'}`)
 
     // Begin scraping. First request the show's overview page, which lists all the shows.
     // We then check if this is a new item. Normally we do this at the end of the scraping cycle
@@ -63,18 +64,18 @@ export const actionNewEpisodes = async (discordClient, user, taskConfig) => {
         await wait(randDelay)
 
         // Retrieve list of torrent links for this episode.
-        logger.debug(`rarbg: new episode found (delay until next: ${randDelay} ms)`)
+        taskLogger.debug(show.slug, `New episode found (delay until next: ${randDelay} ms)`)
         const urlTV = getTVURL(episode.episodeID)
         const episodeLink = await getEpisodeInfo(urlTV, url)
         await wait(randDelay)
 
         // Retrieve torrent and image URLs.
-        logger.debug(`rarbg: new episode torrent code is ${episodeLink.code} (delay until next: ${randDelay} ms)`)
+        taskLogger.debug(show.slug, `New episode torrent code is ${episodeLink.code} (delay until next: ${randDelay} ms)`)
         const urlDetails = getTorrentDetailURL(episodeLink.code)
         const torrentDetails = await getTorrentDetails(urlDetails, urlTV)
 
         // Send results to Discord.
-        logger.debug(`rarbg: caching new episode and its information to Discord`)
+        taskLogger.debug(show.slug, `Caching new episode and its information to Discord`)
         const episodeFullData = { ...episode, ...episodeLink, ...torrentDetails }
         await cacheEpisode(episodeFullData)
 

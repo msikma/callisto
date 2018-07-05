@@ -6,7 +6,7 @@
 import cheerio from 'cheerio'
 import URL from 'url-parse'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { requestURL } from 'callisto-util-request'
 import { rssParse, objectInspect } from 'callisto-util-misc'
@@ -16,6 +16,7 @@ import { id } from './index'
  * Loads the HorribleSubs RSS feed and match its entries against our search query.
  */
 export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => {
+  const taskLogger = getTaskLogger(id)
   // Parse RSS - on error, this resolves with an empty array.
   const items = await rssParse(url, true)
   const queryRe = new RegExp(searchDetails.query, 'i')
@@ -28,7 +29,7 @@ export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => 
   // Copy 'guid' to 'id' for caching.
   const allItems = matchingItems.map(entry => ({ ...entry, id: entry.guid }))
   const newItems = await removeCached(id, allItems)
-  logger.debug(`horriblesubs: ${searchDetails.query}: found ${matchingItems.length} matching item(s), ${newItems.length} new item(s)`)
+  taskLogger.debug(`${searchDetails.query}`, `Found ${matchingItems.length} matching item(s), ${newItems.length} new item(s)`)
 
   if (newItems.length === 0) return []
 
@@ -38,10 +39,10 @@ export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => 
     // For all matching items, retrieve an image. If there's a Wikia link, try that.
     // Otherwise, find the series image on HorribleSubs itself.
     if (wikia) {
-      return await retrieveWikiaInfo(newItems, wikia, searchDetails.query)
+      return await retrieveWikiaInfo(newItems, wikia, searchDetails.query, taskLogger)
     }
     else {
-      return await retrieveSeriesImage(newItems, link, searchDetails.query)
+      return await retrieveSeriesImage(newItems, link, searchDetails.query, taskLogger)
     }
   }
   catch (e) {
@@ -53,7 +54,7 @@ export const runHorribleSubsSearch = async (url, searchDetails, link, wikia) => 
 /**
  * Retrieves information from Wikia about this episode.
  */
-const retrieveWikiaInfo = (items, tpl, query) => (
+const retrieveWikiaInfo = (items, tpl, query, taskLogger) => (
   // Episodes all follow this naming pattern: [HorribleSubs] One Piece - 841 [1080p].mkv
   Promise.all(items.map(async item => {
     const episode = item.title.match(/- ([0-9]+) \[/)[1]
@@ -89,7 +90,7 @@ const retrieveWikiaInfo = (items, tpl, query) => (
       _episodeImage: episodeImage
     }
 
-    logger.debug(`horriblesubs: ${query}: for item "${item.title}": added metadata: ${objectInspect(metadata)}`)
+    taskLogger.debug(`${query}`, `For item "${item.title}": added metadata: ${objectInspect(metadata)}`)
 
     return {
       ...item,
@@ -101,12 +102,12 @@ const retrieveWikiaInfo = (items, tpl, query) => (
 /**
  * Retrieves the series image for a specific series, and adds it to the items we found.
  */
-const retrieveSeriesImage = async (items, link, query) => {
+const retrieveSeriesImage = async (items, link, query, taskLogger) => {
   const page = await requestURL(link)
   const $ = cheerio.load(page)
   const seriesImage = $('.series-image img').attr('src')
 
-  logger.debug(`horriblesubs: ${query}: added series image: ${seriesImage}`)
+  taskLogger.debug(`${query}`, `Added series image: ${seriesImage}`)
 
   return items.map(item => ({ ...item, _seriesImage: seriesImage }))
 }

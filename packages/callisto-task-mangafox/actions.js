@@ -5,26 +5,27 @@
 
 import { RichEmbed } from 'discord.js'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, getFormattedDate, wait } from 'callisto-util-misc'
 import { runMangaSearch } from './search'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 export const actionNewChapters = async (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   const { searches } = taskConfig
   for (let search of searches) {
     const { name, slug, thumbnail, color, target } = search
-    logger.debug(`mangafox: ${slug}: Retrieving latest chapters`)
+    taskLogger.debug(`${slug}`, `Retrieving latest chapters`)
     const results = await runMangaSearch(slug)
-    logger.debug(`mangafox: ${slug}: Done - ${results.length} results`)
-    target.forEach(t => reportResults(t[0], t[1], results, { slug, thumbnail, color, name }))
+    taskLogger.debug(`${slug}`, `Done - ${results.length} results`)
+    target.forEach(t => reportResults(t[0], t[1], results, { slug, thumbnail, color, name }, taskLogger))
   }
 }
 
-const reportResults = (server, channel, results, comic) => {
+const reportResults = (server, channel, results, comic, taskLogger) => {
   if (results.length === 0) return
-  logger.debug(`mangafox: ${comic.slug}: Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
+  taskLogger.debug(`${comic.slug}`, `Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
   results.forEach(item => sendMessage(server, channel, null, formatMessage(item, comic)))
 }
 

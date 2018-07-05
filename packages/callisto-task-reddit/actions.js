@@ -5,37 +5,38 @@
 
 import { RichEmbed } from 'discord.js'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { isTemporaryError } from 'callisto-util-request'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { findNewTopics } from './search'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 /**
  * Find new topics on Reddit.
  */
 export const actionSubTopics = (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   taskConfig.subs.forEach(async ({ name, type, target }, i) => {
     // Stagger the searches a bit.
     await wait(i * 5000)
-    logger.debug(`reddit: Searching for updates from sub ${name}, type ${type} (wait: ${i * 5000})`)
+    taskLogger.debug(name, `Searching for updates from sub ${name}, type ${type} (wait: ${i * 5000})`)
     try {
       const results = await findNewTopics(name, type)
       if (results.items.length) {
-        logger.debug(`reddit: Found ${results.items.length} item(s) in sub: ${name}, type: ${type}, url: ${results.url}`)
+        taskLogger.debug(name, `Found ${results.items.length} item(s) in sub: ${name}, type: ${type}, url: ${results.url}`)
         target.forEach(t => reportResults(t[0], t[1], results.items, name))
       }
     }
     catch (err) {
       if (isTemporaryError(err)) {
-        return logger.info(`reddit: Temporary network error (${err.code}) while searching in sub: ${name}, type: ${type}`)
+        return taskLogger.verbose(name, `Temporary network error (${err.code}) while searching in sub: ${name}, type: ${type}`)
       }
       else if (err.error) {
-        return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}, url: ${err.url}\n\n${err.error.stack}`)
+        return taskLogger.error(`Error occurred while searching in sub`, `Sub: ${name}, type: ${type}, url: ${err.url}\n\n${err.error.stack}`)
       }
       else {
-        return logger.error(`reddit: Error occurred while searching in sub: ${name}, type: ${type}\n\n${err.stack}`)
+        return taskLogger.error(`Error occurred while searching in sub`, `Sub: ${name}, type: ${type}\n\n${err.stack}`)
       }
     }
   })

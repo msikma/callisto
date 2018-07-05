@@ -16,7 +16,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  { delay: 2400000, desc: 'run Bandcamp searches', fn: actionRunSearches, type: 'Promise' }
+  { delay: 600000, desc: 'run Bandcamp searches', fn: actionRunSearches, type: 'Promise' }
 ]
 
 export const getTaskInfo = () => {

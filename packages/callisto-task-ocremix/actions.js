@@ -5,32 +5,34 @@
 
 import { RichEmbed } from 'discord.js'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, getFormattedDate } from 'callisto-util-misc'
 import { findNewItems } from './search'
-import { color, icon } from './index'
+import { id, color, icon } from './index'
 
 /**
  * Find new tracks and albums on OCReMix.
  */
 export const actionRemixes = async (discordClient, user, taskConfig) => {
   try {
-    logger.debug(`ocremix: Searching for new tracks and albums`)
+    const taskLogger = getTaskLogger(id)
+    taskLogger.debug(`Searching for new tracks and albums`)
     const { tracks, albums } = await findNewItems()
 
     if (tracks.length) {
-      logger.debug(`ocremix: Found ${tracks.length} new track(s)`)
+      logger.debug(`Found ${tracks.length} new track(s)`)
       taskConfig.tracks.target.forEach(t => reportResults(t[0], t[1], tracks, 'track'))
     }
 
     if (albums.length) {
-      logger.debug(`ocremix: Found ${albums.length} new album(s)`)
+      logger.debug(`Found ${albums.length} new album(s)`)
       taskConfig.albums.target.forEach(t => reportResults(t[0], t[1], albums, 'album'))
     }
   }
   catch (err) {
-    logger.error(`ocremix: Error occurred while scraping:\n\n${err.stack}`)
+    const taskLogger = getTaskLogger(id)
+    logger.error(`Error occurred while scraping:\n\n${err.stack}`)
   }
 }
 

@@ -5,7 +5,7 @@
 
 import cheerio from 'cheerio'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
 import { wait, getIntegerTimestamp } from 'callisto-util-misc'
@@ -26,10 +26,11 @@ const COMIC_IMG = Symbol('COMIC_IMG')
  * If not, it returns it to be posted to Discord.
  */
 export const runComicSearch = async (urlBase, slug) => {
+  const taskLogger = getTaskLogger(id)
   const comicID = `${id}$${slug}`
 
   // Find latest chapter. Check if it exists in the database yet.
-  const latest = await getLatestChapters(urlBase, slug)
+  const latest = await getLatestChapters(urlBase, slug, taskLogger)
   const ids = latest.map(i => i.id)
   const exists = (await filterCachedIDs(comicID, ids)).map(i => i.id)
 
@@ -124,10 +125,10 @@ const findComicInfo = ($, item) => {
 /**
  * Requests the comic's archive page HTML and returns its latest chapters.
  */
-const getLatestChapters = async (urlBase, slug) => {
+const getLatestChapters = async (urlBase, slug, taskLogger) => {
   const html = await requestURL(urlArchive(urlBase))
   const $html = cheerio.load(html)
-  return findLatestChapters($html, urlBase, slug)
+  return findLatestChapters($html, urlBase, slug, taskLogger)
 }
 
 /**
@@ -137,7 +138,7 @@ const getLatestChapters = async (urlBase, slug) => {
  * with just the months in it. We have to determine which of the two it is,
  * then run customized scraping code to get the latest item.
  */
-const findLatestChapters = ($, urlBase, slug) => {
+const findLatestChapters = ($, urlBase, slug, taskLogger) => {
   // Determine which type of layout this comic archive uses.
   const type = $('.archive > ul > li').length > 0 ? ARCHIVE_UL : SELECT_COMIC
 
@@ -145,7 +146,7 @@ const findLatestChapters = ($, urlBase, slug) => {
     case ARCHIVE_UL: return findLatestChaptersArchiveUl($, urlBase)
     case SELECT_COMIC: return findLatestChaptersSelectComic($, urlBase)
     default:
-      logger.error(`hiveworks: ${slug}: Neither ARCHIVE_UL nor SELECT_COMIC type archive found.`)
+      taskLogger.error(`${slug}: Neither ARCHIVE_UL nor SELECT_COMIC type archive found.`)
       return {}
   }
 }

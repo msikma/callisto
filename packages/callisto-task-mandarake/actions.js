@@ -9,9 +9,9 @@ import { uniq, get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, wait, objectInspect, removeDefaults } from 'callisto-util-misc'
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { runMandarakeSearch, runMandarakeAuctionSearch } from './search'
-import { color, colorAuctions, icon, iconAuctions } from './index'
+import { id, color, colorAuctions, icon, iconAuctions } from './index'
 
 // List of shops and categories by their codes.
 const shopsByCode = {
@@ -34,6 +34,7 @@ export const actionRunSearches = async (discordClient, user, taskConfig) => {
  * Runs Mandarake searches. Always resolves.
  */
 const actionSearch = async (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   const mainSearches = get(taskConfig.main, 'searches', [])
   const auctionSearches = get(taskConfig.auction, 'searches', [])
 
@@ -53,17 +54,17 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runMandarakeSearch(searchDetails, msgLang)
-      logger.debug(`mandarake: Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
+      taskLogger.debug(searchDetails.keyword, `Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'main'))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`mandarake: Ignored ENOTFOUND error during regular search: ${searchInfo} - wait: ${waitingTime}`)
+        taskLogger.debug(searchDetails.keyword, `Ignored ENOTFOUND error during regular search: ${searchInfo} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`mandarake: Caught error during regular search: ${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during regular search`, `${searchInfo}\n\nwait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
@@ -81,15 +82,15 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runMandarakeAuctionSearch(searchDetails)
-      logger.debug(`mandarake: Searched auction: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
+      taskLogger.debug(searchDetails.q, `Searched auction: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'auction'))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`mandarake: Ignored ENOTFOUND error during auction search: ${searchInfo} - wait: ${waitingTime}`)
+        taskLogger.debug(searchDetails.q, `Ignored ENOTFOUND error during auction search: ${searchInfo} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`mandarake: Caught error during auction search: ${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during auction search`, `${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))

@@ -5,11 +5,12 @@
 
 import { fetchPage, fetchAlbumExtendedInfo } from 'bandcampscr'
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { wait, getIntegerTimestamp } from 'callisto-util-misc'
 import { id } from './index'
 
 export const runBandcampSearch = async (details) => {
+  const taskLogger = getTaskLogger(id)
   const search = await fetchPage(details.search)
   if (search.albums.length === 0) return { newItems: [], search }
 
@@ -32,7 +33,7 @@ export const runBandcampSearch = async (details) => {
   // Retrieve additional information for the items we have.
   const newItemsWithInfo = await Promise.all(newItems.map(async (item, n) => {
     await wait(n * 5000)
-    logger.debug(`bandcamp: Retrieving detailed information for item: ${item.page_url} (wait: ${n * 5000})`)
+    taskLogger.debug(details.search, `Retrieving detailed information for item: ${item.page_url} (wait: ${n * 5000})`)
     const detailedInfo = await fetchAlbumExtendedInfo(item)
     return {
       ...item,
