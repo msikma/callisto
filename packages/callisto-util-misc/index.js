@@ -51,6 +51,32 @@ export const htmlToMarkdown = (html, removeEmpty = false, removeScript = true, r
 }
 
 /**
+ * Cuts a long Markdown description down to something better for embeds.
+ */
+export const limitDescription = (desc, limit = 700) => {
+  if (desc.length < limit) return desc
+
+  const limitedChars = desc.slice(0, limit)
+  // Cut off the last line so we don't end on a half-sentence.
+  const limitedLines = limitedChars
+    .split('\n')
+    .slice(0, -1)
+    .join('\n')
+    .trim()
+
+  return `${limitedLines}\n[...]`
+}
+
+/**
+ * Returns image URLs from an HTML string.
+ */
+export const getImagesFromHTML = (html) => {
+  const $ = cheerio.load(`<div id="callisto-wrapper">${html}</div>`)
+  const $html = $('#callisto-wrapper')
+  return $html.find('img').get().map(i => $(i).attr('src'))
+}
+
+/**
  * Separate images from Markdown. We can't display them on Discord.
  * This returns the Markdown text with all image tags removed, and the image tags separately.
  */
@@ -213,6 +239,22 @@ export const wait = (ms) => (
     setInterval(() => resolve(), ms)
   ))
 )
+
+/**
+ * Returns whether a string is likely HTML or not.
+ */
+export const isHTML = (string) => {
+  const items = [
+    string.indexOf('<p>') > 0,
+    string.indexOf('<strong>') > 0,
+    string.indexOf('<img') > 0,
+    string.indexOf('<br /') > 0,
+    string.indexOf('<br/') > 0,
+    string.indexOf('<br>') > 0,
+    string.indexOf('href="') > 0
+  ]
+  return items.indexOf(true) > -1
+}
 
 /**
  * Limits a string to a specific length. Adds ellipsis if it exceeds.
