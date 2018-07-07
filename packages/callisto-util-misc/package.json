@@ -1,7 +1,7 @@
 {
   "name": "callisto-util-misc",
   "private": true,
-  "version": "1.5.8",
+  "version": "1.6.0",
   "description": "All the random other stuff that I didn't know where to put",
   "main": "index.js",
   "scripts": {
