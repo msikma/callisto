@@ -18,7 +18,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  { delay: 100000, desc: 'retrieve syndicated feed updates', fn: checkFeeds, type: 'Promise' }
+  { delay: 200000, desc: 'retrieve syndicated feed updates', fn: checkFeeds, type: 'Promise' }
 ]
 
 export const getTaskInfo = () => {
