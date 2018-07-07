@@ -8,7 +8,7 @@ import { get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { isTemporaryError } from 'callisto-util-request'
-import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration } from 'callisto-util-misc'
+import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration, wrapInJSCode } from 'callisto-util-misc'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { runBandcampSearch } from './search'
 import { id, color, icon } from './index'
@@ -46,7 +46,7 @@ const actionSearch = async (discordClient, user, taskConfig) => {
         taskLogger.debug(details.search, `Ignored temporary error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
       }
       else {
-        taskLogger.error(`Caught error during search`, `${objectInspect(details)}\n\nWait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during search`, `${wrapInJSCode(objectInspect(details))}\nWait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
