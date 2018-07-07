@@ -7,6 +7,7 @@ import { RichEmbed } from 'discord.js'
 import { get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { isTemporaryError } from 'callisto-util-request'
 import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration } from 'callisto-util-misc'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { runBandcampSearch } from './search'
@@ -41,8 +42,8 @@ const actionSearch = async (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, details))
     }
     catch (err) {
-      if (err.code === 'ENOTFOUND') {
-        taskLogger.debug(details.search, `Ignored ENOTFOUND error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
+      if (isTemporaryError(err)) {
+        taskLogger.debug(details.search, `Ignored temporary error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
       }
       else {
         taskLogger.error(`Caught error during search`, `${objectInspect(details)}\n\nWait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
