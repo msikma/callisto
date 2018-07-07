@@ -18,7 +18,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  { delay: 1800000, desc: 'find new pack releases from VGMRips', fn: actionRecentReleases, type: 'Function' }
+  { delay: 1800000, desc: 'find new pack releases from VGMRips', fn: actionRecentReleases }
 ]
 
 export const getTaskInfo = () => {

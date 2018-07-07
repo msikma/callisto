@@ -18,7 +18,7 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  { delay: 480000, desc: 'find new videos from Youtube searches and subscriptions', fn: actionSearchUpdates, type: 'Function' }
+  { delay: 480000, desc: 'find new videos from Youtube searches and subscriptions', fn: actionSearchUpdates }
 ]
 
 export const getTaskInfo = () => {

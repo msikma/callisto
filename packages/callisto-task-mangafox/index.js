@@ -12,7 +12,7 @@ export const icon = 'https://i.imgur.com/pfveukN.png'
 const formats = []
 const triggerActions = []
 const scheduledActions = [
-  { delay: 1700000, desc: 'find new MangaFox chapters for various mangas', fn: actionNewChapters, type: 'Function' }
+  { delay: 1700000, desc: 'find new MangaFox chapters for various mangas', fn: actionNewChapters }
 ]
 
 export const getTaskInfo = () => {

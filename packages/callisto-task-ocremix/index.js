@@ -13,7 +13,7 @@ export const icon = 'https://i.imgur.com/4pVcJnw.png'
 const formats = []
 const triggerActions = []
 const scheduledActions = [
-  { delay: 240000, desc: 'find new albums and single tracks on OCReMix', fn: actionRemixes, type: 'Function' }
+  { delay: 240000, desc: 'find new albums and single tracks on OCReMix', fn: actionRemixes }
 ]
 
 export const getTaskInfo = () => {
