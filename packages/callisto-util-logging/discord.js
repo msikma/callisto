@@ -32,11 +32,13 @@ const levelColors = {
  */
 const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (title, desc, fields = [], force = false) => {
   // List of channels to log to.
-  const logChannels = config.CALLISTO_SETTINGS.logChannels
+  const logChannels = config.CALLISTO_SETTINGS.logChannels || []
+  const logChannelsImportant = config.CALLISTO_SETTINGS.logChannelsImportant || []
   // Severity limit. If it meets 'type one', we post a RichEmbed. If 'type two', we post text.
   // If the message meets neither, we ignore it.
   const typeOneLimit = severity[config.CALLISTO_SETTINGS.logLevel]
   const typeTwoLimit = severity[config.CALLISTO_SETTINGS.logLevelText]
+  const importantLimit = severity[config.CALLISTO_SETTINGS.logLevelImportant]
   const messageSeverity = severity[level]
   // Color to use for the embed, indicating the severity.
   const levelColor = levelColors[level]
@@ -50,7 +52,7 @@ const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (t
     return
   }
 
-  if (severity[level] >= typeOneLimit) {
+  if (messageSeverity >= typeOneLimit) {
     // Send a RichEmbed.
     const embed = new RichEmbed()
     if (title) embed.setTitle(embedTitle(title))
@@ -64,12 +66,22 @@ const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (t
     embed.setAuthor(name, icon)
     embed.setColor(levelColor)
     embed.setTimestamp()
+    // Send to the important log channels if applicable.
+    if (messageSeverity >= importantLimit) {
+      logChannelsImportant.forEach(c => sendMessage(c[0], c[1], null, embed))
+    }
+    // Send to the regular log channels.
     return logChannels.forEach(c => sendMessage(c[0], c[1], null, embed))
   }
   else {
     // Send regular text.
     const time = getFormattedTimeOnly()
     const msg = `\`${time}\`: \`${id}\`: ${title && desc ? `**${embedTitle(title)}** - ${embedDescription(desc)}` : embedTitle(title)}`
+    // Send to the important log channels if applicable (probably not).
+    if (messageSeverity >= importantLimit) {
+      logChannelsImportant.forEach(c => sendMessage(c[0], c[1], msg))
+    }
+    // Send to the regular log channels.
     return logChannels.forEach(c => sendMessage(c[0], c[1], msg))
   }
 }
