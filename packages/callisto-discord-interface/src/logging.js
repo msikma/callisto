@@ -105,8 +105,10 @@ export const logCallistoShutdown = async () => {
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()
   embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
+  embed.setDescription(`Callisto Bot is shutting down.`)
+  embed.addField('Time', `${time}`, false)
+  embed.addField('Uptime', `${uptimeString}`, false)
   embed.setTimestamp(new Date())
-  embed.setDescription(`Callisto Bot is shutting down. Time: ${time}.\nUptime: ${uptimeString}.`)
   embed.setColor(ERROR_COLOR)
 
   return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
