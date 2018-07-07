@@ -6,6 +6,7 @@
 import cheerio from 'cheerio'
 import { get } from 'lodash'
 
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { rssParse, getExactDuration } from 'callisto-util-misc'
@@ -82,7 +83,7 @@ export const findNewSearchVideos = async (params, query, slug) => {
   const html = await requestURL(url)
   const $html = cheerio.load(html)
   // Get content of the right <script> tag
-  const items = findVideos(getPageInitialData($html).ytInitialData)
+  const items = findVideos(getPageInitialData($html).ytInitialData, query, params, slug)
   if (items.length === 0) return []
   const newItems = await removeCached(searchCacheID, items)
   cacheItems(searchCacheID, newItems)
@@ -90,23 +91,28 @@ export const findNewSearchVideos = async (params, query, slug) => {
 }
 
 // Returns videos found in a search page's initial data.
-const findVideos = (initialData) => {
+const findVideos = (initialData, query, params, slug) => {
   // The actual video data is hidden deep within the data structure.
   if (!initialData) return []
-  const videos = initialData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents
+  const videos = get(initialData, 'contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents', [])
+  if (videos.length === 0) {
+    getTaskLogger(id).warning('Search with zero results', `Found zero videos for search: ${slug}\nQuery: ${query}, params: ${params}`)
+  }
   // Extract all useful information from each video.
   return videos.map(video => {
     const data = video.videoRenderer
     if (!data) return false
     const id = data.videoId
     const link = videoURL(id)
-    const title = data.title.simpleText
-    const author = get(data, 'ownerText.runs[0].text', '(unknown)')
+    const title = get(data, 'title.simpleText', '(unknown)')
+    const author = get(data, 'ownerText.runs[0].text', get(data, 'longBylineText.runs[0].text', get(data, 'shortBylineText.runs[0].text', '(unknown)')))
     const views = get(data, 'viewCountText.simpleText', '0')
     const uploadTime = get(data, 'publishedTimeText.simpleText', '(unknown)')
     const description = get(data, 'descriptionSnippet.runs[0].text', get(data, 'descriptionSnippet.simpleText', ''))
     const duration = get(data, 'lengthText.simpleText', '(unknown)')
     const durationAria = get(data, 'lengthText.accessibility.accessibilityData.label', '(unknown)')
+    const channelThumbnail = get(data, 'channelThumbnail.thumbnails[0].url', null)
+    const movingThumbnail = get(data, 'richThumbnail.movingThumbnailRenderer.movingThumbnailDetails.thumbnails[0].url', null)
     const imageURL = getBestThumbnail(get(data, 'thumbnail.thumbnails', []))
     const badges = data.badges.map(badge => badge.metadataBadgeRenderer.label)
     const is4K = badges.indexOf('4K') !== -1
@@ -123,6 +129,8 @@ const findVideos = (initialData) => {
       imageURL,
       duration,
       durationAria,
+      movingThumbnail,
+      channelThumbnail,
       is4K
     }
   }).filter(v => v !== false)
