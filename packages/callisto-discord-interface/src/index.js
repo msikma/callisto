@@ -54,9 +54,12 @@ export const run = async ({ task, level, noPost = false }) => {
   // Load single task if testing.
   let taskData
   if (task) {
-    taskData = findTasks(config.CALLISTO_TASK_SETTINGS).tasksWithConfig.filter(taskData => taskData.slug === task)[0]
+    const allTasks = findTasks(config.CALLISTO_TASK_SETTINGS)
+    taskData = allTasks.tasksWithConfig.filter(taskData => taskData.slug === task)[0]
     if (!taskData) {
-      logger.error(`Could not find task: callisto-task-${task}`)
+      // Check whether the task exists, but simply doesn't have configuration yet.
+      taskData = allTasks.tasksWithoutConfig.filter(taskData => taskData.slug === task)[0]
+      logger.error(taskData ? `Task is not configured: callisto-task-${task}` : `Could not find task: callisto-task-${task}`)
       process.exit(1)
     }
     logger.warn(`Testing with only this task: ${taskData.slug}`, false)
