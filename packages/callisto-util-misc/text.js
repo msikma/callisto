@@ -26,6 +26,11 @@ export const htmlToMarkdown = (html, removeEmpty = false, removeScript = true, r
   return removeEmpty ? removeEmptyLines(md) : md
 }
 
+// Capitalizes the first letter of a string.
+export const capitalizeFirst = (str) => (
+  `${str.charAt(0).toUpperCase()}${str.slice(1)}`
+)
+
 /**
  * Cuts a long Markdown description down to something better for embeds.
  */

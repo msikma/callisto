@@ -50,6 +50,13 @@ export const getTaskLogger = (id) => {
 }
 
 /**
+ * Returns a logger for the Callisto system.
+ */
+export const getSystemLogger = () => (
+  createTaskLogger(pkg.name, pkg.version, `Callisto Bot v${pkg.version}`, SUCCESS_COLOR, config.CALLISTO_BOT_AVATAR, true)
+)
+
+/**
  * Sends a message to Discord on bootup. This is done after we've retrieved a list
  * of tasks, so that full information on what's running is available to the user.
  */
@@ -134,9 +141,4 @@ const bulletizeTasks = (tasks, singleTaskData) => (
   singleTaskData
     ? tasks.filter(t => t.slug === singleTaskData.slug).map(taskItemString(true))
     : tasks.map(taskItemString(false))
-)
-
-// Capitalizes the first letter of a string.
-const capitalizeFirst = (str) => (
-  `${str.charAt(0).toUpperCase()}${str.slice(1)}`
 )

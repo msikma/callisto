@@ -30,7 +30,7 @@ const levelColors = {
  *
  * The channels we log to are also taken from the config file, from 'logChannels'.
  */
-const logMsgToDiscord = (level, id, version, name, icon) => (title, desc, fields = [], force = false) => {
+const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (title, desc, fields = [], force = false) => {
   // List of channels to log to.
   const logChannels = config.CALLISTO_SETTINGS.logChannels
   // Severity limit. If it meets 'type one', we post a RichEmbed. If 'type two', we post text.
@@ -55,7 +55,7 @@ const logMsgToDiscord = (level, id, version, name, icon) => (title, desc, fields
     const embed = new RichEmbed()
     if (title) embed.setTitle(embedTitle(title))
     if (desc) embed.setDescription(embedDescription(desc))
-    if (id) embed.setFooter(`Logged by callisto-package-${id}${version ? ` (${version})` : ''}`)
+    if (id && isSystem === false) embed.setFooter(`Logged by callisto-task-${id}${version ? ` (${version})` : ''}`)
     // Add fields if we have any.
     fields.forEach(field => {
       const [header, content, inline = false] = field
@@ -84,7 +84,8 @@ const logMsgToDiscord = (level, id, version, name, icon) => (title, desc, fields
  * @param {String} name Name of the task (human readable)
  * @param {Number} color The task's main color
  * @param {String} icon URL to the task's icon image
+ * @param {Boolean} isSystem Whether this is the system's logger rather than a task's
  */
-export const createTaskLogger = (id, version, name, color, icon) => {
-  return zipObject(logLevels, logLevels.map(level => logMsgToDiscord(level, id, version, name, icon)))
+export const createTaskLogger = (id, version, name, color, icon, isSystem = false) => {
+  return zipObject(logLevels, logLevels.map(level => logMsgToDiscord(level, id, version, name, icon, isSystem)))
 }

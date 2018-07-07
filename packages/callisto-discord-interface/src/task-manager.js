@@ -6,10 +6,10 @@
 import fs from 'fs'
 import path from 'path'
 import logger from 'callisto-util-logging'
-import { getSimpleDuration, wait } from 'callisto-util-misc'
+import { getSimpleDuration, wait, capitalizeFirst } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 
-import { logCallistoBootup } from './logging'
+import { getSystemLogger, logCallistoBootup } from './logging'
 
 const taskDatabase = {}
 
@@ -29,55 +29,37 @@ export const findAndRegisterTasks = async (discordClient, user, taskConfig, sing
       registerTask(discordClient, user, taskInfo, slug, version)
     }
     catch (err) {
-      logger.error(`Task ${name} could not be imported:\n${err.stack}`)
+      getSystemLogger().error(`Error importing task ${name}}`, `${err.stack}`)
     }
   })
   startTimedTasks(discordClient, user, taskConfig, singleTaskData)
 }
 
 /**
- * Calls a task, logging an error if something goes wrong.
+ * Runs a function and then optionally schedules the next one.
+ * If a task returns a Promise, we will wait for its completion before scheduling
+ * the next iteration. If it's a normal function, the delay must be long enough to
+ * safely cover its full execution.
  */
-const safeCall = (fn) => (discordClient, user, taskConfig, taskID) => {
+const runTask = async (fn, delay, args, task, action, loop = false) => {
+  await wait(delay)
   try {
-    logger.debug(`Running task ${taskID}`)
-    return fn.call(this, discordClient, user, taskConfig)
+    await fn(...args)
   }
   catch (err) {
-    logger.error(`Task ${taskID} has thrown an exception:\n\n${err.stack}`)
+    getSystemLogger().error(
+      `Error executing timed task`,
+      `${err.code ? `Code: \`${err.code}\`\n\n` : ''}\`\`\`${err.stack}\`\`\``,
+      [
+        ['Task', `${task.name} (${taskFullName(task.id)})`, false],
+        ['Function', `\`${action.fn.name}()\``, true],
+        ['Delay', `${getSimpleDuration(action.delay)} (${action.delay} ms)`, true],
+        ['Description', `${capitalizeFirst(action.desc)}`, false]
+      ]
+    )
   }
-}
-
-/**
- * Awaits a promise's resolution and then schedules another one per the given delay.
- */
-const loopPromise = async (fn, delay, args) => {
-  await wait(delay)
-  await fn(...args)
-  loopPromise(fn, delay, args)
-}
-
-/**
- * Calls the argument if it is a function, or waits for it to complete if it's a promise.
- * This allows us to return plain functions from tasks and run them normally,
- * or return promises from tasks which run once and only get queued for re-running
- * after they have completely finished.
- *
- * New tasks should always be functions that return promises that resolve when all the work is finished.
- */
-const scheduleTaskLoop = async (fn, type, delay, discordClient, args) => {
-  if (['Promise', 'Function'].indexOf(type) === -1) {
-    throw new TypeError(`Invalid task type: must be one of {Promise, Function} (received: ${type})`)
-  }
-
-  if (type === 'Promise') {
-    // Set up a loop that awaits the Promise's resolution, then queues another one.
-    loopPromise(safeCall(fn), delay, args)
-  }
-  if (type === 'Function') {
-    // Call the function normally in a setInterval().
-    // The interval should be long enough to cover the function's execution time and a fair delay.
-    discordClient.setInterval(safeCall(fn), delay, ...args)
+  if (loop) {
+    runTask(fn, delay, args, task, action, loop)
   }
 }
 
@@ -85,26 +67,25 @@ const scheduleTaskLoop = async (fn, type, delay, discordClient, args) => {
  * Starts all timed tasks.
  */
 const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
-  logger.info('Starting timed actions.')
+  const systemLogger = getSystemLogger()
+  const tasksAmount = Object.keys(taskDatabase).length
+  systemLogger.verbose('Starting timed actions', `Queueing ${tasksAmount} task${tasksAmount !== 1 ? 's' : ''}.`)
+
   Object.values(taskDatabase).forEach(task => {
     if (!task.scheduledActions.length) return
     task.scheduledActions.forEach(action => {
-      logger.verbose(`Task: ${task.id}: ${action.desc} (delay: ${getSimpleDuration(action.delay)}, type: ${action.type})`)
+      // These arguments will be passed to the function.
+      const args = [discordClient, user, taskConfig[task.id], task.id]
 
-      try {
-        // Tasks can return either a function, or a promise. If it's a function,
-        // we will queue it with a simple setInterval(). If it's a promise,
-        // we'll run it, wait for it to finish, and then queue the next one.
-        scheduleTaskLoop(action.fn, action.type, action.delay, discordClient, [discordClient, user, taskConfig[task.id], task.id])
+      systemLogger.verbose(`Task: ${task.id}: ${action.desc}`, `Delay: ${getSimpleDuration(action.delay)} (${action.delay} ms)`)
 
-        // If we're testing with a single task, we'll run the code right away instead of waiting.
-        if (singleTaskData && taskSlug(singleTaskData.name) === task.id) {
-          logger.debug(`Calling task at startup: ${task.id}`)
-          safeCall(action.fn).call(null, discordClient, user, taskConfig[task.id], task.id)
-        }
-      }
-      catch (err) {
-        logger.error(`Could not run ${task.name} task ("${action.desc}"):\n\n${err.stack}`)
+      // Start the task loop that continuously calls the task.
+      runTask(action.fn, action.delay, args, task, action, true)
+
+      // If we're testing with a single task, we'll run the code right away instead of waiting.
+      if (singleTaskData && taskSlug(singleTaskData.name) === task.id) {
+        systemLogger.debug(`Calling task at startup: ${task.id}`)
+        runTask(action.fn, 0, args, task, action, false)
       }
     })
   })
@@ -131,6 +112,13 @@ export const getTaskInfo = id => (
  */
 const taskSlug = (taskName) => (
   taskName.trim().substr('callisto-task-'.length)
+)
+
+/**
+ * Adds 'callisto-task-' to a task name.
+ */
+const taskFullName = slug => (
+  `callisto-task-${slug}`
 )
 
 /**

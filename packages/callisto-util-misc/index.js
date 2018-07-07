@@ -7,7 +7,7 @@ export { objectInspect, wrapInJSCode, removeNil, removeDefaults, wait } from './
 export { getSystemInfo, callistoCommitURL } from './system'
 export { findScriptData } from './script'
 export { getFormattedDate, getIntegerTimestamp, getExactDuration, getDuration, getSimpleDuration, getFormattedTime, getFormattedTimeOnly } from './time'
-export { embedTitle, embedDescription, embedDescriptionShort, isHTML, removeEmptyLines, separateMarkdownImages, getImagesFromHTML, limitDescription, htmlToMarkdown } from './text'
+export { embedTitle, embedDescription, embedDescriptionShort, isHTML, removeEmptyLines, separateMarkdownImages, getImagesFromHTML, limitDescription, htmlToMarkdown, capitalizeFirst } from './text'
 export { registerBotName, showCommandHelp, showCommandUsage, parseCommand } from './discord'
 export { rssParse, parseFeed, parseFeedURL } from './parse'
 
