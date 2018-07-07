@@ -7,9 +7,9 @@ import { RichEmbed } from 'discord.js'
 
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription, wait, objectInspect } from 'callisto-util-misc'
+import { isTemporaryError } from 'callisto-util-request'
+import { embedTitle, embedDescription, wait, objectInspect, wrapInJSCode } from 'callisto-util-misc'
 import { runHorribleSubsSearch } from './search'
-import * as res from './res'
 import { id, color, icon } from './index'
 
 /**
@@ -31,15 +31,25 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
 
   // Run through each of our searches and fire off a query.
   taskConfig.searches.forEach(async ({ details, target, link, wikia }, i) => {
-    await wait(i * 8000)
-    // Only perform the search if the details have been set.
-    if (!details) return false
-    const msgTarget = target ? target : defaultTarget
-    const searchDetails = { ...defaultDetails, ...details }
-    const url = horribleSubsURL(searchDetails.query, searchDetails.res)
-    taskLogger.verbose(searchDetails.query, `Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
-    const results = await runHorribleSubsSearch(url, searchDetails, link, wikia)
-    msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, link))
+    try {
+      await wait(i * 8000)
+      // Only perform the search if the details have been set.
+      if (!details) return false
+      const msgTarget = target ? target : defaultTarget
+      const searchDetails = { ...defaultDetails, ...details }
+      const url = horribleSubsURL(searchDetails.query, searchDetails.res)
+      taskLogger.verbose(searchDetails.query, `Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
+      const results = await runHorribleSubsSearch(url, searchDetails, link, wikia)
+      msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, link))
+    }
+    catch (err) {
+      if (isTemporaryError(err)) {
+        taskLogger.debug(searchDetails.query, `Ignored temporary error during search: ${objectInspect(searchDetails)} - wait: ${i * 8000} - URL: ${url}`)
+      }
+      else {
+        taskLogger.error(`Caught error during search`, `${wrapInJSCode(objectInspect(searchDetails))}\nWait: ${i * 8000}, error code: ${err.code}\nURL: ${url}\n\n${err.stack}`)
+      }
+    }
   })
 }
 
