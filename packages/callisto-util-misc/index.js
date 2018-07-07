@@ -163,6 +163,14 @@ export const objectInspect = (obj, noNil = false) => (
 )
 
 /**
+ * Wraps a string in Markdown JS code blocks.
+ * Useful for posting the contents of an objectInspect() to Discord.
+ */
+export const wrapInJSCode = (str) => (
+  `\`\`\`js\n${str}\n\`\`\``
+)
+
+/**
  * Removes null and undefined from objects.
  * Useful for cleaning up objects before printing/inspecting them.
  */
