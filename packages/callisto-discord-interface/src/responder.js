@@ -23,12 +23,8 @@ export const sendMessage = (serverID, channelID, message = null, embed = null) =
   // Quick sanity check. Channel ID should already be unique.
   if (channel.guild.id !== serverID) return
 
-  // Remove 'message' or 'embed' if either of them are null.
-  const segments = { message, embed }
-  const payload = Object.keys(segments)
-    .filter(i => segments[i] != undefined && segments[i] !== '')
-    .reduce((acc, i) => ({ [i]: segments[i] }), {})
-
+  // Send either a [message, embed] or [embed] depending on whether we have a message.
+  const payload = [message, embed ? { embed } : null].filter(s => s)
   return sendPayload(channel, payload)
 }
 
@@ -43,7 +39,7 @@ const sendPayload = (sender, payload) => {
   if (discord.noPost === true) {
     return false
   }
-  return sender.send(payload)
+  return sender.send(...payload)
 }
 
 /**

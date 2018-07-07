@@ -5,10 +5,11 @@
 
 import cheerio from 'cheerio'
 
+import logger from 'callisto-util-logging'
 import { slugify } from 'callisto-util-misc'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { id } from './index'
 
 const episodeIDRe = new RegExp('^episode_(.+?)$', 'i')
@@ -17,8 +18,9 @@ const episodeIDRe = new RegExp('^episode_(.+?)$', 'i')
  * Report a problem with the request. This occurs when we've been flagged for suspicious activity.
  */
 const reportError = (html) => {
-  logger.error('rarbg: request resulted in error (HTML follows)')
-  logger.debug(`----\n${html}\n---`)
+  const taskLogger = getTaskLogger(id)
+  taskLogger.error('Request resulted in error', 'HTML can be found in the text log')
+  logger.debug(`rarbg: HTML output:\n----\n${html}\n----`)
   return null
 }
 

@@ -5,7 +5,8 @@
 
 import Discord from 'discord.js'
 
-import { dbInit, getSettings } from 'callisto-util-cache'
+import { dbInit, loadSettings } from 'callisto-util-cache'
+import { loadTaskStatus, setTaskLastRun } from 'callisto-util-cache/system'
 import { registerBotName } from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
@@ -40,7 +41,7 @@ export const run = async ({ task, level, noPost = false }) => {
 
   // Mount database file, or create a new file if it doesn't exist.
   await dbInit(`${config.CALLISTO_BASE_DIR}/cache/`);
-  discord.settings = await getSettings('discordInterface')
+  discord.settings = await loadSettings('_discord', 'system')
   discord.client = new Discord.Client()
 
   // Log in to the server.
@@ -53,9 +54,12 @@ export const run = async ({ task, level, noPost = false }) => {
   // Load single task if testing.
   let taskData
   if (task) {
-    taskData = findTasks().filter(taskData => taskData.slug === task)[0]
+    const allTasks = findTasks(config.CALLISTO_TASK_SETTINGS)
+    taskData = allTasks.tasksWithConfig.filter(taskData => taskData.slug === task)[0]
     if (!taskData) {
-      logger.error(`Could not find task: callisto-task-${task}`)
+      // Check whether the task exists, but simply doesn't have configuration yet.
+      taskData = allTasks.tasksWithoutConfig.filter(taskData => taskData.slug === task)[0]
+      logger.error(taskData ? `Task is not configured: callisto-task-${task}` : `Could not find task: callisto-task-${task}`)
       process.exit(1)
     }
     logger.warn(`Testing with only this task: ${taskData.slug}`, false)
@@ -73,7 +77,7 @@ export const run = async ({ task, level, noPost = false }) => {
  * along with a description. The output format is Markdown.
  */
 export const listPackages = () => {
-  const tasks = findTasks()
+  const tasks = findTasks(config.CALLISTO_TASK_SETTINGS)
   const taskInfo = tasks.map(task => `| ${task.slug} | ${task.description}${task.site ? ` | [${task.siteShort}](${task.site}) |` : ' | — |'}`)
   const md = [
     '| Name | Description | Site |',

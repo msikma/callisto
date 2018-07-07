@@ -6,7 +6,6 @@
 import cheerio from 'cheerio'
 import { get } from 'lodash'
 
-import logger from 'callisto-util-logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { rssParse, getExactDuration } from 'callisto-util-misc'

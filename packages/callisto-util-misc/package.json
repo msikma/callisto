@@ -1,7 +1,7 @@
 {
   "name": "callisto-util-misc",
   "private": true,
-  "version": "1.5.5",
+  "version": "1.6.0",
   "description": "All the random other stuff that I didn't know where to put",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "moment": "^2.0.0",
     "cheerio": "^1.0.0-rc.2",
     "turndown": "^4.0.0",
+    "feedparser": "^2.2.9",
     "moment-duration-format": "^2.0.0",
     "slugify": "^1.2.9"
   }

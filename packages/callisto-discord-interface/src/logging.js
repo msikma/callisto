@@ -12,17 +12,19 @@ import {
   embedTitle,
   getDuration,
   getFormattedTime,
+  getSimpleDuration,
   getSystemInfo
 } from 'callisto-util-misc'
+import { getShutdownTime } from 'callisto-util-cache/system'
 import { config, pkg } from 'callisto-util-misc/resources'
+import { createTaskLogger } from 'callisto-util-logging/discord'
+import { getTaskInfo } from './task-manager'
 import { sendMessage } from './responder'
 
-// The colors in which our log RichEmbeds are displayed.
-const SUCCESS_COLOR = 0x35ed36
-const VERBOSE_COLOR = 0x424555
-const INFO_COLOR = 0x17a1eb
-const WARNING_COLOR = 0xffaa02
-const ERROR_COLOR = 0xff034a
+// Colors used in the bootup and shutdown logs.
+const ERROR_COLOR = 0xff034a     // #ff034a
+const WARNING_COLOR = 0xffaa02   // #ffaa02
+const SUCCESS_COLOR = 0x35ed36   // #35ed36
 
 // Used to keep track of uptime.
 let startTime
@@ -36,38 +38,69 @@ const bootupThumbnail = 'https://i.imgur.com/TugT1K5.jpg'
 const interfacePkg = require('../package.json')
 
 /**
+ * Returns an object containing log functions that post directly to the Discord log channels.
+ * These functions will post log messages using the task's own name and icon.
+ * This can only be used after tasks have been loaded and initialized.
+ *
+ * @param {String} id Task ID
+ */
+export const getTaskLogger = (id) => {
+  const { version, name, color, icon } = getTaskInfo(id)
+  return createTaskLogger(id, version, name, color, icon)
+}
+
+/**
+ * Returns a logger for the Callisto system.
+ */
+export const getSystemLogger = () => (
+  createTaskLogger(pkg.name, pkg.version, `Callisto Bot v${pkg.version}`, SUCCESS_COLOR, config.CALLISTO_BOT_AVATAR, true)
+)
+
+/**
  * Sends a message to Discord on bootup. This is done after we've retrieved a list
  * of tasks, so that full information on what's running is available to the user.
  */
-export const logCallistoBootup = async (tasks, singleTaskData) => {
+export const logCallistoBootup = async (tasks, tasksWithoutConfig, singleTaskData) => {
   // Channels we'll send the output to.
   const logChannels = config.CALLISTO_SETTINGS.logChannels
   const avatar = config.CALLISTO_BOT_AVATAR
   const url = pkg.homepage
   const tasksList = bulletizeTasks(tasks, singleTaskData)
   const systemInfo = await getSystemInfo()
+
+  // Current time and time since last run.
   const time = getFormattedTime()
+  const shutdownMs = await getShutdownTime()
+  const timeSinceLast = getSimpleDuration((+new Date()) - shutdownMs)
+
+  // Determine whether we have ignored tasks (for lack of configuration) or not.
+  const ignoredTasksMsg = tasksWithoutConfig.length > 0
+    ? tasksWithoutConfig.length === 1
+      ? `Ignored ${tasksWithoutConfig.length} task without configuration.`
+      : `Ignored ${tasksWithoutConfig.length} tasks without configuration.`
+    : ''
 
   startTime = +new Date()
 
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()
   embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
-  embed.setTimestamp(new Date())
+  embed.setTimestamp()
   embed.setThumbnail(bootupThumbnail)
-  embed.addField('Commit', `[\`${systemInfo.formatted}\`](${systemInfo.commitLink})`, true)
+  embed.addField('Commit', `[\`${systemInfo.formatted} [${systemInfo.hash}]\`](${systemInfo.commitLink})`, true)
   embed.addField('Server', systemInfo.server, true)
+  embed.addField('Time', `${time}${shutdownMs ? ` (${timeSinceLast} since last run)` : ''}`, false)
   embed.addField('Tasks', tasksList)
-  embed.setDescription(`Callisto Bot is launching${singleTaskData ? ' in testing mode' : ''}. Time: ${time}.`)
+  embed.setDescription(`Callisto Bot is launching${singleTaskData ? ' in testing mode' : ''}.${ignoredTasksMsg}`)
   embed.setColor(singleTaskData ? WARNING_COLOR : SUCCESS_COLOR)
 
-  logChannels.forEach(c => sendMessage(c[0], c[1], null, embed))
+  return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
 }
 
 /**
  * Display a final shutdown message.
  */
-export const logCallistoShutdown = () => {
+export const logCallistoShutdown = async () => {
   const logChannels = config.CALLISTO_SETTINGS.logChannels
 
   const avatar = config.CALLISTO_BOT_AVATAR
@@ -79,8 +112,10 @@ export const logCallistoShutdown = () => {
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()
   embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
+  embed.setDescription(`Callisto Bot is shutting down.`)
+  embed.addField('Time', `${time}`, false)
+  embed.addField('Uptime', `${uptimeString}`, false)
   embed.setTimestamp(new Date())
-  embed.setDescription(`Callisto Bot is shutting down. Time: ${time}.\nUptime: ${uptimeString}.`)
   embed.setColor(ERROR_COLOR)
 
   return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
@@ -101,103 +136,9 @@ export const checkVersion = () => {
 // Returns a string depicting a task item. Used by bulletizeTasks().
 const taskItemString = singleTask => task => `• ${task.slug} (${task.version})${singleTask ? ' - testing with only this task' : ''}`
 
-/**
- * Creates a bulletized list of tasks.
- */
+// Creates a bulletized list of tasks.
 const bulletizeTasks = (tasks, singleTaskData) => (
   singleTaskData
     ? tasks.filter(t => t.slug === singleTaskData.slug).map(taskItemString(true))
     : tasks.map(taskItemString(false))
 )
-
-/**
- * Logs a debugging message to Discord. We check if the severity is high enough
- * for it to be worth logging and grab the target channels from the config.
- * Logging is done using a simple colorized RichEmbed.
- * If 'force' is true, the message is logged regardless of severity.
- */
-export const logToDiscord = (msgLevel, msgObject, force = false) => {
-  const severityLimit = severity[config.CALLISTO_SETTINGS.logLevel]
-  // Don't log if the message is not as important as the minimum specified in the config.
-  // If no error level is specified at all, don't log anything.
-  if ((severity[msgLevel] < severityLimit || severityLimit == null) && force !== true) {
-    return
-  }
-  const logChannels = config.CALLISTO_SETTINGS.logChannels
-
-  // Retrieve the title and description either from the msgObject directly
-  // (if it comes pre-formatted) or determine it using code (if it comes from the logger).
-  const { title, desc } = msgObject.title && msgObject.desc ? msgObject : prepareMessage(msgObject)
-
-  // Log based on severity.
-  if (msgLevel === 'verbose') {
-    logVerboseToDiscord(title ? title : 'Verbose', desc, logChannels)
-  }
-  if (msgLevel === 'info') {
-    logInfoToDiscord(title ? title : 'Info', desc, logChannels)
-  }
-  if (msgLevel === 'warn') {
-    logWarnToDiscord(title ? title : 'Warning', desc, logChannels)
-  }
-  if (msgLevel === 'error') {
-    logErrorToDiscord(title ? title : 'Error', desc, logChannels)
-  }
-}
-
-/**
- * Capitalizes the first letter of a string.
- */
-const capitalizeFirst = (str) => (
-  `${str.charAt(0).toUpperCase()}${str.slice(1)}`
-)
-
-/**
- * Prepares the message for logging.
- *
- * This returns an object containing a title and description. The title may be null,
- * in which case we will use a standard title. The description is Markdown and is
- * limited to a valid string length.
- */
-const prepareMessage = (msgObject) => {
-  if (msgObject.type === 'string') {
-    return separateMsg(msgObject.string)
-  }
-  if (msgObject.type === 'object') {
-    return { title: null, desc: monospaceText(embedDescriptionShort(msgObject.string)) }
-  }
-}
-
-// Wraps text in triple backticks to display it as a code block.
-const monospaceText = str => ['```', str, '```'].join('')
-
-/**
- * Separates a message into a title and description.
- * Most messages start with the task name, e.g. 'mandarake: error text'.
- * Send that task name as title, and the rest as description.
- */
-const separateMsg = (msg) => {
-  const matches = msg.match(/([^:]+):/i)
-  // If no task at the start, just use the warn level as title.
-  if (!matches) return { title: null, desc: msg }
-  const desc = msg.substr(matches[0].length).trim()
-  return { title: capitalizeFirst(matches[0]), desc }
-}
-
-/**
- * Logs a message to Discord for debugging purposes.
- * This simply wraps the message in a colored RichEmbed so that it stands out.
- */
-const logMsgToDiscord = (color) => (title, desc, channels) => {
-  const embed = new RichEmbed()
-  embed.setTitle(embedTitle(title))
-  embed.setDescription(embedDescription(desc))
-  embed.setColor(color)
-  embed.setTimestamp()
-  channels.forEach(c => sendMessage(c[0], c[1], null, embed))
-}
-
-// Helper functions that log with a specific color.
-const logVerboseToDiscord = logMsgToDiscord(VERBOSE_COLOR)
-const logInfoToDiscord = logMsgToDiscord(INFO_COLOR)
-const logWarnToDiscord = logMsgToDiscord(WARNING_COLOR)
-const logErrorToDiscord = logMsgToDiscord(ERROR_COLOR)

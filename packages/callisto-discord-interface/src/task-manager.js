@@ -6,21 +6,21 @@
 import fs from 'fs'
 import path from 'path'
 import logger from 'callisto-util-logging'
-import { getSimpleDuration, wait } from 'callisto-util-misc'
+import { getSimpleDuration, wait, capitalizeFirst } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 
-import { logCallistoBootup } from './logging'
+import { getSystemLogger, logCallistoBootup } from './logging'
 
-const tasks = {}
+const taskDatabase = {}
 
 /**
  * Iterates through our installed tasks and registers them so they can be used.
  * If 'singleTaskData' is set, we will ignore every task except that one.
  */
-export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTaskData) => {
-  const tasks = findTasks()
-  logCallistoBootup(tasks, singleTaskData)
-  tasks.forEach(({ name, file, slug, version }) => {
+export const findAndRegisterTasks = async (discordClient, user, taskConfig, singleTaskData) => {
+  const { tasksWithConfig, tasksWithoutConfig } = findTasks(taskConfig)
+  await logCallistoBootup(tasksWithConfig, tasksWithoutConfig, singleTaskData)
+  tasksWithConfig.forEach(({ name, file, slug, version }) => {
     if (singleTaskData && slug !== singleTaskData.slug) {
       return
     }
@@ -29,83 +29,63 @@ export const findAndRegisterTasks = (discordClient, user, taskConfig, singleTask
       registerTask(discordClient, user, taskInfo, slug, version)
     }
     catch (err) {
-      logger.error(`Task ${name} could not be imported:\n${err.stack}`)
+      getSystemLogger().error(`Error importing task ${name}}`, `${err.stack}`)
     }
   })
-  startTimedTasks(discordClient, user, taskConfig)
+  startTimedTasks(discordClient, user, taskConfig, singleTaskData)
 }
 
 /**
- * Calls a task, logging an error if something goes wrong.
+ * Runs a function and then optionally schedules the next one.
+ * If a task returns a Promise, we will wait for its completion before scheduling
+ * the next iteration. If it's a normal function, the delay must be long enough to
+ * safely cover its full execution.
  */
-const safeCall = (fn) => (discordClient, user, taskConfig, taskID) => {
+const runTask = async (fn, delay, args, task, action, loop = false) => {
+  await wait(delay)
   try {
-    logger.debug(`Running task ${taskID}`)
-    return fn.call(this, discordClient, user, taskConfig)
+    await fn(...args)
   }
   catch (err) {
-    logger.error(`Task ${taskID} has thrown an exception:\n\n${err.stack}`)
+    getSystemLogger().error(
+      `Error executing timed task`,
+      `${err.code ? `Code: \`${err.code}\`\n\n` : ''}\`\`\`${err.stack}\`\`\``,
+      [
+        ['Task', `${task.name} (${taskFullName(task.id)})`, false],
+        ['Function', `\`${action.fn.name}()\``, true],
+        ['Delay', `${getSimpleDuration(action.delay)} (${action.delay} ms)`, true],
+        ['Description', `${capitalizeFirst(action.desc)}`, false]
+      ]
+    )
   }
-}
-
-/**
- * Awaits a promise's resolution and then schedules another one per the given delay.
- */
-const loopPromise = async (fn, delay, args) => {
-  await wait(delay)
-  await fn(...args)
-  loopPromise(fn, delay, args)
-}
-
-/**
- * Calls the argument if it is a function, or waits for it to complete if it's a promise.
- * This allows us to return plain functions from tasks and run them normally,
- * or return promises from tasks which run once and only get queued for re-running
- * after they have completely finished.
- *
- * New tasks should always be functions that return promises that resolve when all the work is finished.
- */
-const scheduleTaskLoop = async (fn, type, delay, discordClient, args) => {
-  if (['Promise', 'Function'].indexOf(type) === -1) {
-    throw new TypeError(`Invalid task type: must be one of {Promise, Function} (received: ${type})`)
-  }
-
-  if (type === 'Promise') {
-    // Set up a loop that awaits the Promise's resolution, then queues another one.
-    loopPromise(safeCall(fn), delay, args)
-  }
-  if (type === 'Function') {
-    // Call the function normally in a setInterval().
-    // The interval should be long enough to cover the function's execution time and a fair delay.
-    discordClient.setInterval(safeCall(fn), delay, ...args)
+  if (loop) {
+    runTask(fn, delay, args, task, action, loop)
   }
 }
 
 /**
  * Starts all timed tasks.
  */
-const startTimedTasks = (discordClient, user, taskConfig) => {
-  logger.info('Starting timed actions.')
-  Object.values(tasks).forEach(t => {
-    if (!t.scheduledActions.length) return
-    t.scheduledActions.forEach(a => {
-      logger.verbose(`Task: ${t.id}: ${a.desc} (delay: ${getSimpleDuration(a.delay)}, type: ${a.type}${a.runOnBoot ? ', runs on boot' : ''})`)
+const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
+  const systemLogger = getSystemLogger()
+  const tasksAmount = Object.keys(taskDatabase).length
+  systemLogger.verbose('Starting timed actions', `Queueing ${tasksAmount} task${tasksAmount !== 1 ? 's' : ''}.`)
 
-      try {
-        // Tasks can return either a function, or a promise. If it's a function,
-        // we will queue it with a simple setInterval(). If it's a promise,
-        // we'll run it, wait for it to finish, and then queue the next one.
-        scheduleTaskLoop(a.fn, a.type, a.delay, discordClient, [discordClient, user, taskConfig[t.id], t.id])
+  Object.values(taskDatabase).forEach(task => {
+    if (!task.scheduledActions.length) return
+    task.scheduledActions.forEach(action => {
+      // These arguments will be passed to the function.
+      const args = [discordClient, user, taskConfig[task.id], task.id]
 
-        // If the fourth item is set to true, we'll run the code right away instead of waiting.
-        // Useful for making sure tasks with long delays at least run once on bot bootup.
-        if (a.runOnBoot) {
-          logger.debug(`Calling task at startup: ${t.id}`)
-          safeCall(a.fn).call(null, discordClient, user, taskConfig[t.id], t.id)
-        }
-      }
-      catch (err) {
-        logger.error(`Could not run ${t.name} task ("${a.desc}"):\n\n${err.stack}`)
+      systemLogger.verbose(`Task: ${task.id}: ${action.desc}`, `Delay: ${getSimpleDuration(action.delay)} (${action.delay} ms)`)
+
+      // Start the task loop that continuously calls the task.
+      runTask(action.fn, action.delay, args, task, action, true)
+
+      // If we're testing with a single task, we'll run the code right away instead of waiting.
+      if (singleTaskData && taskSlug(singleTaskData.name) === task.id) {
+        systemLogger.debug(`Calling task at startup: ${task.id}`)
+        runTask(action.fn, 0, args, task, action, false)
       }
     })
   })
@@ -114,11 +94,18 @@ const startTimedTasks = (discordClient, user, taskConfig) => {
 /**
  * Registers a task, making it possible to access its functionality.
  */
-const registerTask = (discordClient, user, { id, formats, triggerActions, scheduledActions }, slug, version) => {
-  tasks[id] = { id, formats, triggerActions, scheduledActions }
+const registerTask = (discordClient, user, { id, name, icon, color, formats, triggerActions, scheduledActions }, slug, version) => {
+  taskDatabase[id] = { id, name, icon, color, formats, version, triggerActions, scheduledActions }
   logger.verbose(`Registered task: ${slug} (${version})`)
-  triggerActions.forEach(a => discordClient.on(a[0], a[1]))
+  triggerActions.forEach(action => discordClient.on(action[0], action[1]))
 }
+
+/**
+ * Returns a registered task's information.
+ */
+export const getTaskInfo = id => (
+  taskDatabase[id]
+)
 
 /**
  * Returns the slug of a task name, e.g. for 'callisto-task-asdf' this is 'asdf'.
@@ -128,11 +115,19 @@ const taskSlug = (taskName) => (
 )
 
 /**
+ * Adds 'callisto-task-' to a task name.
+ */
+const taskFullName = slug => (
+  `callisto-task-${slug}`
+)
+
+/**
  * Finds all usable tasks.
  */
-export const findTasks = () => {
+export const findTasks = taskConfig => {
+  // Fetch tasks currently present in the /packages/ directory.
   const base = `${config.CALLISTO_BASE_DIR}/packages/`
-  return listTaskDirs(base).map(i => {
+  const existingTasks = listTaskDirs(base).map(i => {
     const packageData = require(`${base}${i}/package.json`)
     return {
       name: i,
@@ -144,6 +139,13 @@ export const findTasks = () => {
       slug: taskSlug(i)
     }
   })
+  // Make a list of the tasks we have configuration for.
+  const taskList = Object.keys(taskConfig)
+  // Separate our tasks into two lists based on whether a task has configuration.
+  const tasksWithConfig = existingTasks.filter(t => taskList.indexOf(t.slug) > -1)
+  const tasksWithoutConfig = existingTasks.filter(t => taskList.indexOf(t.slug) === -1)
+
+  return { tasksWithConfig, tasksWithoutConfig }
 }
 
 /**

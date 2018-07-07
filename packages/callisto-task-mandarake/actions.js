@@ -9,9 +9,9 @@ import { uniq, get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, wait, objectInspect, removeDefaults } from 'callisto-util-misc'
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { runMandarakeSearch, runMandarakeAuctionSearch } from './search'
-import { color, colorAuctions } from './index'
+import { id, color, colorAuctions, icon, iconAuctions } from './index'
 
 // List of shops and categories by their codes.
 const shopsByCode = {
@@ -22,10 +22,6 @@ const categoriesByCode = {
   en: Object.values(mainCategories).reduce((acc, cat) => ({ ...acc, [cat[0]]: cat[1] }), {}),
   ja: Object.values(mainCategories).reduce((acc, cat) => ({ ...acc, [cat[0]]: cat[2] }), {})
 }
-
-// URL to the Mandarake icons: for the main site, and the auction site.
-const MANDARAKE_MAIN_ICON = 'https://i.imgur.com/30I7Ir1.png'
-const MANDARAKE_EKIZO_ICON = 'https://i.imgur.com/KsL3wSY.png'
 
 /**
  * Wraps the search code in a single promise.
@@ -38,6 +34,7 @@ export const actionRunSearches = async (discordClient, user, taskConfig) => {
  * Runs Mandarake searches. Always resolves.
  */
 const actionSearch = async (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   const mainSearches = get(taskConfig.main, 'searches', [])
   const auctionSearches = get(taskConfig.auction, 'searches', [])
 
@@ -57,17 +54,17 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runMandarakeSearch(searchDetails, msgLang)
-      logger.debug(`mandarake: Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
+      taskLogger.debug(searchDetails.keyword, `Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'main'))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`mandarake: Ignored ENOTFOUND error during regular search: ${searchInfo} - wait: ${waitingTime}`)
+        taskLogger.debug(searchDetails.keyword, `Ignored ENOTFOUND error during regular search: ${searchInfo} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`mandarake: Caught error during regular search: ${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during regular search`, `${searchInfo}\n\nwait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
@@ -85,15 +82,15 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runMandarakeAuctionSearch(searchDetails)
-      logger.debug(`mandarake: Searched auction: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
+      taskLogger.debug(searchDetails.q, `Searched auction: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'auction'))
     }
     catch (err) {
       if (err.code === 'ENOTFOUND') {
-        logger.debug(`mandarake: Ignored ENOTFOUND error during auction search: ${searchInfo} - wait: ${waitingTime}`)
+        taskLogger.debug(searchDetails.q, `Ignored ENOTFOUND error during auction search: ${searchInfo} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`mandarake: Caught error during auction search: ${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during auction search`, `${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
@@ -117,7 +114,7 @@ const formatMessage = (item, searchDetails, type, fields = ['price', 'category',
 
 const formatMessageMain = (item, searchDetails, fields) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New item found on Mandarake', MANDARAKE_MAIN_ICON)
+  embed.setAuthor('New item found on Mandarake', icon)
   if (fields.indexOf('price') !== -1) {
     embed.addField('Price', `¥${item.price} (±€${(item.price / 125).toFixed(2)})`, true)
   }
@@ -148,7 +145,7 @@ const formatMessageMain = (item, searchDetails, fields) => {
 
 const formatMessageAuction = (item, searchDetails, fields) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New item found on Mandarake Auctions', MANDARAKE_EKIZO_ICON)
+  embed.setAuthor('New item found on Mandarake Auctions', iconAuctions)
   if (fields.indexOf('price') !== -1) {
     embed.addField('Current price', `¥${item.currentPrice} (±€${(item.currentPrice / 125).toFixed(2)})`, true)
   }
@@ -158,8 +155,8 @@ const formatMessageAuction = (item, searchDetails, fields) => {
   }
   else {
     // TEMPORARY
-    console.log(item.timeLeft)
-    logger.warn(item.timeLeft)
+    //console.log(item.timeLeft)
+    //logger.warn(item.timeLeft)
     const daysLeft = `${item.timeLeft.days} day${item.timeLeft.days !== 1 ? 's' : ''}`
     const hoursLeft = `${item.timeLeft.hours} hour${item.timeLeft.hours !== 1 ? 's' : ''}`
     const minutesLeft = `${item.timeLeft.minutes} minute${item.timeLeft.minutes !== 1 ? 's' : ''}`
@@ -168,9 +165,14 @@ const formatMessageAuction = (item, searchDetails, fields) => {
       ...(item.timeLeft.hours > 0 ? [hoursLeft] : []),
       ...(item.timeLeft.minutes > 0 ? [minutesLeft] : []),
     ]
+    // rework
     const timeLeft = timeLeftBits.length === 3
       ? `${timeLeftBits.slice(0, 1)[0]}, ${timeLeftBits.slice(1, 3).join(' and ')}`
-      : (timeLeftBits.length === 2 ? timeLeftBits.join(' and ') : timeLeftBits[0])
+      : (timeLeftBits.length === 2
+          ? timeLeftBits.join(' and ')
+          : (timeLeftBits.length === 0
+              ? '(unknown)'
+              : timeLeftBits[0]))
 
     embed.addField('Time left', timeLeft, true)
   }

@@ -3,7 +3,7 @@
   "_site": "https://ocremix.org/",
   "name": "callisto-task-ocremix",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Posts new video game music remixes, covers and albums released on OverClocked ReMix",
   "main": "index.js",
   "scripts": {

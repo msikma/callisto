@@ -7,12 +7,11 @@ import { RichEmbed } from 'discord.js'
 import { get } from 'lodash'
 
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration } from 'callisto-util-misc'
-import logger from 'callisto-util-logging'
+import { isTemporaryError } from 'callisto-util-request'
+import { embedTitle, embedDescription, objectInspect, wait, getFormattedDate, getExactDuration, wrapInJSCode } from 'callisto-util-misc'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { runBandcampSearch } from './search'
-import { color } from './index'
-
-const BANDCAMP_ICON = 'https://i.imgur.com/OBJk66Q.png'
+import { id, color, icon } from './index'
 
 /**
  * Wraps the search code in a single promise.
@@ -25,6 +24,7 @@ export const actionRunSearches = async (discordClient, user, taskConfig) => {
  * Runs Bandcamp searches. Always resolves.
  */
 const actionSearch = async (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   const searches = get(taskConfig, 'searches', [])
 
   await Promise.all(searches.map(async ({ details, target }, i) => {
@@ -36,17 +36,17 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runBandcampSearch(details)
-      logger.debug(`bandcamp: Searched main: ${objectInspect(details)} - wait: ${waitingTime}, entries: ${newItems.length}, url: ${search.url}`)
+      taskLogger.debug(details.search, `Searched: ${objectInspect(details)} - wait: ${waitingTime}, entries: ${newItems.length}, url: <${search.url}>`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, details))
     }
     catch (err) {
-      if (err.code === 'ENOTFOUND') {
-        logger.debug(`bandcamp: Ignored ENOTFOUND error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
+      if (isTemporaryError(err)) {
+        taskLogger.debug(details.search, `Ignored temporary error during search: ${objectInspect(details)} - wait: ${waitingTime}`)
       }
       else {
-        logger.error(`bandcamp: Caught error during search: ${objectInspect(details)} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during search`, `${wrapInJSCode(objectInspect(details))}\nWait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
@@ -101,12 +101,12 @@ const formatMessageMain = (item, searchDetails) => {
   if (item.type === 'album') {
     // Album type.
     const band = get(item, 'band_name', get(item, 'detailedInfo.otherInfo.artist', '(unknown)'))
-    const icon = get(item, 'band.image')
+    const bandIcon = get(item, 'band.image')
     const linkColor = get(item, 'band.bandData.design.link_color')
     const bandColor = linkColor ? parseInt(linkColor, 16) : color
     const url = `${item.baseURL}${item.page_url}`
     const releaseDate = getFormattedDate(item.release_date)
-    embed.setAuthor(`New album by ${band} on Bandcamp`, BANDCAMP_ICON)
+    embed.setAuthor(`New album by ${band} on Bandcamp`, icon)
     embed.setImage(item._art_url)
     embed.setURL(url)
     embed.setColor(bandColor)
@@ -114,7 +114,7 @@ const formatMessageMain = (item, searchDetails) => {
 
     const descr = get(item, 'detailedInfo.baseInfo.about')
     if (descr) embed.setDescription(embedDescription(descr))
-    if (icon) embed.setThumbnail(icon)
+    if (bandIcon) embed.setThumbnail(bandIcon)
 
     const numberOfTracks = get(item, 'detailedInfo.tracks.length', 0)
     if (numberOfTracks) {
@@ -129,7 +129,7 @@ const formatMessageMain = (item, searchDetails) => {
     return embed
   }
   else {
-    logger.error(`bandcamp: Invalid item type: ${item.type}\n\n${objectInspect(item)}`)
+    taskLogger.error(`Invalid item type: ${item.type}`, `${objectInspect(item)}`)
   }
 }
 

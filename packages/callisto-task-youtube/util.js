@@ -7,10 +7,11 @@ import fs from 'fs'
 import cheerio from 'cheerio'
 import xml2js from 'xml2js'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { findScriptData } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 import { requestURL } from 'callisto-util-request'
+import { id } from './index'
 
 const parser = new xml2js.Parser()
 
@@ -20,7 +21,7 @@ const videoID = new RegExp('watch\\?v=(.+?)$')
 // Returns the video ID for a given Youtube URL.
 export const getVideoID = (url) => {
   const idMatch = url.match(videoID)
-  return videoID && videoID[1].trim()
+  return idMatch && idMatch[1].trim()
 }
 
 // Returns a Youtube video URL from a video ID.
@@ -31,8 +32,9 @@ export const videoURL = (watch, prefix = '/watch?v=') => (
 // Parses a subscriptions XML file.
 export const readSubscriptions = (url, slug) => (
   new Promise((resolve, reject) => {
+    const taskLogger = getTaskLogger(id)
     parser.reset()
-    logger.debug(`youtube: ${slug}: Reading subscriptions XML file: ${url.replace(config.CALLISTO_BASE_DIR, '')}`)
+    taskLogger.debug(`${slug}`, `Reading subscriptions XML file: ${url.replace(config.CALLISTO_BASE_DIR, '')}`)
     fs.readFile(url, (errFs, data) => {
       parser.parseString(data, (errParse, result) => {
         if (errFs || errParse) return reject(errFs, errParse, result)

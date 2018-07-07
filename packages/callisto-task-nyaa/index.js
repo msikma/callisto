@@ -7,8 +7,9 @@ import { commandResponder } from 'callisto-discord-interface/src/responder'
 import { actionRunSearches } from './actions'
 
 export const id = 'nyaa'
-const name = 'Nyaa.si'
+export const name = 'Nyaa.si'
 export const color = 0x007eff
+export const icon = 'https://i.imgur.com/FfNa3D1.png'
 const formats = [
 //  ['todo', [], [], 'Nothing here yet'],
 //  ['help', [], [], 'Displays this help message']
@@ -17,9 +18,9 @@ const triggerActions = [
   ['message', commandResponder(id, name, color, formats)]
 ]
 const scheduledActions = [
-  { delay: 1200000, desc: 'run Nyaa.si searches', fn: actionRunSearches, runOnBoot: false, type: 'Function' }
+  { delay: 1200000, desc: 'run Nyaa.si searches', fn: actionRunSearches }
 ]
 
 export const getTaskInfo = () => {
-  return { id, name, color, formats, triggerActions, scheduledActions }
+  return { id, name, color, icon, formats, triggerActions, scheduledActions }
 }

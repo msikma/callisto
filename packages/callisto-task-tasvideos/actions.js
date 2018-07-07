@@ -5,21 +5,22 @@
 
 import { RichEmbed } from 'discord.js'
 
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { rssParse, embedTitle, embedDescription } from 'callisto-util-misc'
-import logger from 'callisto-util-logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { findNewTASes } from './search'
-import { color } from './index'
-
-const ICON = 'https://i.imgur.com/wlRgRr5.png'
+import { id, color, icon } from './index'
 
 /**
  * Runs TASVideos searches.
  */
 export const actionSearchUpdates = (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
+  taskLogger.verbose('Searching for new TASes.')
   taskConfig.searches.forEach(async searchData => {
     const { type, target } = searchData
     const results = await findNewTASes(type)
+    taskLogger.verbose(`Found ${results.length} new item(s)`)
     target.forEach(t => reportResults(t[0], t[1], results, type))
   })
 }
@@ -37,7 +38,7 @@ const reportResults = (server, channel, results, type) => {
  */
 const formatMessage = (item, type = '', showCategories = false, useYoutubeLink = false) => {
   const embed = new RichEmbed();
-  embed.setAuthor(`New publication on TASVideos`, ICON)
+  embed.setAuthor(`New publication on TASVideos`, icon)
   embed.setTitle(embedTitle(item.title))
   embed.setImage(item.image)
   embed.setDescription(embedDescription(item.description))

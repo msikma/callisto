@@ -5,16 +5,13 @@
 
 import { RichEmbed } from 'discord.js'
 
-import logger from 'callisto-util-logging'
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
 import { runNyaaSearch } from './search'
 import * as categories from './categories'
 import * as filters from './filters'
-import { color } from './index'
-
-// URL to the Mandarake icon.
-const NYAA_ICON = 'https://i.imgur.com/FfNa3D1.png'
+import { id, color, icon } from './index'
 
 /**
  * Returns an RSS feed URL for Nyaa.si.
@@ -35,6 +32,7 @@ const standardDefaults = {
  * Runs Mandarake searches.
  */
 export const actionRunSearches = (discordClient, user, taskConfig) => {
+  const taskLogger = getTaskLogger(id)
   // Default search parameters.
   const { defaultDetails, defaultTarget } = taskConfig
 
@@ -54,13 +52,13 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
     // we found have been added to the cache.
     try {
       const results = await runNyaaSearch(url)
-      logger.debug(`nyaa: Found ${results.length} item(s) for query: ${searchDetails.query}, filter: ${searchDetails.filter}, category: ${searchDetails.category}, url: ${url}`)
+      taskLogger.debug(searchDetails.query, `Found ${results.length} item(s) for query: ${searchDetails.query}, filter: ${searchDetails.filter}, category: ${searchDetails.category}, url: ${url}`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], results, search))
     }
     catch (err) {
-      return logger.error(`nyaa: Error occurred while searching: ${searchDetails.query}\n\n${err.stack}`)
+      return taskLogger.error(`Error occurred while searching`, `${searchDetails.query}\n\n${err.stack}`)
     }
   })
 }
@@ -80,7 +78,7 @@ const reportResults = (server, channel, results, search) => {
  */
 const formatMessage = (item, search) => {
   const embed = new RichEmbed();
-  embed.setAuthor('New torrent file on Nyaa.si', NYAA_ICON)
+  embed.setAuthor('New torrent file on Nyaa.si', icon)
   embed.setTitle(embedTitle(item.title))
   if (item._description) {
     // Add the scraped description if it's been added.
