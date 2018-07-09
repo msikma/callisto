@@ -6,13 +6,11 @@
 import Discord from 'discord.js'
 
 import { dbInit, loadSettings } from 'callisto-util-cache'
-import { loadTaskStatus, setTaskLastRun } from 'callisto-util-cache/system'
 import { registerBotName } from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
 import { shutdown } from './shutdown'
-import decorateResponses from './decorator'
 import { checkVersion } from './logging'
 import { findTasks, findAndRegisterTasks } from './task-manager'
 
