@@ -6,9 +6,10 @@
 import { RichEmbed } from 'discord.js'
 
 import logger from 'callisto-util-logging'
-import { parseCommand, showCommandHelp, showCommandUsage } from 'callisto-util-misc'
+import { parseCommand, showCommandHelp, showCommandUsage, wrapInPre, wrapInJSCode, objectInspect, getChannelFromPath, findChannelPath } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 
+import { getSystemLogger } from './logging'
 import { discord } from './index'
 
 /**
@@ -17,7 +18,7 @@ import { discord } from './index'
  * This requires a server ID and channel ID, and can send either a message
  * or an embed, or both.
  */
-export const sendMessage = (serverID, channelID, message = null, embed = null) => {
+export const sendMessage = async (serverID, channelID, message = null, embed = null) => {
   if (!message && !embed) return
   const channel = discord.client.channels.get(channelID)
   // Quick sanity check. Channel ID should already be unique.
@@ -25,7 +26,27 @@ export const sendMessage = (serverID, channelID, message = null, embed = null) =
 
   // Send either a [message, embed] or [embed] depending on whether we have a message.
   const payload = [message, embed ? { embed } : null].filter(s => s)
-  return sendPayload(channel, payload)
+
+  try {
+    // Send the payload to Discord.
+    await sendPayload(channel, payload)
+  }
+  catch (err) {
+    // Something went wrong while sending this payload.
+    // Log info about what happened to Discord.
+    const channel = getChannelFromPath(err.path)
+    const path = channel ? findChannelPath(channel) : null
+    const msg = `\n\nPayload:\n${wrapInJSCode(objectInspect(payload))}\nStack trace:`
+    getSystemLogger().error(
+      'Error while sending payload to Discord',
+      `Attempted to send a malformed payload to Discord.${path ? ` See the "path to target channel" field for caller information.` : ''}${msg}\n${wrapInPre(err.stack)}`,
+      [
+        ...(err.name ? [['Name', err.name, true]] : []),
+        ...(err.code ? [['Code', err.code, true]] : []),
+        ...(path ? [['Path to target channel', `\`${path.join('.')}\``, true]] : [])
+      ]
+    )
+  }
 }
 
 /**
@@ -34,12 +55,12 @@ export const sendMessage = (serverID, channelID, message = null, embed = null) =
  * not through any other means. That way we can ensure the --no-post
  * command line argument is honored.
  */
-const sendPayload = (sender, payload) => {
+const sendPayload = async (sender, payload) => {
   // Don't send anything if noPost is on.
   if (discord.noPost === true) {
     return false
   }
-  return sender.send(...payload)
+  return await sender.send(...payload)
 }
 
 /**

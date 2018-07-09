@@ -23,6 +23,13 @@ export const wrapInJSCode = (str) => (
 )
 
 /**
+ * Wraps a string in a preformatted text block.
+ */
+export const wrapInPre = (str) => (
+  `\`\`\`\n${str}\n\`\`\``
+)
+
+/**
  * Removes null and undefined from objects.
  * Useful for cleaning up objects before printing/inspecting them.
  */

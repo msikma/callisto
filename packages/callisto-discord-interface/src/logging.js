@@ -86,7 +86,7 @@ export const logCallistoBootup = async (tasks, tasksWithoutConfig, singleTaskDat
   const embed = new RichEmbed()
   embed.setAuthor(`Callisto Bot v${pkg.version}`, avatar, url)
   embed.setTimestamp()
-  embed.setThumbnail(bootupThumbnail)
+  embed.setThumbnail(encodeURI(bootupThumbnail))
   embed.addField('Commit', `[\`${systemInfo.formatted} [${systemInfo.hash}]\`](${systemInfo.commitLink})`, true)
   embed.addField('Server', systemInfo.server, true)
   embed.addField('Time', `${time}${shutdownMs ? ` (${timeSinceLast} since last run)` : ''}`, false)
