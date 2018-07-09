@@ -21,18 +21,18 @@ export const actionRemixes = async (discordClient, user, taskConfig) => {
     const { tracks, albums } = await findNewItems()
 
     if (tracks.length) {
-      logger.debug(`Found ${tracks.length} new track(s)`)
+      taskLogger.debug(`Found ${tracks.length} new track(s)`)
       taskConfig.tracks.target.forEach(t => reportResults(t[0], t[1], tracks, 'track'))
     }
 
     if (albums.length) {
-      logger.debug(`Found ${albums.length} new album(s)`)
+      taskLogger.debug(`Found ${albums.length} new album(s)`)
       taskConfig.albums.target.forEach(t => reportResults(t[0], t[1], albums, 'album'))
     }
   }
   catch (err) {
     const taskLogger = getTaskLogger(id)
-    logger.error(`Error occurred while scraping:\n\n${err.stack}`)
+    taskLogger.error(`Error occurred while scraping:\n\n${err.stack}`)
   }
 }
 
