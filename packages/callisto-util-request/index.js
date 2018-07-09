@@ -5,6 +5,7 @@
 
 import requestAsBrowser from 'requestAsBrowser'
 import uuid from 'uuid'
+import { get } from 'lodash'
 
 import logger from 'callisto-util-logging'
 import cookieJar from './cookies'
@@ -155,9 +156,12 @@ export const requestURL = async (url, extraHeaders = {}, gzip = true) => {
  * @param {*} error Any error thrown by a network request
  */
 export const isTemporaryError = error => {
-  if (!error || !error.code) return false
+  if (!error) return false
+  const code = get(error, 'code', '')
+  const name = get(error, 'name', '')
+
   // Check if the error code is in a list of acceptable errors.
-  return [
+  const okCode = [
     // When the internet is down.
     'ENETDOWN',
     // Sometimes a not found is returned as temporary error.
@@ -167,5 +171,12 @@ export const isTemporaryError = error => {
     'ETIMEDOUT',
     // Connection was reset.
     'ECONNRESET'
-  ].indexOf(error.code) > -1
+  ].indexOf(code) > -1
+
+  const okName = [
+    // Usually a 503 or something.
+    'StatusCodeError'
+  ].indexOf(name) > -1
+
+  return okName || okCode
 }
