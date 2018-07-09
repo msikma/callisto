@@ -19,14 +19,13 @@ export const actionRemixes = async (discordClient, user, taskConfig) => {
     const taskLogger = getTaskLogger(id)
     taskLogger.debug(`Searching for new tracks and albums`)
     const { tracks, albums } = await findNewItems()
+    taskLogger.debug(`Found ${tracks.length} new track${tracks.length !== 1 ? 's' : ''} and ${albums.length} new album${albums.length !== 1 ? 's' : ''}`)
 
     if (tracks.length) {
-      taskLogger.debug(`Found ${tracks.length} new track(s)`)
       taskConfig.tracks.target.forEach(t => reportResults(t[0], t[1], tracks, 'track'))
     }
 
     if (albums.length) {
-      taskLogger.debug(`Found ${albums.length} new album(s)`)
       taskConfig.albums.target.forEach(t => reportResults(t[0], t[1], albums, 'album'))
     }
   }

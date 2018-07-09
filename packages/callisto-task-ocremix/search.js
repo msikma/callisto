@@ -13,6 +13,7 @@ import { id } from './index'
 const URL = 'https://ocremix.org'
 const dateTitle = new RegExp('^(.+?) \\((.+?)\\)')
 
+// Retrieves both new tracks and new albums and returns them both in an object.
 export const findNewItems = async () => {
   const html = await requestURL(URL)
   const $html = cheerio.load(html)
@@ -32,6 +33,7 @@ export const findNewItems = async () => {
   return { tracks, albums }
 }
 
+// Checks the "latest albums" widget on the homepage for new albums.
 const findNewAlbums = ($) => {
   const widgets = $('.widget').get()
   const albumWidgets = widgets.filter(el => $('.widget-title', el).text().trim().toLowerCase() === 'latest albums')
@@ -56,6 +58,7 @@ const findNewAlbums = ($) => {
   return items
 }
 
+// Returns the date contained inside of a title.
 const getDate = (fullTitle) => {
   const match = fullTitle.match(dateTitle)
   if (match && match[0] && match[1]) {
@@ -64,14 +67,17 @@ const getDate = (fullTitle) => {
   return { date: null, title: null }
 }
 
+// Increases the size of a dynamically generated image.
 const enlargeImage = (imageURL) => (
   imageURL.replace('/thumbs/250', '/thumbs/500')
 )
 
+// Increases the size of a dynamically generated thumbnail.
 const enlargeGameThumb = (imageURL) => (
   imageURL.replace('/thumbs/150', '/thumbs/500')
 )
 
+// Ensures consistent slashes for a link.
 const fixSlashes = (url) => {
   const lead = url[0] === '/' ? '/' : ''
   const trail = url[url.length - 1] === '/' ? '/' : ''
@@ -80,6 +86,7 @@ const fixSlashes = (url) => {
   return `${lead}${singled}${trail}`
 }
 
+// Checks the jukebox on the homepage for new tracks.
 const findNewTracks = ($) => (
   $('.jukebox-items > li').map((n, el) => {
     const $dateDiv = $('> div:nth-child(1)', el)
