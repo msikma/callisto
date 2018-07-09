@@ -3,7 +3,7 @@
   "_site": "https://bandcamp.com/",
   "name": "callisto-task-bandcamp",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Posts new albums added to Bandcamp pages",
   "main": "index.js",
   "scripts": {

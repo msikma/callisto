@@ -33,8 +33,8 @@ const formatMessage = (item, comic) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New ${comic.name} chapter on MangaFox`, comic.thumbnail || icon)
   embed.setTitle(embedTitle(item.title))
-  if (comic.thumbnail) embed.setThumbnail(comic.thumbnail)
-  if (item.image) embed.setImage(item.image)
+  if (comic.thumbnail) embed.setThumbnail(encodeURI(comic.thumbnail))
+  if (item.image) embed.setImage(encodeURI(item.image))
   embed.setURL(item.url)
   embed.setTimestamp()
   embed.setColor(comic.color || color)

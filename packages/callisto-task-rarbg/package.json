@@ -3,7 +3,7 @@
   "_site": "https://rarbg.to/",
   "name": "callisto-task-rarbg",
   "private": true,
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Posts TV series updates released on Rarbg",
   "main": "index.js",
   "scripts": {

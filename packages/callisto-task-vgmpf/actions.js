@@ -46,7 +46,7 @@ const formatMessage = (item) => {
   if (item.platform) {
     embed.addField('Platform', item.platform, true)
   }
-  embed.setThumbnail(item.image)
+  embed.setThumbnail(encodeURI(item.image))
   embed.setURL(item.link)
   embed.setTimestamp()
   embed.setFooter('From the Video Game Music Preservation Foundation Wiki')

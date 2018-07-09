@@ -147,9 +147,9 @@ const formatMessage = (item, file = '', query = '') => {
   if (item.views) embed.addField('Views', `${item.views === '0' ? 'No views' : item.views}`, true)
   if (item.duration) embed.addField('Duration', `${item.duration}`, true)
   if (item.is4K) embed.addField('Quality', `4K`, true)
-  if (item.imageURL) embed.setImage(item.imageURL)
+  if (item.imageURL) embed.setImage(encodeURI(item.imageURL))
   if (item.link) embed.setURL(item.link)
-  if (item.channelThumbnail) embed.setThumbnail(item.channelThumbnail)
+  if (item.channelThumbnail) embed.setThumbnail(encodeURI(item.channelThumbnail))
 
   embed.setColor(color)
   embed.setTimestamp()

@@ -86,11 +86,11 @@ const formatMessage = (item, search) => {
   }
   if (search.thumbnail) {
     // If the configuration contains a thumbnail, add it.
-    embed.setThumbnail(search.thumbnail)
+    embed.setThumbnail(encodeURI(search.thumbnail))
   }
   if (item._images.length > 0) {
     // If there are images, add one.
-    embed.setImage(item._images[0].url)
+    embed.setImage(encodeURI(item._images[0].url))
   }
   embed.addField('Category', item['nyaa:category']['#'], true)
   embed.addField('Size', item['nyaa:size']['#'], true)

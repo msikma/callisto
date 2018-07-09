@@ -107,14 +107,14 @@ const formatMessageMain = (item, searchDetails) => {
     const url = `${item.baseURL}${item.page_url}`
     const releaseDate = getFormattedDate(item.release_date)
     embed.setAuthor(`New album by ${band} on Bandcamp`, icon)
-    embed.setImage(item._art_url)
+    embed.setImage(encodeURI(item._art_url))
     embed.setURL(url)
     embed.setColor(bandColor)
     embed.setTitle(item.artist === item.title || !item.artist ? embedTitle(item.title) : embedTitle(`${item.artist} - ${item.title}`))
 
     const descr = get(item, 'detailedInfo.baseInfo.about')
     if (descr) embed.setDescription(embedDescription(descr))
-    if (bandIcon) embed.setThumbnail(bandIcon)
+    if (bandIcon) embed.setThumbnail(encodeURI(bandIcon))
 
     const numberOfTracks = get(item, 'detailedInfo.tracks.length', 0)
     if (numberOfTracks) {

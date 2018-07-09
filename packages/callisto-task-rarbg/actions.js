@@ -93,7 +93,7 @@ const formatMessage = (item, show, urlDetails, urlTVGuide) => {
   const torrentURL = `${BASE_URL}${item.torrentURL}`
   embed.setAuthor(`New episode of ${show.name}`, show.icon || icon)
   embed.setTitle(embedTitle(item.title))
-  embed.setImage(item.image)
+  embed.setImage(encodeURI(item.image))
   embed.addField('Episode', `${item.seasonNumber} ${item.episodeNumber}`, true)
   embed.addField('Filesize', `${item.filesize}`, true)
   embed.addField('Download', `• [${item.filename}](${torrentURL})\n• [Full list of episodes](${urlTVGuide})`)

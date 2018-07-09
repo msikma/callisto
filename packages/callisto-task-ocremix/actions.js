@@ -58,7 +58,7 @@ const formatMessageTrack = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New track on OverClocked ReMix`, icon)
   embed.setTitle(embedTitle(item.title))
-  embed.setThumbnail(item.image)
+  embed.setThumbnail(encodeURI(item.image))
   embed.setURL(item.link)
   if (item.artists) embed.addField(`Author${item.artists.length !== 1 ? 's' : ''}`, item.artists.join(', '))
   if (item.game.gameName) embed.addField('Game', item.game.gameName)
@@ -75,7 +75,7 @@ const formatMessageAlbum = (item) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New album on OverClocked ReMix`, icon)
   embed.setTitle(embedTitle(item.title))
-  embed.setImage(item.image)
+  embed.setImage(encodeURI(item.image))
   embed.setURL(item.link)
   embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
   embed.setTimestamp()

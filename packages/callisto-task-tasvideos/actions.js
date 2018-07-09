@@ -40,7 +40,7 @@ const formatMessage = (item, type = '', showCategories = false, useYoutubeLink =
   const embed = new RichEmbed();
   embed.setAuthor(`New publication on TASVideos`, icon)
   embed.setTitle(embedTitle(item.title))
-  embed.setImage(item.image)
+  embed.setImage(encodeURI(item.image))
   embed.setDescription(embedDescription(item.description))
   if (showCategories) {
     embed.addField('Categories', item.categoriesWithoutGenre.join(', '), true)

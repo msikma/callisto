@@ -134,7 +134,7 @@ const formatMessageMain = (item, searchDetails, fields) => {
     embed.addField('Rating', 'Adult product', true)
   }
 
-  embed.setImage(item.image)
+  embed.setImage(encodeURI(item.image))
   embed.setURL(item.link)
   embed.setColor(color)
   embed.setTitle(embedTitle(item.title))
@@ -187,7 +187,7 @@ const formatMessageAuction = (item, searchDetails, fields) => {
     embed.addField('Item no.', `${item.itemNo}`, true)
   }
 
-  embed.setImage(item.image)
+  embed.setImage(encodeURI(item.image))
   embed.setURL(item.link)
   embed.setColor(colorAuctions)
   embed.setTitle(embedTitle(item.title))

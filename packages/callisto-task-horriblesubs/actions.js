@@ -78,10 +78,10 @@ const formatMessage = (item, searchDetails, link) => {
     embed.setDescription(embedDescription(item.link))
   }
   if (item._seriesImage) {
-    embed.setThumbnail(item._seriesImage)
+    embed.setThumbnail(encodeURI(item._seriesImage))
   }
   if (item._episodeImage) {
-    embed.setImage(item._episodeImage)
+    embed.setImage(encodeURI(item._episodeImage))
   }
   embed.setColor(color)
   embed.setTimestamp()
