@@ -11,7 +11,7 @@ import { logCallistoShutdown } from './logging'
  * Graceful shutdown function. This is called on SIGINT.
  */
 export const shutdown = async () => {
-  logger.error('SIGINT received. Shutting down the bot...', false)
+  logger.error('\nSIGINT received. Shutting down the bot...', false)
   try {
     // Save the current time. Next time we start up we'll display how long the bot was offline.
     await saveShutdownTime()

@@ -34,7 +34,7 @@ const fileLogger = createLogger({
   level: 'debug',
   format: format.combine(
     format.timestamp(),
-    format.json(),
+    format.json()
   ),
   transports: [],
   exitOnError: false

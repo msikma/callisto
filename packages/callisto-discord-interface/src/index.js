@@ -46,8 +46,9 @@ export const run = async ({ task, level, noPost = false }) => {
   await discord.client.login(config.CALLISTO_BOT_TOKEN)
   discord.bot = await discord.client.fetchUser(config.CALLISTO_BOT_CLIENT_ID)
 
-  // Print info about the current runtime.
+  // Print info about the current runtime. Log the exit method to the console only.
   logger.info(`callisto-bot ${pkg.version}`, false)
+  console.log(`Press CTRL+C to exit.`)
 
   // Load single task if testing.
   let taskData
