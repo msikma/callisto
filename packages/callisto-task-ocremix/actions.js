@@ -60,7 +60,7 @@ const formatMessageTrack = (item) => {
   embed.setTitle(embedTitle(item.title))
   embed.setThumbnail(item.image)
   embed.setURL(item.link)
-  if (item.artist.artistName) embed.addField('Author', item.artist.artistName)
+  if (item.artists) embed.addField(`Author${item.artists.length !== 1 ? 's' : ''}`, item.artists.join(', '))
   if (item.game.gameName) embed.addField('Game', item.game.gameName)
   embed.setFooter(`Published on ${getFormattedDate(item.pubDate)}`)
   embed.setTimestamp()

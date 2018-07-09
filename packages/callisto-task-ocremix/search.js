@@ -107,7 +107,7 @@ const findNewTracks = ($) => (
     const title = $('.featured.single-line-item a', el).text().trim()
 
     const $artistNodes = $('.color-additional.single-line-item a', el)
-    const artistName = $artistNodes.map(n => $(n).text().trim()).get().join(', ')
+    const artists = $artistNodes.get().map(n => $(n).text().trim())
 
     return {
       title,
@@ -119,9 +119,7 @@ const findNewTracks = ($) => (
         gameName,
         gameLink
       },
-      artist: {
-        artistName
-      }
+      artists
     }
   }).get()
 )
