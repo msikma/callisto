@@ -35,7 +35,7 @@ const formatMessage = (item, comic) => {
   const embed = new RichEmbed();
   embed.setAuthor(`New ${comic.name} chapter`, comic.icon || icon)
   embed.setTitle(embedTitle(item.date ? `${item.title} (${item.date})` : item.title))
-  if (item.image) embed.setImage(item.image)
+  if (item.image) embed.setImage(encodeURI(item.image))
   if (item.description) embed.setDescription(embedDescription(item.description))
   embed.setURL(item.link)
   embed.setTimestamp()
