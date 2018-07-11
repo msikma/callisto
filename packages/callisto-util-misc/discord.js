@@ -109,6 +109,7 @@ const reduceCommandArguments = (command, offset) => (acc, key, n) =>
  * e.g. '/api/v7/channels/454275744751812608/'.
  */
 export const getChannelFromPath = path => {
+  if (!path) return null
   const matches = path.match(/\/api\/v[0-9]+\/channels\/([0-9]+)\//i)
   if (matches && matches[1]) {
     return matches[1]
