@@ -100,6 +100,8 @@ const formatMessage = (item, show, urlDetails, urlTVGuide) => {
   embed.setURL(urlDetails)
   embed.setColor(show.color || color)
   embed.setTimestamp()
-  embed.setFooter(`Air date: ${getFormattedDate(item.releaseDate)}`)
+  if (item.releaseDate) {
+    embed.setFooter(`Air date: ${getFormattedDate(item.releaseDate)}`)
+  }
   return embed
 }

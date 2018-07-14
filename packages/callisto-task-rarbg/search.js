@@ -6,7 +6,7 @@
 import cheerio from 'cheerio'
 
 import logger from 'callisto-util-logging'
-import { slugify } from 'callisto-util-misc'
+import { slugify, isValidDate } from 'callisto-util-misc'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
@@ -128,6 +128,7 @@ const getLatestEpisodesInfo = ($) => {
     const episodeNumber = $('.tvshowEpNum', ep).text().trim()
     const episodeIDBits = $(ep).attr('id').match(episodeIDRe)
     const episodeID = episodeIDBits.length > 0 ? episodeIDBits[1] : null
+    // Note: .tvshowRelDate can also be '--', e.g. in case of a multi episode pack.
     const releaseDate = $('.tvshowRelDate', ep).text().trim()
     const episodeNode = $('.tvshowClick', ep)
     episodeNode.find('.tvshowEpNum, .tvshowRelDate').remove()
@@ -135,7 +136,7 @@ const getLatestEpisodesInfo = ($) => {
     return {
       title,
       slug: slugify(title),
-      releaseDate,
+      releaseDate: isValidDate(releaseDate) ? releaseDate : null,
       episodeID,
       episodeNumber,
       seasonNumber
