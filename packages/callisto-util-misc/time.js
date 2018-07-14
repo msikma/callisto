@@ -12,6 +12,14 @@ import momentDurationFormatSetup from 'moment-duration-format'
 momentDurationFormatSetup(moment)
 
 /**
+ * Returns true for a string that can be turned into a valid date using moment(),
+ * false if it is not.
+ */
+export const isValidDate = dateStr => (
+  moment(dateStr).format() !== 'Invalid date'
+)
+
+/**
  * Returns a formatted date.
  */
 export const getFormattedDate = (dateObject) => (
