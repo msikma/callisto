@@ -7,6 +7,9 @@ import moment from 'moment'
 import humanizeDuration from 'humanize-duration'
 import momentDurationFormatSetup from 'moment-duration-format'
 
+// Hide deprecation warning.
+moment.suppressDeprecationWarnings = true
+
 // Extend Moment to be able to format durations.
 // See <https://github.com/jsmreese/moment-duration-format>.
 momentDurationFormatSetup(moment)
