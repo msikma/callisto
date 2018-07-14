@@ -6,7 +6,7 @@
 export { objectInspect, wrapInJSCode, wrapInPre, removeNil, removeDefaults, wait } from './util'
 export { getSystemInfo, callistoCommitURL } from './system'
 export { findScriptData } from './script'
-export { getFormattedDate, getIntegerTimestamp, getExactDuration, getDuration, getSimpleDuration, getFormattedTime, getFormattedTimeOnly } from './time'
+export { getFormattedDate, getIntegerTimestamp, getExactDuration, getDuration, getSimpleDuration, getFormattedTime, getFormattedTimeOnly, isValidDate } from './time'
 export { embedTitle, embedDescription, embedDescriptionShort, isHTML, removeEmptyLines, separateMarkdownImages, getImagesFromHTML, limitDescription, htmlToMarkdown, capitalizeFirst } from './text'
 export { registerBotName, showCommandHelp, showCommandUsage, parseCommand, findChannelPath, getChannelFromPath } from './discord'
 export { rssParse, parseFeed, parseFeedURL } from './parse'
