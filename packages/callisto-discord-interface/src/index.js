@@ -38,7 +38,7 @@ export const run = async ({ task, level, noPost = false }) => {
   registerBotName(config.CALLISTO_BOT_NAME)
 
   // Mount database file, or create a new file if it doesn't exist.
-  await dbInit(`${config.CALLISTO_BASE_DIR}/cache/`);
+  await dbInit(`${config.CALLISTO_BASE_DIR}/cache/`)
   discord.settings = await loadSettings('_discord', 'system')
   discord.client = new Discord.Client()
 
