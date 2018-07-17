@@ -20,7 +20,7 @@ export const checkFeeds = async (discordClient, user, taskConfig) => {
   const { feeds, defaultTarget } = taskConfig
   const taskLogger = getTaskLogger(id)
 
-  taskLogger.verbose('Checking feeds for updates.')
+  taskLogger.debug('Checking feeds for updates.')
 
   return Promise.all(feeds.map(async (item, i) => {
     try {
@@ -35,13 +35,13 @@ export const checkFeeds = async (discordClient, user, taskConfig) => {
 const checkFeedItem = async (item, i, defaultTarget, taskLogger) => {
   // Rate limiting.
   const waitTime = i * 8000
-  taskLogger.verbose(item.name, `Checking feed (wait: ${waitTime})`)
+  taskLogger.debug(item.name, `Checking feed (wait: ${waitTime})`)
   await wait(waitTime)
 
   const msgTarget = item.target ? item.target : defaultTarget
   const newPosts = await checkForUpdates(item.url, slugify(item.name))
   if (newPosts.length > 0) {
-    taskLogger.verbose(item.name, `Found ${newPosts.length} new item(s)`)
+    taskLogger.debug(item.name, `Found ${newPosts.length} new item(s)`)
     msgTarget.forEach(t => reportResults(t[0], t[1], newPosts, item))
   }
 }
