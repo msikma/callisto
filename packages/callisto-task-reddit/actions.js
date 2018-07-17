@@ -30,7 +30,7 @@ export const actionSubTopics = (discordClient, user, taskConfig) => {
     }
     catch (err) {
       if (isTemporaryError(err)) {
-        return taskLogger.verbose(name, `Temporary network error (${err.code}) while searching in sub: ${name}, type: ${type}`)
+        return taskLogger.debug(name, `Temporary network error (${err.code}) while searching in sub: ${name}, type: ${type}`)
       }
       else if (err.error) {
         return taskLogger.error(`Error occurred while searching in sub`, `Sub: ${name}, type: ${type}, url: ${err.url}\n\n${err.error.stack}`)
