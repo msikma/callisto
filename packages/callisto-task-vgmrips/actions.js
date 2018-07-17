@@ -23,12 +23,12 @@ export const actionRecentReleases = async (discordClient, user, taskConfig) => {
     // 'result' contains everything needed to send a message to the user.
     // Previously reported items have already been removed, and the items
     // we found have been added to the cache.
-    taskLogger.verbose('Searching for new albums')
+    taskLogger.debug('Searching for new albums')
     const results = await runVGMRipsSearch()
 
     // Now we just send these results to every channel we configured.
     if (results.length) {
-      taskLogger.verbose(`Found ${results.length} new item(s)`)
+      taskLogger.debug(`Found ${results.length} new item(s)`)
       target.forEach(t => reportResults(t[0], t[1], results))
     }
   }
