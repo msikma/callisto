@@ -162,6 +162,8 @@ export const isTemporaryError = error => {
 
   // Check if the error code is in a list of acceptable errors.
   const okCode = [
+    // When the network is temporarily unreachable.
+    'ENETUNREACH',
     // When the internet is down.
     'ENETDOWN',
     // Sometimes a not found is returned as temporary error.
