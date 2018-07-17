@@ -16,11 +16,11 @@ import { id, color, icon } from './index'
  */
 export const actionSearchUpdates = (discordClient, user, taskConfig) => {
   const taskLogger = getTaskLogger(id)
-  taskLogger.verbose('Searching for new TASes.')
+  taskLogger.debug('Searching for new TASes.')
   taskConfig.searches.forEach(async searchData => {
     const { type, target } = searchData
     const results = await findNewTASes(type)
-    taskLogger.verbose(`Found ${results.length} new item(s)`)
+    taskLogger.debug(`Found ${results.length} new item(s)`)
     target.forEach(t => reportResults(t[0], t[1], results, type))
   })
 }
