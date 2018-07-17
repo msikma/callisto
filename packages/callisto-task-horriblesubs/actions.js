@@ -27,7 +27,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
   // Default search parameters.
   const { defaultDetails, defaultTarget } = taskConfig
 
-  taskLogger.verbose('Running searches.')
+  taskLogger.debug('Running searches.')
 
   // Run through each of our searches and fire off a query.
   taskConfig.searches.forEach(async ({ details, target, link, wikia }, i) => {
@@ -38,7 +38,7 @@ export const actionRunSearches = (discordClient, user, taskConfig) => {
       const msgTarget = target ? target : defaultTarget
       const searchDetails = { ...defaultDetails, ...details }
       const url = horribleSubsURL(searchDetails.query, searchDetails.res)
-      taskLogger.verbose(searchDetails.query, `Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
+      taskLogger.debug(searchDetails.query, `Loading data. Query: ${objectInspect(searchDetails.query)}. URL: ${url}`)
       const results = await runHorribleSubsSearch(url, searchDetails, link, wikia)
       msgTarget.forEach(t => reportResults(t[0], t[1], results, searchDetails, link))
     }
