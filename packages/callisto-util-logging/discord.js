@@ -30,7 +30,7 @@ const levelColors = {
  *
  * The channels we log to are also taken from the config file, from 'logChannels'.
  */
-const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (title, desc, fields = [], force = false) => {
+const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => async (title, desc, fields = [], force = false, logOnError = true) => {
   // List of channels to log to.
   const logChannels = config.CALLISTO_SETTINGS.logChannels || []
   const logChannelsImportant = config.CALLISTO_SETTINGS.logChannelsImportant || []
@@ -42,6 +42,9 @@ const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (t
   const messageSeverity = severity[level]
   // Color to use for the embed, indicating the severity.
   const levelColor = levelColors[level]
+
+  // Container for Promises that will be used to send the message.
+  let promises = []
 
   // Send the message to our regular logger (file, console).
   logger[level](`${id}: ${title}${desc ? ` - ${desc}` : ''}${fields ? fields.map(f => ` [${f[0]}: ${f[1]}]`).join('') : ''}`)
@@ -68,10 +71,11 @@ const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (t
     embed.setTimestamp()
     // Send to the important log channels if applicable.
     if (messageSeverity >= importantLimit) {
-      logChannelsImportant.forEach(c => sendMessage(c[0], c[1], null, embed))
+      promises = [...promises, logChannelsImportant.map(c => sendMessage(c[0], c[1], null, embed, logOnError))]
     }
     // Send to the regular log channels.
-    return logChannels.forEach(c => sendMessage(c[0], c[1], null, embed))
+    promises = [...promises, logChannels.map(c => sendMessage(c[0], c[1], null, embed, logOnError))]
+    return Promise.all(promises)
   }
   else {
     // Send regular text.
@@ -79,10 +83,11 @@ const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => (t
     const msg = `\`${time}\`: \`${id}\`: ${title && desc ? `**${embedTitle(title)}** - ${embedDescription(desc)}` : embedTitle(title)}`
     // Send to the important log channels if applicable (probably not).
     if (messageSeverity >= importantLimit) {
-      logChannelsImportant.forEach(c => sendMessage(c[0], c[1], msg))
+      promises = [...promises, logChannelsImportant.map(c => sendMessage(c[0], c[1], msg, null, logOnError))]
     }
     // Send to the regular log channels.
-    return logChannels.forEach(c => sendMessage(c[0], c[1], msg))
+    promises = [...promises, logChannels.map(c => sendMessage(c[0], c[1], msg, null, logOnError))]
+    return Promise.all(promises)
   }
 }
 

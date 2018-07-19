@@ -3,11 +3,10 @@
  * Copyright © 2018, Michiel Sikma
  */
 
-import { RichEmbed } from 'discord.js'
-
 import logger from 'callisto-util-logging'
 import { parseCommand, showCommandHelp, showCommandUsage, wrapInPre, wrapInJSCode, objectInspect, getChannelFromPath, findChannelPath } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
+import { isTemporaryError } from 'callisto-util-request'
 
 import { getSystemLogger } from './logging'
 import { discord } from './index'
@@ -17,8 +16,13 @@ import { discord } from './index'
  *
  * This requires a server ID and channel ID, and can send either a message
  * or an embed, or both.
+ *
+ * If 'logOnError' is true, we will send an error report in case sending the message fails.
+ * The 'errorRetries' variable is the number of times we'll silently retry to send
+ * the message if it fails.
  */
-export const sendMessage = async (serverID, channelID, message = null, embed = null) => {
+export const sendMessage = async (serverID, channelID, message = null, embed = null,
+  logOnError = true, errorRetries = 5) => {
   if (!message && !embed) return
   const channel = discord.client.channels.get(channelID)
   // Quick sanity check. Channel ID should already be unique.
@@ -27,26 +31,32 @@ export const sendMessage = async (serverID, channelID, message = null, embed = n
   // Send either a [message, embed] or [embed] depending on whether we have a message.
   const payload = [message, embed ? { embed } : null].filter(s => s)
 
-  try {
-    // Send the payload to Discord.
-    await sendPayload(channel, payload)
-  }
-  catch (err) {
-    // Something went wrong while sending this payload.
-    // Log info about what happened to Discord.
-    const channel = getChannelFromPath(err.path)
-    const path = channel ? findChannelPath(channel) : null
-    const msg = `\n\nPayload:\n${wrapInJSCode(objectInspect(payload))}\nStack trace:`
-    getSystemLogger().error(
-      'Error while sending payload to Discord',
-      `Attempted to send a malformed payload to Discord.${path ? ` See the "path to target channel" field for caller information.` : ''}${msg}\n${wrapInPre(err.stack)}`,
-      [
-        ...(err.name ? [['Name', err.name, true]] : []),
-        ...(err.code ? [['Code', err.code, true]] : []),
-        ...(path ? [['Path to target channel', `\`${path.join('.')}\``, true]] : [])
-      ]
-    )
-  }
+  // Attempt to send the payload to Discord.
+  // If something goes wrong, we will retry several times; and log an error if it fails still.
+  await trySendingPayload(channel, payload, logOnError, errorRetries)
+}
+
+/**
+ * Sends an error to Discord in case a payload cannot be sent for some reason.
+ */
+const sendError = (err, payload) => {
+  // Retrieve some information from the error to use for the report.
+  const channel = getChannelFromPath(err.path)
+  const path = channel ? findChannelPath(channel) : null
+  const msg = `\n\nPayload:\n${wrapInJSCode(objectInspect(payload))}\nStack trace:`
+
+  return getSystemLogger().error(
+    'Error while sending payload to Discord',
+    `${isTemporaryError(err) ? '' : `Attempted to send a malformed payload to Discord.${path ? ` See the "path to target channel" field for caller information.` : ''}`}${msg}\n${wrapInPre(err.stack)}`,
+    [
+      ...(err.name ? [['Name', err.name, true]] : []),
+      ...(err.code ? [['Code', err.code, true]] : []),
+      ...(path ? [['Path to target channel', `\`${path.join('.')}\``, true]] : [])
+    ],
+    false,
+    // Don't log on error, or we'll get a nasty loop.
+    false
+  )
 }
 
 /**
@@ -61,6 +71,36 @@ const sendPayload = async (sender, payload) => {
     return false
   }
   return await sender.send(...payload)
+}
+
+/**
+ * This contains the retry logic for sending payloads to Discord.
+ */
+const trySendingPayload = async (channel, payload, logOnError, errorRetries = 5) => {
+  // Attempt to send the message; retry several times, and only error out after that.
+  let tries = 0
+  let latestError
+  while (tries <= errorRetries) {
+    if (tries > 0) {
+      // Warn if retrying the call.
+      getSystemLogger().warn(`Sending payload failed`, `${latestError.code} - Retry #${tries}/${errorRetries}`)
+    }
+    tries += 1
+    try {
+      const result = await sendPayload(channel, payload)
+      return result
+    }
+    catch (err) {
+      latestError = err
+      continue
+    }
+  }
+
+  // Seems we could not send this payload despite repeated attempts.
+  // Log the error to Discord.
+  if (logOnError) {
+    return sendError(latestError, payload)
+  }
 }
 
 /**
