@@ -7,6 +7,7 @@ import { RichEmbed } from 'discord.js'
 import { mainCategories, shops } from 'mdrscr'
 import { uniq, get } from 'lodash'
 
+import { isTemporaryError } from 'callisto-util-request'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, wait, objectInspect, removeDefaults } from 'callisto-util-misc'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
@@ -60,8 +61,8 @@ const actionSearch = async (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'main'))
     }
     catch (err) {
-      if (err.code === 'ENOTFOUND') {
-        taskLogger.debug(searchDetails.keyword, `Ignored ENOTFOUND error during regular search: ${searchInfo} - wait: ${waitingTime}`)
+      if (isTemporaryError(err)) {
+        taskLogger.debug(searchDetails.keyword, `Ignored temporary error during regular search: ${searchInfo} - Error: ${err.code}`)
       }
       else {
         taskLogger.error(`Caught error during regular search`, `${searchInfo}\n\nwait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
@@ -86,8 +87,8 @@ const actionSearch = async (discordClient, user, taskConfig) => {
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'auction'))
     }
     catch (err) {
-      if (err.code === 'ENOTFOUND') {
-        taskLogger.debug(searchDetails.q, `Ignored ENOTFOUND error during auction search: ${searchInfo} - wait: ${waitingTime}`)
+      if (isTemporaryError(err)) {
+        taskLogger.debug(searchDetails.q, `Ignored temporary error during auction search: ${searchInfo} - Error: ${err.code}`)
       }
       else {
         taskLogger.error(`Caught error during auction search`, `${searchInfo} - wait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
@@ -154,9 +155,6 @@ const formatMessageAuction = (item, searchDetails, fields) => {
     embed.addField('Time left', 'Auction has not started yet')
   }
   else {
-    // TEMPORARY
-    //console.log(item.timeLeft)
-    //logger.warn(item.timeLeft)
     const daysLeft = `${item.timeLeft.days} day${item.timeLeft.days !== 1 ? 's' : ''}`
     const hoursLeft = `${item.timeLeft.hours} hour${item.timeLeft.hours !== 1 ? 's' : ''}`
     const minutesLeft = `${item.timeLeft.minutes} minute${item.timeLeft.minutes !== 1 ? 's' : ''}`
