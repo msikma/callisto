@@ -6,6 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import { slugify } from 'callisto-util-misc'
+import { isTemporaryError } from 'callisto-util-request'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription, wait, objectInspect, wrapInJSCode, getFormattedDate } from 'callisto-util-misc'
@@ -27,7 +28,12 @@ export const checkFeeds = async (discordClient, user, taskConfig) => {
       await checkFeedItem(item, i, defaultTarget, taskLogger)
     }
     catch (err) {
-      taskLogger.error('Error while checking feed', `${wrapInJSCode(objectInspect(item))}${err.code ? `\nError code: ${err.code}\n` : ''}\n${err.stack}`)
+      if (isTemporaryError) {
+        taskLogger.debug(item.name, `Ignored temporary error${err.code ? ` - Code: ${err.code}` : ``}`)
+      }
+      else {
+        taskLogger.error('Error while checking feed', `${wrapInJSCode(objectInspect(item))}${err.code ? `\nError code: ${err.code}\n` : ''}\n${err.stack}`)
+      }
     }
   }))
 }

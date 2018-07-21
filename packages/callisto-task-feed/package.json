@@ -1,7 +1,7 @@
 {
   "name": "callisto-task-feed",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Posts updates from generic syndicated feeds in RSS or Atom format",
   "main": "index.js",
   "scripts": {
