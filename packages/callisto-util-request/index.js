@@ -159,9 +159,23 @@ export const isTemporaryError = error => {
   if (!error) return false
   const code = get(error, 'code', '')
   const name = get(error, 'name', '')
+  const message = get(error, 'message', '')
+  const statusCode = Number(get(error, 'statusCode', 0))
+
+  // Check for a status code if the error comes from a request.
+  const okStatusCode = [
+    // 500 Internal Server Error
+    500,
+    // 502 Bad Gateway
+    502,
+    // 503 Service Unavailable
+    503,
+    // 504 Gateway Timeout Error (usually ETIMEDOUT)
+    504
+  ].indexOf(statusCode) > -1
 
   // Check if the error code is in a list of acceptable errors.
-  const okCode = [
+  const okCodeValues = [
     // When the network is temporarily unreachable.
     'ENETUNREACH',
     // When the internet is down.
@@ -173,12 +187,17 @@ export const isTemporaryError = error => {
     'ETIMEDOUT',
     // Connection was reset.
     'ECONNRESET'
-  ].indexOf(code) > -1
+  ]
+  const okCode = okCodeValues.indexOf(code) > -1
+
+  // If this is a RequestError, the same strings can be found in 'message'.
+  // E.g. 'Error: connect ETIMEDOUT 151.101.1.28:443'.
+  const okMessage = okCodeValues.indexOf(message) > -1
 
   const okName = [
     // Usually a 503 or something.
     'StatusCodeError'
   ].indexOf(name) > -1
 
-  return okName || okCode
+  return okName || okCode || okMessage || okStatusCode
 }
