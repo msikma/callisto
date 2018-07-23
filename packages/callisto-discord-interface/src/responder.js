@@ -83,7 +83,7 @@ const trySendingPayload = async (channel, payload, logOnError, errorRetries = 5)
   while (tries <= errorRetries) {
     if (tries > 0) {
       // Warn if retrying the call.
-      getSystemLogger().warn(`Sending payload failed`, `${latestError.code} - Retry #${tries}/${errorRetries}`)
+      getSystemLogger().verbose(`Sending payload failed`, `Channel: ${channel.name}, Error: ${latestError.code} - Retry #${tries}/${errorRetries}`)
     }
     tries += 1
     try {
