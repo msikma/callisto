@@ -192,7 +192,7 @@ export const isTemporaryError = error => {
 
   // If this is a RequestError, the same strings can be found in 'message'.
   // E.g. 'Error: connect ETIMEDOUT 151.101.1.28:443'.
-  const okMessage = okCodeValues.indexOf(message) > -1
+  const okMessage = okCodeValues.map(val => message.indexOf(val) > -1).filter(val => val).length > 0
 
   const okName = [
     // Usually a 503 or something.
