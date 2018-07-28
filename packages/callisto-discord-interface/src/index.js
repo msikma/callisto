@@ -10,6 +10,7 @@ import { registerBotName } from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
+import { catchAllExceptions } from './uncaught'
 import { shutdown } from './shutdown'
 import { checkVersion } from './logging'
 import { findTasks, findAndRegisterTasks } from './task-manager'
@@ -66,6 +67,9 @@ export const run = async ({ task, level, noPost = false }) => {
 
   // Check whether we are reporting the right version.
   checkVersion()
+
+  // Catch uncaught exceptions (this happens in very rare cases only).
+  catchAllExceptions()
 
   // Get a list of all installed tasks and register them.
   findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
