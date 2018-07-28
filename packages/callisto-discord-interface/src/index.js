@@ -10,9 +10,8 @@ import { registerBotName } from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
-import { catchAllExceptions } from './uncaught'
 import { shutdown } from './shutdown'
-import { checkVersion } from './logging'
+import { checkVersion, bindEmitHandlers, catchAllExceptions } from './logging'
 import { findTasks, findAndRegisterTasks } from './task-manager'
 
 export const discord = {
@@ -50,6 +49,9 @@ export const run = async ({ task, level, noPost = false }) => {
   // Print info about the current runtime. Log the exit method to the console only.
   logger.info(`callisto-bot ${pkg.version}`, false)
   console.log(`Press CTRL+C to exit.`)
+
+  // Bind warn/error handling routines.
+  bindEmitHandlers(discord.client)
 
   // Load single task if testing.
   let taskData

@@ -13,7 +13,9 @@ import {
   getDuration,
   getFormattedTime,
   getSimpleDuration,
-  getSystemInfo
+  getSystemInfo,
+  objectInspect,
+  wrapInPre
 } from 'callisto-util-misc'
 import { getShutdownTime } from 'callisto-util-cache/system'
 import { config, pkg } from 'callisto-util-misc/resources'
@@ -120,6 +122,36 @@ export const logCallistoShutdown = async () => {
 
   return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
 }
+
+/**
+ * Logs warnings and errors when they are emitted by the client.
+ */
+export const bindEmitHandlers = (client) => {
+  client.on('error', err => getSystemLogger().error('Client emitted an error', ...errorObject(err)))
+  client.on('warn', err => getSystemLogger().warn('Client emitted a warning', ...errorObject(err)))
+}
+
+/**
+ * Catches all uncaught exceptions.
+ *
+ * All tasks run within a try/catch block, so they can safely crash.
+ * This is for all other cases, and it's very rare for this catch to be triggered.
+ */
+export const catchAllExceptions = async () => {
+  process.on('uncaughtException', err => {
+    getSystemLogger().error('Unhandled exception', ...errorObject(err))
+  })
+}
+
+/** Returns an object we can easily log from an error. */
+const errorObject = err => ([
+  `${err.code ? `Code: \`${err.code}\`\n\n` : ''}\`\`\`${err.stack}\`\`\``,
+  [
+    ...(err.name ? ['Name', `${err.name}`, true] : []),
+    ...(err.id ? ['ID', `${err.id}`, true] : []),
+    ...(err.error ? ['Error', wrapInPre(objectInspect(err.error)), false] : [])
+  ]
+])
 
 /**
  * Verifies whether the callisto-discord-interface version is identical to the
