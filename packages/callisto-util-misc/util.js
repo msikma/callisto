@@ -30,6 +30,13 @@ export const wrapInPre = (str) => (
 )
 
 /**
+ * Wraps a string in a monospace block (without linebreak).
+ */
+export const wrapInMono = (str) => (
+  `\`${str}\``
+)
+
+/**
  * Removes null and undefined from objects.
  * Useful for cleaning up objects before printing/inspecting them.
  */

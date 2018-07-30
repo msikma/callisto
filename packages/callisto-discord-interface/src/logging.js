@@ -14,8 +14,7 @@ import {
   getFormattedTime,
   getSimpleDuration,
   getSystemInfo,
-  objectInspect,
-  wrapInPre
+  errorObject
 } from 'callisto-util-misc'
 import { getShutdownTime } from 'callisto-util-cache/system'
 import { config, pkg } from 'callisto-util-misc/resources'
@@ -143,15 +142,7 @@ export const catchAllExceptions = async () => {
   })
 }
 
-/** Returns an object we can easily log from an error. */
-const errorObject = err => ([
-  `${err.code ? `Code: \`${err.code}\`\n\n` : ''}\`\`\`${err.stack}\`\`\``,
-  [
-    ...(err.name ? ['Name', `${err.name}`, true] : []),
-    ...(err.id ? ['ID', `${err.id}`, true] : []),
-    ...(err.error ? ['Error', wrapInPre(objectInspect(err.error)), false] : [])
-  ]
-])
+
 
 /**
  * Verifies whether the callisto-discord-interface version is identical to the
