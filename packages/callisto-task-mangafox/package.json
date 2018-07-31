@@ -3,7 +3,7 @@
   "_site": "https://manga-fox.com/",
   "name": "callisto-task-mangafox",
   "private": true,
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Posts new manga chapters added to MangaFox",
   "main": "index.js",
   "scripts": {

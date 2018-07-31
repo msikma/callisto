@@ -5,9 +5,11 @@
 
 import cheerio from 'cheerio'
 
+import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
-import { slugify, wait } from 'callisto-util-misc'
+import { slugify, wait, wrapInJSCode, objectInspect } from 'callisto-util-misc'
+
 import { id } from './index'
 
 const MANGAFOX_BASE = 'https://manga-fox.com'
@@ -17,14 +19,17 @@ export const runMangaSearch = async (slug) => {
   const mangaID = `${id}$${slug}`
 
   const latest = await getLatestChapter(slug)
+  if (!latest.length) {
+    return []
+  }
   const ids = latest.map(i => i.id)
   const exists = (await filterCachedIDs(mangaID, ids)).map(i => i.id)
-  
+
   const newItems = latest.filter(i => exists.indexOf(i.id) === -1).slice(-10)
   if (!newItems.length) {
     return []
   }
-  
+
   const newItemsData = (await Promise.all(newItems.map(async (i, n) => {
     // Stagger requests, 5 seconds delay each.
     await wait(n * 5000)
@@ -44,18 +49,25 @@ const getLatestChapter = async (slug) => {
   const url = mangaFoxURL(slug)
   const html = await requestURL(url)
   const $html = cheerio.load(html)
-  return findLatestChapters($html)
+  // Filter out items without title. This is probably a temporary error.
+  return findLatestChapters($html, url, slug).filter(c => c.title !== '')
 }
 
 /**
  * Retrieves latest chapter data. Returns an array, but actually always contains only one item.
  */
-const findLatestChapters = ($) => {
+const findLatestChapters = ($, mfURL, slug) => {
   const $latestChapter = $('.chapter-list .row:first-child a')
+  const title = $latestChapter.attr('title')
+  const titleSlug = slugify(String(title))
+  const url = `${MANGAFOX_BASE}${$latestChapter.attr('href')}`
+  if (title == null) {
+    getTaskLogger(id).warn(`Found null title for latest chapter`, wrapInJSCode(objectInspect({ slug, title, id: titleSlug, url, mangaFoxURL: mfURL })))
+  }
   return [{
-    title: $latestChapter.attr('title'),
-    id: slugify($latestChapter.attr('title')),
-    url: `${MANGAFOX_BASE}${$latestChapter.attr('href')}`
+    title: title == null ? '' : title,
+    id: titleSlug,
+    url
   }]
 }
 
