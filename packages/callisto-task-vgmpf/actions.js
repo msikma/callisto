@@ -6,6 +6,7 @@
 import { RichEmbed } from 'discord.js'
 
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
+import { isTemporaryError } from 'callisto-util-request'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
 import { embedTitle } from 'callisto-util-misc'
 import { runVGMPFSearch } from './search'
@@ -24,7 +25,12 @@ export const actionRecentReleases = async (discordClient, user, taskConfig) => {
   }
   catch (err) {
     const taskLogger = getTaskLogger(id)
-    taskLogger.error('An error occurred while searching for updates', `${err.stack}`)
+    if (isTemporaryError(err)) {
+      taskLogger.debug(`Temporary network error (${err.code}) while searching for updates`)
+    }
+    else {
+      taskLogger.error('An error occurred while searching for updates', `${err.stack}`)
+    }
   }
 }
 
