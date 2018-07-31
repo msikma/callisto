@@ -16,6 +16,7 @@ import {
   getSystemInfo,
   errorObject
 } from 'callisto-util-misc'
+import { isTemporaryError } from 'callisto-util-request'
 import { getShutdownTime } from 'callisto-util-cache/system'
 import { config, pkg } from 'callisto-util-misc/resources'
 import { createTaskLogger } from 'callisto-util-logging/discord'
@@ -123,11 +124,21 @@ export const logCallistoShutdown = async () => {
 }
 
 /**
+ * Handles error events from the client.
+ */
+const handleClientEvent = (type, desc, err) => {
+  // Don't emit anything if it's a temporary error.
+  if (isTemporaryError(err)) return
+  // Otherwise, send a message to the error log.
+  getSystemLogger()[type](desc, ...errorObject(err))
+}
+
+/**
  * Logs warnings and errors when they are emitted by the client.
  */
 export const bindEmitHandlers = (client) => {
-  client.on('error', err => getSystemLogger().error('Client emitted an error', ...errorObject(err)))
-  client.on('warn', err => getSystemLogger().warn('Client emitted a warning', ...errorObject(err)))
+  client.on('error', err => handleClientEvent('error', 'Client emitted an error', err))
+  client.on('warn', err => handleClientEvent('warn', 'Client emitted a warning', err))
 }
 
 /**
@@ -137,12 +148,8 @@ export const bindEmitHandlers = (client) => {
  * This is for all other cases, and it's very rare for this catch to be triggered.
  */
 export const catchAllExceptions = async () => {
-  process.on('uncaughtException', err => {
-    getSystemLogger().error('Unhandled exception', ...errorObject(err))
-  })
+  process.on('uncaughtException', err => handleClientEvent('error', 'Unhandled exception', err))
 }
-
-
 
 /**
  * Verifies whether the callisto-discord-interface version is identical to the
