@@ -20,7 +20,9 @@ export const actionRecentReleases = async (discordClient, user, taskConfig) => {
     const taskLogger = getTaskLogger(id)
     const { target } = taskConfig
     const results = await runVGMPFSearch()
-    taskLogger.debug(`Posting new update`)
+    if (results.length > 0) {
+      taskLogger.debug(`Posting new update`)
+    }
     target.forEach(t => reportResults(t[0], t[1], results))
   }
   catch (err) {
