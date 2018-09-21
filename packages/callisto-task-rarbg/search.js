@@ -19,8 +19,15 @@ const episodeIDRe = new RegExp('^episode_(.+?)$', 'i')
  */
 const reportError = (html) => {
   const taskLogger = getTaskLogger(id)
-  taskLogger.error('Request resulted in error', 'HTML can be found in the text log')
-  logger.debug(`rarbg: HTML output:\n----\n${html}\n----`)
+  if (html.indexOf('to verify your browser') > -1) {
+    // Known suspicious activity page.
+    taskLogger.error('Bot was flagged for suspicious activity', 'visit rarbg.to to solve the captcha and unblock our IP')
+  }
+  else {
+    // Something else.
+    taskLogger.error('Request resulted in an unknown error', 'HTML can be found in the text log (debug level)')
+    logger.debug(`rarbg: HTML output:\n----\n${html}\n----`)
+  }
   return null
 }
 
@@ -60,7 +67,6 @@ export const cacheEpisode = async (episode) => (
 export const getTorrentDetails = async (url, referrer) => {
   const html = await requestURL(url, { 'Referer': referrer })
   const torrentInfo = getTorrentInfo(cheerio.load(html))
-  if (false) return reportError(html)
   return torrentInfo
 }
 
@@ -69,9 +75,9 @@ export const getTorrentDetails = async (url, referrer) => {
  * We usually get multiple links. We'll return whichever has the biggest filesize.
  */
 export const getEpisodeInfo = async (url, referrer) => {
+  // Normally the browser also sends XMLHttpRequest for these.
   const html = await requestURL(url, { 'Referer': referrer, 'X-Requested-With': 'XMLHttpRequest' })
   const bestEpisodeInfo = getBestEpisodeInfo(cheerio.load(html))
-  if (false) return reportError(html)
   return bestEpisodeInfo
 }
 
