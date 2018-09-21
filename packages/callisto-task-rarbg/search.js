@@ -21,7 +21,7 @@ const reportError = (html) => {
   const taskLogger = getTaskLogger(id)
   if (html.indexOf('to verify your browser') > -1) {
     // Known suspicious activity page.
-    taskLogger.error('Bot was flagged for suspicious activity', 'visit rarbg.to to solve the captcha and unblock our IP')
+    taskLogger.error('Bot was flagged for suspicious activity', 'Visit rarbg.to to solve the captcha and unblock our IP')
   }
   else {
     // Something else.

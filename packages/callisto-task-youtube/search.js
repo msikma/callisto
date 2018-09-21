@@ -9,7 +9,7 @@ import { get } from 'lodash'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached } from 'callisto-util-cache'
-import { rssParse, getExactDuration } from 'callisto-util-misc'
+import { rssParse, getExactDuration, wrapInJSCode, objectInspect } from 'callisto-util-misc'
 import { videoURL, getVideoExtendedInfo, getPageInitialData, getBestThumbnail } from './util'
 import { id } from './index'
 
@@ -30,7 +30,7 @@ export const findNewSubscriptionVideos = async (url, slug) => {
   const accountCacheID = `${id}$${slug}$subscription`
 
   // Copy 'guid' to 'id' for caching.
-  const allItems = items.map(entry => ({ ...entry, id: entry.guid })).slice(0, 1)
+  const allItems = items.map(entry => ({ ...entry, id: entry.guid }))
   const newItems = await removeCached(accountCacheID, allItems)
   const extendedInfoItems = newItems.length ? await addExtendedInfo(newItems) : []
 
@@ -50,9 +50,24 @@ const addExtendedInfo = (rssItems) => (
 
     // If something went wrong, resolve with our basic info instead.
     if (!data) return resolve({ ...entry })
-    const info = data.videoDetails
-    const description = info.shortDescription
-    const thumbnails = info.thumbnail.thumbnails
+    const info = get(data, 'videoDetails', {})
+    
+    if (!data.videoDetails) {
+      // If we don't have videoDetails for some reason...
+      getTaskLogger(id).warning(
+        'Could not add extended info to video',
+        'The video item\'s `videoDetails` key was not found',
+        [
+          ['Link', `${entry.link}`],
+          ['`entry`', wrapInJSCode(objectInspect(data))],
+          ['`data`', wrapInJSCode(objectInspect(data))]
+        ]
+      )
+    }
+
+    const description = get(info, 'shortDescription', '')
+    // If we don't have a shortDescription for some reason...
+    const thumbnails = get(info, 'thumbnail.thumbnails', [])
     const { keywords, lengthSeconds, viewCount } = info
 
     resolve({
