@@ -36,6 +36,7 @@ const reportError = (html) => {
  * We check to see if we have already posted this URL. If so, null is returned.
  */
 export const findNewEpisodes = async (url, show) => {
+  getTaskLogger(id).debug(show.slug, `Loading from URL: ${url}`)
   const html = await requestURL(url)
   const showInfo = getLatestEpisodesInfo(cheerio.load(html))
   // If we didn't get any results, it means we couldn't load any HTML properly.
