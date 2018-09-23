@@ -3,6 +3,7 @@
  * Copyright © 2018, Michiel Sikma
  */
 
+import { get } from 'lodash'
 import logger from 'callisto-util-logging'
 import { parseCommand, showCommandHelp, showCommandUsage, wrapInPre, wrapInJSCode, objectInspect, getChannelFromPath, findChannelPath } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
@@ -25,8 +26,13 @@ export const sendMessage = async (serverID, channelID, message = null, embed = n
   logOnError = true, errorRetries = 5) => {
   if (!message && !embed) return
   const channel = discord.client.channels.get(channelID)
+  logger.silly(`Sending payload to channel: ${String(channel)}`)
   // Quick sanity check. Channel ID should already be unique.
-  if (channel.guild.id !== serverID) return
+  const guildID = get(channel, 'guild.id')
+  if (guildID !== serverID) {
+    logger.warn(`Failed sanity check - channel.guild.id: ${guildID}, serverID: ${serverID}, channelID: ${channelID}`)
+    return
+  }
 
   // Send either a [message, embed] or [embed] depending on whether we have a message.
   const payload = [message, embed ? { embed } : null].filter(s => s)
