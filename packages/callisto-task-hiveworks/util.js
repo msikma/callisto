@@ -8,7 +8,10 @@ import { htmlToMarkdown } from 'callisto-util-misc'
 const fourDigit = new RegExp('([0-9]{4})')
 
 // Base URLs for the pages we'll scrape.
-export const urlComic = (base, slug = '') => `${base}comic/${slug}`
+export const urlComic = (base, slug = '') => {
+  if (slug.startsWith('comic/')) return `${base}${slug}`
+  return `${base}comic/${slug}`
+}
 export const urlArchive = base => `${base}comic/archive/`
 
 // Returns the year from a month string, e.g. 'January, 2018'.
