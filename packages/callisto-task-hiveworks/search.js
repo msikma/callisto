@@ -9,7 +9,7 @@ import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { requestURL } from 'callisto-util-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'callisto-util-cache'
 import { wait, getIntegerTimestamp } from 'callisto-util-misc'
-import { separateDateTitle, getMarkdownFromHTML, urlComic, urlArchive, getYear } from './util'
+import { separateDateTitle, getMarkdownFromHTML, urlComic, urlArchive, getYear, COMIC_PREFIX } from './util'
 import { id } from './index'
 
 // Two types of archive pages we may encounter.
@@ -181,7 +181,10 @@ const findLatestChaptersSelectComic = ($, urlBase) => {
   const items = $('select[name="comic"] option').get().map(o => {
     const $o = $(o)
     const { date, title } = separateDateTitle($o.text().trim())
-    const slug = $o.attr('value')
+    const value = $o.attr('value')
+    // Some comics, like Devil's Candy, include a relative link to the comic page.
+    // E.g. 'comic/slug'. Remove it to get a clean slug.
+    const slug = value.replace(COMIC_PREFIX, '')
     return {
       id: slug,
       slug,
