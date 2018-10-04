@@ -26,7 +26,7 @@ export const discord = {
  * If 'task' is set, we'll run the bot with that one task only. Others get ignored.
  * 'level' sets the console logging verbosity.
  */
-export const run = async ({ task, level, noPost = false }) => {
+export const run = async ({ task, level, db, noPost = false }) => {
   // Prevent us from being able to actually post to Discord if --no-post was passed.
   discord.noPost = noPost
 
@@ -37,18 +37,28 @@ export const run = async ({ task, level, noPost = false }) => {
   // TODO: this should likely be removed, since we can just pass the bot user object's name.
   registerBotName(config.CALLISTO_BOT_NAME)
 
+  // Print info about the current runtime. Log the exit method to the console only.
+  logger.info(`callisto-bot ${pkg.version}`, false)
+  console.log(`Press CTRL+C to exit.`)
+
   // Mount database file, or create a new file if it doesn't exist.
-  await dbInit(`${config.CALLISTO_BASE_DIR}/cache/`)
+  try {
+    await dbInit(db)
+  }
+  catch (e) {
+    if (e.code === 'SQLITE_CANTOPEN')
+      logger.error(`Fatal: could not load the database file (${e.code}): ${db}db.sqlite`)
+    else
+      logger.error(`Fatal: an unknown error occurred while loading the database file (${e.code}): ${db}db.sqlite`)
+    process.exit(1)
+  }
+  
   discord.settings = await loadSettings('_discord', 'system')
   discord.client = new Discord.Client()
 
   // Log in to the server.
   await discord.client.login(config.CALLISTO_BOT_TOKEN)
   discord.bot = await discord.client.fetchUser(config.CALLISTO_BOT_CLIENT_ID)
-
-  // Print info about the current runtime. Log the exit method to the console only.
-  logger.info(`callisto-bot ${pkg.version}`, false)
-  console.log(`Press CTRL+C to exit.`)
 
   // Bind warn/error handling routines.
   bindEmitHandlers(discord.client)

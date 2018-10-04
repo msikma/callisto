@@ -42,6 +42,8 @@ After that, you should be able to run the bot:
 
 This will start the bot and allow it to start responding to user input in the channels you've invited it to. Press `CTRL+C` to quit.
 
+To keep track of items that have already been posted, the bot will make an SQLite database. By default this will be created in `~/.config/callisto/`. Change this directory by passing `--cache` on startup.
+
 ### Development
 
 Installing the project for development purposes is a little more involved. This project is a monorepo managed via [Lerna](https://lernajs.io/), which should be installed globally first. We also need to install dependencies in the root package. Finally, we use [hoisting](https://github.com/lerna/lerna/blob/master/doc/hoist.md) to simplify the modules structure.
