@@ -111,18 +111,53 @@ export const removeCached = async (task, items) => {
 }
 
 /**
+ * Returns a timestamp of the current time.
+ * Currently unused since we use CURRENT_TIMESTAMP.
+ */
+const getCacheTimestamp = (useUTC = false) => {
+  const now = new Date()
+  
+  if (useUTC) {
+    const date = [
+      now.getUTCFullYear(),
+      ('0' + (now.getUTCMonth() + 1)).slice(-2),
+      ('0' + now.getUTCDate()).slice(-2)
+    ].join('-')
+    const time = [
+      now.getUTCHours(),
+      now.getUTCMinutes(),
+      now.getUTCSeconds()
+    ].join(':')
+    return [date, time].join(' ')
+  }
+  else {
+    const date = [
+      now.getFullYear(),
+      ('0' + (now.getMonth() + 1)).slice(-2),
+      ('0' + now.getDate()).slice(-2)
+    ].join('-')
+    const time = [
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds()
+    ].join(':')
+    return [date, time].join(' ')
+  }
+}
+
+/**
  * Saves items into our database.
  */
 export const cacheItems = async (task, items) => {
   if (items.length === 0) return
-  const stmt = await db.prepare(`insert into cached_items values (?, ?, ?, ?)`)
+  const stmt = await db.prepare(`insert into cached_items values (?, ?, ?, CURRENT_TIMESTAMP)`)
 
   // If we try to cache something that's already cached, we should always be notified in the log.
   try {
     await Promise.all(items.map(i => new Promise(async (resolve, reject) => {
       // Warn if a single ID insertion goes wrong.
       try {
-        await stmt.run(i.id, task, i.title, null)
+        await stmt.run(i.id, task, i.title)
         resolve()
       }
       catch (err) {
