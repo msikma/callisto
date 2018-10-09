@@ -41,9 +41,9 @@ const findReleases = ($) => {
     const systems = getArray($, $('.info .systems a', $pack))
     const composers = getArray($, $('.info .composers a', $pack))
     const packAuthors = getArray($, $('.info .authors a', $pack))
-    const downloadLink = $('.title a.download').attr('href')
+    const downloadLink = $('.title a.download', $pack).attr('href')
     const id = slugify(link)
-    const size = $('.title a.download > small').text().split('•').pop().trim()
+    const size = $('.title a.download > small', $pack).text().split('•').pop().trim()
     return {
       title,
       image,
