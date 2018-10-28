@@ -13,7 +13,7 @@ export const callistoCommitURL = hash => `${pkg._callisto_commit_url}${hash}`
 const lockfileLoc = botName => `${process.env.HOME}/.config/callisto/${botName}.lock`
 
 // Check if this bot's lockfile exists.
-export const getLockfile = (botName) => new Promise((resolve, reject) => {
+export const getLockfile = (botName) => new Promise(async (resolve, reject) => {
   try {
     const data = await readFile(lockfileLoc(botName))
     return resolve(data)
@@ -25,7 +25,7 @@ export const getLockfile = (botName) => new Promise((resolve, reject) => {
 })
 
 // Saves a new lockfile.
-export const saveLockFile = (botName) => new Promise((resolve, reject) => {
+export const saveLockFile = (botName) => new Promise(async (resolve, reject) => {
   try {
     await writeFile(lockfileLoc(botName))
   }
