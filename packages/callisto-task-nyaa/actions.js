@@ -7,7 +7,7 @@ import { RichEmbed } from 'discord.js'
 
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, embedDescription, wait } from 'callisto-util-misc'
+import { embedTitle, embedDescription, wait, escapeMarkdown } from 'callisto-util-misc'
 import { runNyaaSearch } from './search'
 import * as categories from './categories'
 import * as filters from './filters'
@@ -79,7 +79,7 @@ const reportResults = (server, channel, results, search) => {
 const formatMessage = (item, search) => {
   const embed = new RichEmbed();
   embed.setAuthor('New torrent file on Nyaa.si', icon)
-  embed.setTitle(embedTitle(item.title))
+  embed.setTitle(embedTitle(escapeMarkdown(item.title)))
   if (item._description) {
     // Add the scraped description if it's been added.
     embed.setDescription(embedDescription(item._description))

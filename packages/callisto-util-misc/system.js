@@ -4,10 +4,36 @@
  */
 
 import { exec } from 'child_process'
+import { readFile, writeFile } from './util'
 import { pkg } from './resources'
 
 // Links to a commit URL.
 export const callistoCommitURL = hash => `${pkg._callisto_commit_url}${hash}`
+
+const lockfileLoc = botName => `${process.env.HOME}/.config/callisto/${botName}.lock`
+
+// Check if this bot's lockfile exists.
+export const getLockfile = (botName) => new Promise((resolve, reject) => {
+  try {
+    const data = await readFile(lockfileLoc(botName))
+    return resolve(data)
+  }
+  catch (err) {
+    console.log(err)
+    return reject(err)
+  }
+})
+
+// Saves a new lockfile.
+export const saveLockFile = (botName) => new Promise((resolve, reject) => {
+  try {
+    await writeFile(lockfileLoc(botName))
+  }
+  catch (err) {
+    console.log(err)
+    return reject(err)
+  }
+})
 
 /**
  * Retrieves information about the system that the code is currently running on.

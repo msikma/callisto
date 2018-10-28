@@ -61,3 +61,19 @@ export const wait = (ms) => (
     setInterval(() => resolve(), ms)
   ))
 )
+
+// Simple Promisified version of fs.readFile().
+export const readFile = (file) => new Promise((resolve, reject) => {
+  fs.readFile(file, 'utf8', (err, data) => {
+    if (err) return reject(err)
+    return resolve(data)
+  })
+})
+
+// Simple Promisified version of fs.writeFile().
+export const writeFile = (file, data) => new Promise((resolve, reject) => {
+  fs.writeFile(file, data, (err, data) => {
+    if (err) return reject(err)
+    return resolve(data)
+  })
+})

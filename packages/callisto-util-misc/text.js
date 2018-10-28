@@ -5,6 +5,7 @@
 
 import TurndownService from 'turndown'
 import cheerio from 'cheerio'
+import { escape } from 'markdown-escape'
 
 /**
  * Returns Markdown from HTML.
@@ -25,6 +26,11 @@ export const htmlToMarkdown = (html, removeEmpty = false, removeScript = true, r
   const md = turndownService.turndown($html.html()).trim()
   return removeEmpty ? removeEmptyLines(md) : md
 }
+
+// Prevents a string from activating Markdown features.
+export const escapeMarkdown = (md) => (
+  escape(md)
+)
 
 // Capitalizes the first letter of a string.
 export const capitalizeFirst = (str) => (
