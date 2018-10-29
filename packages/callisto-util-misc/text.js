@@ -5,7 +5,7 @@
 
 import TurndownService from 'turndown'
 import cheerio from 'cheerio'
-import { escape } from 'markdown-escape'
+import escape from 'markdown-escape'
 
 /**
  * Returns Markdown from HTML.
