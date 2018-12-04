@@ -1,9 +1,12 @@
 {
   "_callisto_commit_url": "https://bitbucket.org/msikma/callisto-bot/commits/",
   "name": "callisto-bot",
-  "version": "1.6.7",
+  "version": "1.6.8",
   "description": "A private Discord bot that periodically queries websites and posts updates.",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "homepage": "https://bitbucket.org/msikma/callisto-bot",
   "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "SEE LICENSE IN <readme.md>",
