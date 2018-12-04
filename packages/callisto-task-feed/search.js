@@ -36,18 +36,22 @@ const parseItem = (item) => {
     ? limitDescription(removeEmptyLines(htmlToMarkdown(item.description, false, true, true, false, true), true))
     : item.description
 
+  let _bestImage
+
   // Retrieve images from the feed item.
   const images = item.enclosures.filter(e => e.type === 'image').map(e => cleanupImage(e.url)).filter(n => n)
   const bestImage = getBestImage(images)
+  if (bestImage) _bestImage = bestImage
   // Retrieve images from HTML as backup, in case we don't have images from the feed item itself.
   const htmlImages = descriptionIsHTML ? getImagesFromHTML(item.description) : []
   const htmlBestImage = getBestImage(htmlImages)
+  if (!_bestImage && htmlBestImage) _bestImage = htmlBestImage
 
   return {
     ...item,
     id: itemID,
     _images: images,
-    _bestImage: bestImage ? bestImage : htmlBestImage,
+    _bestImage,
     _description: descriptionClean
   }
 }

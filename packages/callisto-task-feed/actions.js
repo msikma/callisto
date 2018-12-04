@@ -41,8 +41,8 @@ export const checkFeeds = async (discordClient, user, taskConfig) => {
 const checkFeedItem = async (item, i, defaultTarget, taskLogger) => {
   // Rate limiting.
   const waitTime = i * 8000
-  taskLogger.debug(item.name, `Checking feed (wait: ${waitTime})`)
   await wait(waitTime)
+  taskLogger.debug(item.name, `Checking feed (wait: ${waitTime})`)
 
   const msgTarget = item.target ? item.target : defaultTarget
   const newPosts = await checkForUpdates(item.url, slugify(item.name))
