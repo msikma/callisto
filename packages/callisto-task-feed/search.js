@@ -5,7 +5,7 @@
 
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { parseFeedURL, isHTML, htmlToMarkdown, removeEmptyLines, getImagesFromHTML, limitDescription } from 'callisto-util-misc'
-import { getBestImage } from './util'
+import { getBestImage, cleanupImage } from './util'
 import { id } from './index'
 
 /**
@@ -37,7 +37,7 @@ const parseItem = (item) => {
     : item.description
 
   // Retrieve images from the feed item.
-  const images = item.enclosures.filter(e => e.type === 'image').map(e => e.url)
+  const images = item.enclosures.filter(e => e.type === 'image').map(e => cleanupImage(e.url)).filter(n => n)
   const bestImage = getBestImage(images)
   // Retrieve images from HTML as backup, in case we don't have images from the feed item itself.
   const htmlImages = descriptionIsHTML ? getImagesFromHTML(item.description) : []

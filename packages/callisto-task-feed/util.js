@@ -3,6 +3,8 @@
  * Copyright © 2018, Michiel Sikma
  */
 
+const BASE = 'https://u2.dmhy.org/'
+
 /**
  * Returns the 'best' image.
  */
@@ -12,6 +14,15 @@ export const getBestImage = (images) => {
   // Run images through the scoreImage() function to sort them.
   const sorted = images.sort((a, b) => scoreImage(a) < scoreImage(b) ? 1 : -1)
   return sorted[0]
+}
+
+/**
+ * Removes some common image URL problems.
+ */
+export const cleanupImage = url => {
+  if (url.startsWith('attachment/')) return `${BASE}${url}`
+  if (url === 'null' || !url) return null
+  return url
 }
 
 /**
