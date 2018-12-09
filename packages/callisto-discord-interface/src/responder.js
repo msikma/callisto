@@ -5,10 +5,11 @@
 
 import { get } from 'lodash'
 import logger from 'callisto-util-logging'
-import { parseCommand, showCommandHelp, showCommandUsage, wrapInPre, wrapInJSCode, objectInspect, getChannelFromPath, findChannelPath } from 'callisto-util-misc'
+import { parseCommand, showCommandHelp, showCommandUsage, wrapInPre, wrapInJSCode, objectInspect, getChannelFromPath, findChannelPath, wait } from 'callisto-util-misc'
 import { config } from 'callisto-util-misc/resources'
 import { isTemporaryError } from 'callisto-util-request'
 
+import { pushToQueueBack } from './queue'
 import { getSystemLogger } from './logging'
 import { discord } from './index'
 
@@ -22,9 +23,12 @@ import { discord } from './index'
  * The 'errorRetries' variable is the number of times we'll silently retry to send
  * the message if it fails.
  */
-export const sendMessage = async (serverID, channelID, message = null, embed = null,
-  logOnError = true, errorRetries = 5) => {
-  if (!message && !embed) return
+export const sendMessage = async (serverID, channelID, message = null, embed = null, logOnError = true, sendDirectly = false) => {
+  if (!message && !embed) {
+    logger.warn('sendMessage() called without message or embed.')
+    return
+  }
+
   const channel = discord.client.channels.get(channelID)
   logger.silly(`Sending payload to channel: ${String(channel)}`)
   // Quick sanity check. Channel ID should already be unique.
@@ -37,15 +41,20 @@ export const sendMessage = async (serverID, channelID, message = null, embed = n
   // Send either a [message, embed] or [embed] depending on whether we have a message.
   const payload = [message, embed ? { embed } : null].filter(s => s)
 
-  // Attempt to send the payload to Discord.
-  // If something goes wrong, we will retry several times; and log an error if it fails still.
-  await trySendingPayload(channel, payload, logOnError, errorRetries)
+  if (sendDirectly) {
+    // If this message is urgent, send it immediately without queueing it..
+    channel.send(...payload)
+  }
+  else {
+    // Queue the payload for sending to Discord.
+    pushToQueueBack({ channel, payload, logOnError })
+  }
 }
 
 /**
  * Sends an error to Discord in case a payload cannot be sent for some reason.
  */
-const sendError = (err, payload) => {
+export const sendError = (err, { payload }) => {
   // Retrieve some information from the error to use for the report.
   const channel = getChannelFromPath(err.path)
   const path = channel ? findChannelPath(channel) : null
@@ -74,38 +83,24 @@ const sendError = (err, payload) => {
 const sendPayload = async (sender, payload) => {
   // Don't send anything if noPost is on.
   if (discord.noPost === true) {
-    return false
+    return true
   }
-  return await sender.send(...payload)
+  await sender.send(...payload)
+  return true
 }
 
 /**
- * This contains the retry logic for sending payloads to Discord.
+ * Attempts to send a payload to Discord. If no error is raised, we return true.
+ * If something went wrong, we return (not raise) the error.
  */
-const trySendingPayload = async (channel, payload, logOnError, errorRetries = 5) => {
-  // Attempt to send the message; retry several times, and only error out after that.
-  let tries = 0
-  let latestError
-  while (tries <= errorRetries) {
-    if (tries > 0) {
-      // Warn if retrying the call.
-      getSystemLogger().verbose(`Sending payload failed`, `Channel: ${channel.name}, Error: ${latestError.code} - Retry #${tries}/${errorRetries}`)
-    }
-    tries += 1
-    try {
-      const result = await sendPayload(channel, payload)
-      return result
-    }
-    catch (err) {
-      latestError = err
-      continue
-    }
+export const trySendingPayload = async ({ channel, payload }, tries = 0) => {
+  try {
+    const result = await sendPayload(channel, payload)
+    return result
   }
-
-  // Seems we could not send this payload despite repeated attempts.
-  // Log the error to Discord.
-  if (logOnError) {
-    return sendError(latestError, payload)
+  catch (err) {
+    getSystemLogger().verbose(`Sending payload failed`, `Channel: ${channel.name}, Error: ${err.code} - Attempt #${tries}`)
+    return err
   }
 }
 

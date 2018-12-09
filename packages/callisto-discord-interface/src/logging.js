@@ -120,7 +120,8 @@ export const logCallistoShutdown = async () => {
   embed.setTimestamp(new Date())
   embed.setColor(ERROR_COLOR)
 
-  return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
+  // Note: this avoid use of the queue since it's frozen during shutdown.
+  return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed, false, true)))
 }
 
 /**

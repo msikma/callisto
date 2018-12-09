@@ -11,6 +11,7 @@ import { config, pkg } from 'callisto-util-misc/resources'
 import logger, { configureLogger } from 'callisto-util-logging'
 
 import { shutdown } from './shutdown'
+import { startQueueLoop } from './queue'
 import { checkVersion, bindEmitHandlers, catchAllExceptions } from './logging'
 import { findTasks, findAndRegisterTasks } from './task-manager'
 
@@ -52,6 +53,9 @@ export const run = async ({ task, level, db, noPost = false }) => {
       logger.error(`Fatal: an unknown error occurred while loading the database file (${e.code}): ${db}db.sqlite`)
     process.exit(1)
   }
+
+  // Start message queue, which will send messages to Discord one by one.
+  startQueueLoop()
   
   discord.settings = await loadSettings('_discord', 'system')
   discord.client = new Discord.Client()
