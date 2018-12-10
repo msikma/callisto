@@ -75,6 +75,25 @@ export const sendError = (err, { payload }) => {
 }
 
 /**
+ * Logs a temporary error at low priority.
+ */
+export const sendTemporaryError = (logger, err) => {
+  `${isTemporaryError(err) ? '' : `Attempted to send a malformed payload to Discord.${path ? ` See the "path to target channel" field for caller information.` : ''}`}${msg}\n${wrapInPre(err.stack)}`,
+
+  logger.verbose(
+    'Temporary network error occurred',
+    `${err.stack}`,
+    [
+      ...(err.name ? [['Name', err.name, true]] : []),
+      ...(err.code ? [['Code', err.code, true]] : [])
+    ],
+    false,
+    // Don't log on error.
+    false
+  )
+}
+
+/**
  * Low level send interface. Passes on a message to Discord.
  * All code should send their messages to Discord through this function,
  * not through any other means. That way we can ensure the --no-post

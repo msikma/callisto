@@ -6,7 +6,8 @@
 import { RichEmbed } from 'discord.js'
 
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
-import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { sendMessage, sendTemporaryError } from 'callisto-discord-interface/src/responder'
+import { isTemporaryError } from 'callisto-util-request'
 import { embedTitle, embedDescription, getFormattedDate } from 'callisto-util-misc'
 import { findNewItems } from './search'
 import { id, color, icon } from './index'
@@ -31,7 +32,12 @@ export const actionRemixes = async (discordClient, user, taskConfig) => {
   }
   catch (err) {
     const taskLogger = getTaskLogger(id)
-    taskLogger.error(`Error occurred while scraping:\n\n${err.stack}`)
+    if (isTemporaryError(err)) {
+      sendTemporaryError(taskLogger, err)
+    }
+    else {
+      taskLogger.error(`Error occurred while scraping:\n\n${err.stack}`)
+    }
   }
 }
 
