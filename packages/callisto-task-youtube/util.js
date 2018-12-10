@@ -30,12 +30,12 @@ export const videoURL = (watch, prefix = '/watch?v=') => (
 )
 
 // Parses a subscriptions XML file.
-export const readSubscriptions = (url, slug) => (
+export const readSubscriptions = (path, slug) => (
   new Promise((resolve, reject) => {
     const taskLogger = getTaskLogger(id)
     parser.reset()
-    taskLogger.debug(`${slug}`, `Reading subscriptions XML file: ${url.replace(config.CALLISTO_BASE_DIR, '')}`)
-    fs.readFile(url, (errFs, data) => {
+    taskLogger.debug(`${slug}`, `Reading subscriptions XML file: ${path.replace(config.CALLISTO_BASE_DIR, '')}`)
+    fs.readFile(path, (errFs, data) => {
       parser.parseString(data, (errParse, result) => {
         if (errFs || errParse) return reject(errFs, errParse, result)
         return resolve(result)
