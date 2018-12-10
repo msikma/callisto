@@ -3,11 +3,7 @@
  * Copyright © 2018, Michiel Sikma
  */
 
-export const BASE = 'https://u2.dmhy.org'
-
-/**
- * Returns the 'best' image.
- */
+/** Returns the 'best' image. */
 export const getBestImage = (images) => {
   if (!images || images.length === 0) return null
   if (images.length === 1) return images[0]
@@ -20,8 +16,11 @@ export const getBestImage = (images) => {
 /**
  * Removes some common image URL problems.
  */
-export const cleanupImage = url => {
-  if (url.startsWith('attachment/')) return `${BASE}/${url}`
+export const cleanupImage = (url, baseURL) => {
+  // If the URL is a local link, make it global based on the item's base URL.
+  if (!url.startsWith('http') && baseURL) {
+    return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
+  }
   if (url === 'null' || !url) return null
   return url
 }

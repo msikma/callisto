@@ -45,7 +45,7 @@ const checkFeedItem = async (item, i, defaultTarget, taskLogger) => {
   taskLogger.debug(item.name, `Checking feed (wait: ${waitTime})`)
 
   const msgTarget = item.target ? item.target : defaultTarget
-  const newPosts = await checkForUpdates(item.url, slugify(item.name))
+  const newPosts = await checkForUpdates(item.url, slugify(item.name), item.baseURL)
   if (newPosts.length > 0) {
     taskLogger.debug(item.name, `Found ${newPosts.length} new item(s)`)
     msgTarget.forEach(t => reportResults(t[0], t[1], newPosts, item))

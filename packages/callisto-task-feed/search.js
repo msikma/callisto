@@ -11,9 +11,9 @@ import { id } from './index'
 /**
  * Checks the given RSS, Atom or RDF feed for updates that have not been posted yet.
  */
-export const checkForUpdates = async (url, slug) => {
+export const checkForUpdates = async (url, slug, baseURL = '') => {
   // Retrieve items from the feed, and parse the content for easy consumption later.
-  const items = (await parseFeedURL(url)).map(i => parseItem(i))
+  const items = (await parseFeedURL(url)).map(i => parseItem(i, baseURL))
   if (items.length === 0) return []
 
   const newItems = await removeCached(`${id}$${slug}`, items)
@@ -26,7 +26,7 @@ export const checkForUpdates = async (url, slug) => {
 /**
  * Cleans up a feed item's data slightly so it can be easily posted later.
  */
-const parseItem = (item) => {
+const parseItem = (item, baseURL) => {
   // For caching in the database.
   const itemID = item.guid
 
@@ -39,7 +39,7 @@ const parseItem = (item) => {
   let _bestImage
 
   // Retrieve images from the feed item.
-  const images = item.enclosures.filter(e => e.type === 'image').map(e => cleanupImage(e.url)).filter(n => n)
+  const images = item.enclosures.filter(e => e.type === 'image').map(e => cleanupImage(e.url, baseURL)).filter(n => n)
   const bestImage = getBestImage(images)
   if (bestImage) _bestImage = bestImage
   // Retrieve images from HTML as backup, in case we don't have images from the feed item itself.
