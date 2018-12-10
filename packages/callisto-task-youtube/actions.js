@@ -7,7 +7,8 @@ import { RichEmbed } from 'discord.js'
 import path from 'path'
 
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
-import { sendMessage } from 'callisto-discord-interface/src/responder'
+import { isTemporaryError } from 'callisto-util-request';
+import { sendMessage, sendTemporaryError, sendError } from 'callisto-discord-interface/src/responder'
 import { embedTitle, embedDescription } from 'callisto-util-misc'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
 import { readSubscriptions } from './util'
@@ -71,11 +72,25 @@ const parseSearchTask = async (searchData) => {
   const taskLogger = getTaskLogger(id)
   const { slug, searchParameters, searchQuery, target } = searchData
   taskLogger.debug(`${searchQuery} (${slug})`, `Running Youtube search`)
-  const results = await findNewSearchVideos(searchParameters, searchQuery, slug)
-  if (results.length) {
-    taskLogger.debug(`${searchQuery} (${slug})`, `Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
-    target.forEach(t => reportResults(t[0], t[1], results, null, searchQuery))
+  try {
+    const results = await findNewSearchVideos(searchParameters, searchQuery, slug)
+    if (results.length) {
+      taskLogger.debug(`${searchQuery} (${slug})`, `Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
+      target.forEach(t => reportResults(t[0], t[1], results, null, searchQuery))
+    }
   }
+  catch (err) {
+    if (isTemporaryError(err)) {
+      sendTemporaryError(taskLogger, err)
+    }
+    else {
+      taskLogger.error(
+        'Could not run Youtube video search',
+        `${err.name ? `Name: ${err.name}` : ''}${err.name && err.code ? ' - ' : ''}${err.code ? `Code: ${err.code}` : ''}${err.name || err.code ? '\n\n' : ''}${err.stack}`
+      )
+    }
+  }
+  
 }
 
 /**
