@@ -6,11 +6,16 @@
 import winston, { createLogger, transports, format } from 'winston'
 import chalk from 'chalk'
 import mkdirp from 'mkdirp'
+import { basename } from 'path'
+import filesize from 'file-size'
+import { statSync } from 'fs'
 import { isObject, isArray, isString, zipObject } from 'lodash'
+
+import { getSystemLogger } from 'callisto-discord-interface/src/logging'
+import { objectInspect } from 'callisto-util-misc'
+
 import { logLevels } from './severity'
 export { default as severity } from './severity'
-
-import { objectInspect } from 'callisto-util-misc'
 
 let configuredLogger = false
 
@@ -80,6 +85,14 @@ const log = (verbosity) => (object) => {
  * E.g. logger.error('string'), logger.verbose('string'), etc.
  */
 const logger = zipObject(logLevels, logLevels.map(l => log(l)))
+
+// Logs the size of both logs.
+export const printLogSize = (baseDir) => {
+  const errBase = `${baseDir}/logs`
+  const logs = [`error.log`, `combined.log`].sort()
+  const logSizes = logs.map(f => `${basename(f)}: ${filesize(statSync(`${errBase}/${f}`).size).human()}`)
+  getSystemLogger().verbose('Current log file sizes:', `${logSizes.join('; ')}`)
+}
 
 /**
  * Sets up the logger by creating the log directory and then sending

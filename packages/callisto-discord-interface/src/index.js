@@ -8,7 +8,7 @@ import Discord from 'discord.js'
 import { dbInit, loadSettings } from 'callisto-util-cache'
 import { registerBotName } from 'callisto-util-misc'
 import { config, pkg } from 'callisto-util-misc/resources'
-import logger, { configureLogger } from 'callisto-util-logging'
+import logger, { configureLogger, printLogSize } from 'callisto-util-logging'
 
 import { shutdown } from './shutdown'
 import { startQueueLoop } from './queue'
@@ -88,7 +88,10 @@ export const run = async ({ task, level, db, noPost = false }) => {
   catchAllExceptions()
 
   // Get a list of all installed tasks and register them.
-  findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
+  await findAndRegisterTasks(discord.client, discord.bot, config.CALLISTO_TASK_SETTINGS, taskData)
+
+  // Log the size of the log files, to remember not to let them get too big.
+  printLogSize(config.CALLISTO_BASE_DIR)
 }
 
 /**

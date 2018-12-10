@@ -78,8 +78,8 @@ export const logCallistoBootup = async (tasks, tasksWithoutConfig, singleTaskDat
   // Determine whether we have ignored tasks (for lack of configuration) or not.
   const ignoredTasksMsg = tasksWithoutConfig.length > 0
     ? tasksWithoutConfig.length === 1
-      ? `Ignored ${tasksWithoutConfig.length} task without configuration.`
-      : `Ignored ${tasksWithoutConfig.length} tasks without configuration.`
+      ? `Ignored ${tasksWithoutConfig.length} task without configuration: ${tasksWithoutConfig.map(t => `${t.slug}`)}.`
+      : `Ignored ${tasksWithoutConfig.length} tasks without configuration: ${tasksWithoutConfig.map(t => `${t.slug}`)}.`
     : ''
 
   startTime = +new Date()
@@ -93,7 +93,7 @@ export const logCallistoBootup = async (tasks, tasksWithoutConfig, singleTaskDat
   embed.addField('Server', systemInfo.server, true)
   embed.addField('Time', `${time}${shutdownMs ? ` (${timeSinceLast} since last run)` : ''}`, false)
   embed.addField('Tasks', tasksList)
-  embed.setDescription(`Callisto Bot is launching${singleTaskData ? ' in testing mode' : ''}.${ignoredTasksMsg}`)
+  embed.setDescription(`Callisto Bot is launching${singleTaskData ? ' in testing mode' : ''}.${ignoredTasksMsg ? `\n${ignoredTasksMsg}` : ''}`)
   embed.setColor(singleTaskData ? WARNING_COLOR : SUCCESS_COLOR)
 
   return Promise.all(logChannels.map(async c => await sendMessage(c[0], c[1], null, embed)))
