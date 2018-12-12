@@ -29,7 +29,7 @@ export const findAndRegisterTasks = async (discordClient, user, taskConfig, sing
       registerTask(discordClient, user, taskInfo, slug, version)
     }
     catch (err) {
-      getSystemLogger().error(`Error importing task ${name}}`, `${err.stack}`)
+      getSystemLogger().error(`Error importing task ${name}`, `${err.stack}`)
     }
   })
   startTimedTasks(discordClient, user, taskConfig, singleTaskData)
