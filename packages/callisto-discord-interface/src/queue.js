@@ -8,7 +8,7 @@ import { isTemporaryError } from 'callisto-util-request'
 
 import { isShuttingDown } from './shutdown'
 import { trySendingPayload, sendError } from './responder'
-import { getSystemLogger } from './logging'
+import logger, { getSystemLogger } from './logging'
 
 /** Queue container. This holds message objects for sending to Discord. */
 let queue = []
@@ -21,7 +21,7 @@ const queuePauseDuration = 1000
 
 /** If we're shutting down but a task tried to queue a message, log it here, but only to the console. */
 const shutdownLog = (payload) => {
-  getSystemLogger().verbose(`Not sending payload since we are shutting down:\n${objectInspect(payload)}`, false)
+  logger.verbose(`Not sending payload since we are shutting down:\n${objectInspect(payload)}`, false)
 }
 
 /** Pushes a message to the back of the queue. */
