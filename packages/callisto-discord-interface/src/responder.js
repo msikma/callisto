@@ -78,8 +78,6 @@ export const sendError = (err, { payload }) => {
  * Logs a temporary error at low priority.
  */
 export const sendTemporaryError = (logger, err) => {
-  `${isTemporaryError(err) ? '' : `Attempted to send a malformed payload to Discord.${path ? ` See the "path to target channel" field for caller information.` : ''}`}${msg}\n${wrapInPre(err.stack)}`,
-
   logger.verbose(
     'Temporary network error occurred',
     `${err.stack}`,
