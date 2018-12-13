@@ -42,7 +42,7 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runMarktplaatsSearch(searchDetails)
-      taskLogger.debug(searchDetails.keyword, `Search: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, new: ${newItems.length}, url: ${search.url}`)
+      taskLogger.debug(searchDetails.keyword, `Search: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, new: ${newItems.length}, url: <${search.url}>`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails))
