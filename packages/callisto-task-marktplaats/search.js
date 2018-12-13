@@ -7,8 +7,8 @@ import { listingDetail, listingSearch } from 'marktplaats-js'
 import { cacheItems, removeCached } from 'callisto-util-cache'
 import { id } from './index'
 
-export const runMarktplaatsSearch = async (details) => {
-  const search = await listingSearch({ query: details.keyword, categoryID: details.category })
+export const runMarktplaatsSearch = async ({ keyword, category }) => {
+  const search = await listingSearch({ query: keyword, categoryID: String(category) })
   const meta = { url: search.reqURL, entryCount: search.data.length }
   if (meta.entryCount === 0) return { newItems: [], search: meta }
 

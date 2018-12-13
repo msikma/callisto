@@ -4,7 +4,7 @@
  */
 
 export { errorObject } from './error'
-export { objectInspect, wrapInJSCode, wrapInMono, wrapInPre, removeNil, removeDefaults, wait, readFile } from './util'
+export { objectInspect, wrapInJSCode, wrapInMono, wrapInPre, removeNil, removeDefaults, wait, wrapArray, readFile } from './util'
 export { getSystemInfo, callistoCommitURL, getLockfile, saveLockFile } from './system'
 export { findScriptData } from './script'
 export { getFormattedDate, getIntegerTimestamp, getExactDuration, getDuration, getSimpleDuration, getFormattedTime, getFormattedTimeOnly, isValidDate } from './time'

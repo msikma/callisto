@@ -4,7 +4,7 @@
  */
 
 import util from 'util'
-import { isNil, omit, omitBy } from 'lodash'
+import { isNil, omit, omitBy, isArray } from 'lodash'
 
 /**
  * Returns a string representing an object (or array).
@@ -42,6 +42,14 @@ export const wrapInMono = (str) => (
  */
 export const removeNil = (obj) => (
   omitBy(obj, isNil)
+)
+
+/**
+ * Ensure that an object is wrapped in an array.
+ * Returns the object verbatim if it's an array, or returns the object inside a 1-length array.
+ */
+export const wrapArray = obj => (
+  isArray(obj) ? obj : [obj]
 )
 
 /**

@@ -4,11 +4,11 @@
  */
 
 import { RichEmbed } from 'discord.js'
-import { get } from 'lodash'
+import { get, isArray } from 'lodash'
 
 import { isTemporaryError } from 'callisto-util-request'
 import { sendMessage } from 'callisto-discord-interface/src/responder'
-import { embedTitle, wait, objectInspect, embedDescription, mapsCoordsLink, capitalizeFirst } from 'callisto-util-misc'
+import { embedTitle, wrapArray, wait, objectInspect, embedDescription, mapsCoordsLink, capitalizeFirst } from 'callisto-util-misc'
 import { getTaskLogger } from 'callisto-discord-interface/src/logging'
 
 import { runMarktplaatsSearch } from './search'
@@ -30,29 +30,51 @@ const actionSearch = async (discordClient, user, taskConfig) => {
   const defaultDetails = get(taskConfig, 'defaultDetails', [])
   const defaultTarget = get(taskConfig, 'defaultTarget', [])
 
-  await Promise.all(searches.map(async ({ details, target }, i) => {
+  // How much time to wait in between searches.
+  const staggerTime = 4000
+
+  await Promise.all(searches.reduce((allSearches, { details, target }) => {
     // Only perform the search if the details have been set.
     if (!details) return false
-    // Search staggering.
-    const waitingTime = i * 10000
+
+    // Determine how many search combinations we have (if keywords and/or categories are arrays).
+    const keywords = wrapArray(details.keyword)
+    const categories = wrapArray(details.category)
+    const searchCombinations = keywords.reduce((combinations, kw) => [...combinations, ...categories.map(cat => ({ keyword: kw, category: cat }))], [])
+
+    const currSearchItems = []
+
+    for (let a = 0; a < searchCombinations.length; ++a) {
+      const searchTerm = searchCombinations[a]
+      const msgTarget = target ? target : defaultTarget
+      const searchInfo = objectInspect(searchTerm)
+      const fullSearchInfo = objectInspect(details, true)
+
+      currSearchItems.push({ searchTerm, msgTarget, searchInfo, fullSearchInfo })
+    }
+
+    return [...allSearches, ...currSearchItems]
+
+  }, [])
+  .map(async (searchData, i) => {
+    // Wait a little before each search.
+    const waitingTime = staggerTime * i
     await wait(waitingTime)
-    const msgTarget = target ? target : defaultTarget
-    const searchDetails = { ...defaultDetails, ...details }
-    const searchInfo = objectInspect(details, true)
+    const { searchTerm, msgTarget, searchInfo, fullSearchInfo } = searchData
 
     try {
-      const { search, newItems } = await runMarktplaatsSearch(searchDetails)
-      taskLogger.debug(searchDetails.keyword, `Search: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, new: ${newItems.length}, url: <${search.url}>`)
+      const { search, newItems } = await runMarktplaatsSearch(searchTerm)
+      taskLogger.debug(searchInfo, `Search - wait: ${waitingTime}, entries: ${search.entryCount}, new: ${newItems.length}, url: <${search.url}>`)
 
       // Now we just send these results to every channel we configured.
-      msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails))
+      msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchTerm))
     }
     catch (err) {
       if (isTemporaryError(err)) {
-        taskLogger.debug(searchDetails.keyword, `Ignored temporary error during search: ${searchInfo} - Error: ${err.code}`)
+        taskLogger.debug(searchInfo, `Ignored temporary error during search - Error: ${err.code}`)
       }
       else {
-        taskLogger.error(`Caught error during search`, `${searchInfo}\n\nwait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
+        taskLogger.error(`Caught error during search`, `${fullSearchInfo}\n\n${searchInfo}\n\nwait: ${waitingTime}, error code: ${err.code}\n\n${err.stack}`)
       }
     }
   }))
