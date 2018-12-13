@@ -55,7 +55,7 @@ const actionSearch = async (discordClient, user, taskConfig) => {
 
     try {
       const { search, newItems } = await runMandarakeSearch(searchDetails, msgLang)
-      taskLogger.debug(searchDetails.keyword, `Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: ${search.url}`)
+      taskLogger.debug(searchDetails.keyword, `Searched main: ${searchInfo} - wait: ${waitingTime}, entries: ${search.entryCount}, url: <${search.url}>`)
 
       // Now we just send these results to every channel we configured.
       msgTarget.forEach(t => reportResults(t[0], t[1], newItems, searchDetails, 'main'))
