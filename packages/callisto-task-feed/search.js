@@ -36,16 +36,29 @@ const parseItem = (item, baseURL) => {
     ? limitDescription(removeEmptyLines(htmlToMarkdown(item.description, false, true, true, false, true), true))
     : item.description
 
-  let _bestImage
+  let _bestImage = null
+  let images = []
 
-  // Retrieve images from the feed item.
-  const images = item.enclosures.filter(e => e.type === 'image').map(e => cleanupImage(e.url, baseURL)).filter(n => n)
-  const bestImage = getBestImage(images)
-  if (bestImage) _bestImage = bestImage
-  // Retrieve images from HTML as backup, in case we don't have images from the feed item itself.
-  const htmlImages = descriptionIsHTML ? getImagesFromHTML(item.description) : []
-  const htmlBestImage = getBestImage(htmlImages)
-  if (!_bestImage && htmlBestImage) _bestImage = htmlBestImage
+  try {
+    // Retrieve images from the feed item.
+    images = item.enclosures.filter(e => e.type === 'image').map(e => cleanupImage(e.url, baseURL)).filter(n => n)
+    const bestImage = getBestImage(images)
+    if (bestImage) _bestImage = bestImage
+  }
+  catch (err) {
+  }
+
+  try {
+    // Retrieve images from HTML as backup, in case we don't have images from the feed item itself.
+    const htmlImages = descriptionIsHTML ? getImagesFromHTML(item.description).map(e => cleanupImage(e, baseURL)).filter(n => n) : []
+    const htmlBestImage = getBestImage(htmlImages)
+    if (!_bestImage && htmlBestImage) {
+      images = htmlImages
+      _bestImage = htmlBestImage
+    }
+  }
+  catch (err) {
+  }
 
   return {
     ...item,

@@ -33,6 +33,7 @@ const scoreImage = image => {
   if (image.indexOf('gravatar.com') > -1) score -= 1
   if (image.indexOf('identicon') > -1) score -= 1
   if (image.indexOf('.svg') > -1) score -= 5
+  if (image.indexOf('.gif') > -1) score -= 5
   if (image.indexOf('smiley') > -1) score -= 1
   if (image.indexOf('emoji') > -1) score -= 1
 
