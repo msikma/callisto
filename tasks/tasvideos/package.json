@@ -1,0 +1,21 @@
+{
+  "_siteShort": "tasvideos.org",
+  "_site": "http://tasvideos.org/",
+  "name": "calypso-task-tasvideos",
+  "private": true,
+  "version": "1.0.9",
+  "description": "Posts new tool-assisted speedruns released on TASVideos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michiel Sikma <michiel@sikma.org>",
+  "license": "SEE LICENSE IN <readme.md>",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "calypso-cache": "^1.1.0",
+    "calypso-logging": "^1.3.0",
+    "calypso-misc": "^1.4.0"
+  }
+}

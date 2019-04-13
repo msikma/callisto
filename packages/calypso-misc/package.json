@@ -1,0 +1,23 @@
+{
+  "name": "calypso-misc",
+  "private": true,
+  "version": "1.6.5",
+  "description": "All the random other stuff that I didn't know where to put",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michiel Sikma <michiel@sikma.org>",
+  "license": "SEE LICENSE IN <readme.md>",
+  "dependencies": {
+    "parse-rss": "^1.0.3",
+    "humanize-duration": "^3.14.0",
+    "moment": "^2.0.0",
+    "cheerio": "^1.0.0-rc.2",
+    "turndown": "^4.0.0",
+    "feedparser": "^2.2.9",
+    "moment-duration-format": "^2.0.0",
+    "slugify": "^1.2.9",
+    "markdown-escape": "^1.0.2"
+  }
+}

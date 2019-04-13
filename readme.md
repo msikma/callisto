@@ -1,85 +1,28 @@
-Callisto Discord bot
-====================
+Calypso
+=======
 
-My bot, a good boy.
+My bot, a good boy. Calypso is a Discord bot that acts kind of like an RSS reader: it retrieves updates from various websites and posts them to Discord.
 
-This is a simple bot designed to log on to Discord and report site updates. Some sites are checked by reading RSS feeds, some by screen scraping. I've tried to make the bot's output as nice as possible; it posts `RichEmbed` objects with images and customization per site.
+This repository is structured as a monorepo, with a core namespace for bot functionality and a separate namespace for tasks. Websites that don't support RSS and have no public API are (gently) screen scraped to get their information. The bot is non-interactive: it reads its configuration from a file and does not respond to user input.
 
-## Installation
+## Setting up a bot
 
-### Prerequisites
+To set up a bot, you must first create an *application* and a *bot user*. Head over to the [Discord developer portal](https://discordapp.com/developers/applications) to do this. When you're done with this, save the generated *client ID* and the bot's *token* to your config file, to `CALYPSO_BOT_CLIENT_ID` and `CALYPSO_BOT_TOKEN` respectively.
 
-* [Node 8.1.0](https://nodejs.org/en/) or higher
-* A [Discord API key](https://discordapp.com/developers/applications/me)
+Now invite your bot to the server you intend to use by running the OAuth 2 flow:
 
-Node can be easily installed using [Homebrew](https://brew.sh/) or via your package manager.
+* `https://discordapp.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot&permissions=1`
 
-### Register a bot
+Replace `CLIENT_ID` with the generated client ID from before. The `permissions` integer contains a bitmask of what a bot will be permitted to do; it can be customized using the permissions calculator on the developer portal bot page.
 
-You can make a new bot by going to the [applications section](https://discordapp.com/developers/applications/me) of Discord's developer portal. You don't need to set a redirect URI.
+The bot will now be able to post messages to whatever channels it's permitted to access.
 
-Once the bot is set up, you'll get a client ID and secret. They need to be entered into the config later, and *you must keep these values secret* or anyone can take over your bot. I recommend you keep the "public bot" setting off, since there's no point to Callisto being in any server other than the one it's configured to post to.
+### Log channels
 
-To add your bot to a server, visit the following link (replacing the `client_id` value with your own):
-
-```
-https://discordapp.com/api/oauth2/authorize?client_id=1234&scope=bot&permissions=1
-```
-
-### Setup
-
-Install the bot via npm:
-
-    npm i -g callisto-bot
-
-Now you need to setup your config file. Callisto will look for your config file in `~/.config/callisto/config.js` as per the XDG specification. Copy [`config.example.js`](https://bitbucket.org/msikma/callisto-bot/src/master/config.md) to `config.js` and fill in the missing data, including the client ID and secret you got when you registered your bot.
-
-You will need to setup *task settings* for each task you want to run. Each task has an example task settings file that you can copy and edit. Look in the subdirectories in [`packages`](https://bitbucket.org/msikma/callisto-bot/src/master/packages/) to find them.
-
-After that, you should be able to run the bot:
-
-    callisto.js
-
-This will start the bot and allow it to start responding to user input in the channels you've invited it to. Press `CTRL+C` to quit.
-
-To keep track of items that have already been posted, the bot will make an SQLite database. By default this will be created in `~/.config/callisto/`. Change this directory by passing `--cache` on startup.
-
-### Development
-
-Installing the project for development purposes is a little more involved. This project is a monorepo managed via [Lerna](https://lernajs.io/), which should be installed globally first. We also need to install dependencies in the root package. Finally, we use [hoisting](https://github.com/lerna/lerna/blob/master/doc/hoist.md) to simplify the modules structure.
-
-Run the following commands in order:
-
-    npm i
-    lerna bootstrap
-    lerna bootstrap --hoist
-
-Finally, we need to manually link the CLI tool:
-
-    npm link
-
-Now our local `bin/callisto.js` is on the path.
-
-## Tasks
-
-Currently, these tasks are available:
-
-| Name | Description | Site |
-|:-----|:------------|:-----|
-| bandcamp | Posts new albums added to Bandcamp pages | [bandcamp.com](https://bandcamp.com/) |
-| hiveworks | Posts new comics added to any configured Hiveworks Comics site | [hiveworkscomics.com](https://hiveworkscomics.com/) |
-| horriblesubs | Posts new torrent uploads for anime shows on HorribleSubs | [horriblesubs.info](http://horriblesubs.info/) |
-| mandarake | Posts new items added to the Mandarake shop and its auction site | [mandarake.co.jp](http://mandarake.co.jp/) |
-| mangafox | Posts new manga chapters added to MangaFox | [manga-fox.com](https://manga-fox.com/) |
-| nyaa | Posts torrent links to new anime and manga uploads on Nyaa.si | [nyaa.si](http://nyaa.si/) |
-| ocremix | Posts new video game music remixes, covers and albums released on OverClocked ReMix | [ocremix.org](https://ocremix.org/) |
-| rarbg | Posts TV series updates released on Rarbg | [rarbg.to](https://rarbg.to/) |
-| reddit | Posts new topics made to specified Reddit subs | [reddit.com](http://reddit.com/) |
-| tasvideos | Posts new tool-assisted speedruns released on TASVideos | [tasvideos.org](http://tasvideos.org/) |
-| vgmpf | Posts new video game soundtrack releases from VGMPF | [vgmpf.com](http://www.vgmpf.com/) |
-| vgmrips | Posts new video game soundtracks released on VGMRips | [vgmrips.net](http://vgmrips.net/) |
-| youtube | Posts new videos released by specified Youtube channels and reports on new videos for search queries | [youtube.com](https://youtube.com/) |
+Calypso posts log messages to two channels: one for all general logs, the other for errors only. To finalize setup, create two channels and save their IDs to `CALYPSO_SETTINGS.logChannels` and `CALYPSO_SETTINGS.logChannelsImportant`.
 
 ## Copyright
 
-Copyright © 2018, Michiel Sikma
+MIT License
+
+Copyright © Michiel Sikma
