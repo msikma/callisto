@@ -11,7 +11,7 @@ To set up a bot, you must first create an *application* and a *bot user*. Head o
 
 Now invite your bot to the server you intend to use by running the OAuth 2 flow:
 
-* `https://discordapp.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot&permissions=1`
+* [https://discordapp.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot&permissions=1](https://discordapp.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot&permissions=1)
 
 Replace `CLIENT_ID` with the generated client ID from before. The `permissions` integer contains a bitmask of what a bot will be permitted to do; it can be customized using the permissions calculator on the developer portal bot page.
 
