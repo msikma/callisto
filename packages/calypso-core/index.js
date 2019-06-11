@@ -11,7 +11,7 @@ import { shutdown } from './shutdown'
 import { discordInitOrExit } from './discord'
 import { checkVersion, bindEmitHandlers, catchAllExceptions } from './logging'
 import { startQueueLoop } from './queue'
-import { findTasks, findAndRegisterTasks, loadSingleTask } from './task-manager'
+import { findAndRegisterTasks, loadSingleTask } from './task-manager'
 
 // Runtime settings.
 export const discord = {
@@ -42,7 +42,7 @@ export const run = async ({ task, level, db, noPost = false }) => {
 
   // Attempt to open the databse (or exit on failure).
   dbInitOrExit(db)
-  
+
   // Start message queue, which will send messages to Discord one by one.
   startQueueLoop()
 
@@ -71,22 +71,4 @@ export const run = async ({ task, level, db, noPost = false }) => {
 
   // Listen for SIGINT and perform a graceful shutdown.
   process.on('SIGINT', shutdown)
-}
-
-/**
- * Entry point used to list the packages we currently support along with a description.
- * The output format is Markdown.
- */
-export const listPackages = ({ db }) => {
-  initResources(db)
-  const tasks = findTasks(data.config.CALYPSO_TASK_SETTINGS)
-  const allTasks = [...tasks.tasksWithConfig, ...tasks.tasksWithoutConfig]
-  const taskInfo = allTasks.map(task => `| ${task.slug} | ${task.description}${task.site ? ` | [${task.siteShort}](${task.site}) |` : ' | — |'}`)
-  const md = [
-    '| Name | Description | Site |',
-    '|:-----|:------------|:-----|',
-    ...taskInfo
-  ]
-  console.log(md.join('\n'))
-  process.exit(0)
 }

@@ -110,7 +110,7 @@ const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
 
 /**
  * Registers a task, making it possible to access its functionality.
- * 
+ *
  * Note: 'triggerActions' and 'formats' respond to actions, such as 'message'
  * to respond to user input. Currently they're not used.
  */
@@ -139,7 +139,7 @@ const taskSlug = (taskName) => (
  */
 export const findTasks = taskConfig => {
   // Fetch tasks currently present in the /tasks/ directory.
-  const base = `${data.config.CALYPSO_BASE_DIR}/tasks/`
+  const base = `${process.env.CALYPSO_BASE_DIR}/tasks/`
   const existingTasks = listTaskDirs(base).map(i => {
     const packageData = require(`${base}${i}/package.json`)
     return {
@@ -152,13 +152,19 @@ export const findTasks = taskConfig => {
       slug: taskSlug(i)
     }
   })
-  // Make a list of the tasks we have configuration for.
-  const taskList = Object.keys(taskConfig)
-  // Separate our tasks into two lists based on whether a task has configuration.
-  const tasksWithConfig = existingTasks.filter(t => taskList.indexOf(t.slug) > -1)
-  const tasksWithoutConfig = existingTasks.filter(t => taskList.indexOf(t.slug) === -1)
+  if (taskConfig) {
+    // Make a list of the tasks we have configuration for.
+    const taskList = Object.keys(taskConfig)
+    // Separate our tasks into two lists based on whether a task has configuration.
+    const tasksWithConfig = existingTasks.filter(t => taskList.indexOf(t.slug) > -1)
+    const tasksWithoutConfig = existingTasks.filter(t => taskList.indexOf(t.slug) === -1)
 
-  return { tasksWithConfig, tasksWithoutConfig }
+    return { tasksWithConfig, tasksWithoutConfig, allTasks: [...tasksWithConfig, ...tasksWithoutConfig] }
+  }
+  else {
+    // If we don't have a configuration, return all in a single list.
+    return { allTasks: existingTasks }
+  }
 }
 
 /**

@@ -21,11 +21,14 @@ const parser = new ArgumentParser({
   epilog: 'Send questions and comments to @michielsikma on Twitter.'
 })
 addLongHelp(parser, `To run this bot, you need to register an application in the Discord\ndeveloper portal, create a new bot user on that application, and then invite\nthat bot to the server you intend on posting to.\nSee the readme for more information.\n\nDiscord developer portal: <https://discordapp.com/developers/applications>\nCalypso documentation: <${pkgData.homepage}>\n`, true)
+parser.addArgument('--config-path', { help: 'Path to the config file (~/.config/calypso/config.js).', metavar: 'PATH', dest: 'configPath', defaultValue: `${homePath}/.config/calypso/config.js` })
+parser.addArgument('--db-path', { help: 'Path to the database (~/.config/calypso/db.sqlite).', metavar: 'PATH', dest: 'dbPath', defaultValue: `${homePath}/.config/calypso/db.sqlite` })
+parser.addArgument('--new-config', { help: 'Creates a config file with standard values and exits.', metavar: 'PATH', dest: 'newConfigPath' })
+parser.addArgument('--new-db', { help: 'Creates a new, empty database and exits.', metavar: 'PATH', dest: 'newDbPath' })
+parser.addArgument('--list-tasks', { help: 'Lists supported tasks in Markdown format and exits.', dest: 'listTasks', action: 'storeTrue' })
 parser.addArgument('--test', { help: 'Runs the bot with a single task only for testing.', dest: 'task' })
-parser.addArgument('--cache', { help: 'Path to the cache directory (~/.config/calypso).', dest: 'db', defaultValue: `${homePath}/.config/calypso/` })
-parser.addArgument('--no-post', { help: 'Replaces Discord posting code with a no-op.', action: 'storeTrue', dest: 'noPost' })
 parser.addArgument('--log', { help: `Sets console logging level ('info').`, dest: 'level', choices: ['error', 'warn', 'info', 'verbose', 'debug', 'silly'], defaultValue: 'info' })
-parser.addArgument('--list-tasks', { help: 'Lists supported tasks in Markdown format and exits.', action: 'storeTrue' })
+parser.addArgument('--no-post', { help: 'Replaces Discord posting code with a no-op.', action: 'storeTrue', dest: 'noPost' })
 
 // 'task' is null or a string, e.g. 'rarbg'.
 // 'level' is one of the logging choices, except 'silly' because we don't use it. It's 'info' by default.
@@ -44,9 +47,9 @@ require('babel-register')({
   ]
 })
 
-if (parsed['list_tasks']) {
+if (parsed['listTasks']) {
   // Run the package list script.
-  require('./index').listPackages(parsed)
+  require('./actions').listPackages(parsed)
 }
 else {
   // Start the main application.
