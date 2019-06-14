@@ -1,5 +1,5 @@
 /**
- * Calypso - calypso-task-mandarake <https://github.com/msikma/calypso>
+ * Calypso - calypso-task-marktplaats <https://github.com/msikma/calypso>
  * © MIT license
  */
 
