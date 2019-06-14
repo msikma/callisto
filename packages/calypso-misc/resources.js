@@ -49,6 +49,7 @@ export const data = {
 export const initResources = (configPath, baseDir = process.env.CALYPSO_BASE_DIR) => {
   const pkgFile = path.join(baseDir, 'package.json')
   const pkg = require(pkgFile)
+  const configDir = path.dirname(configPath)
 
   // Attempt to load the config file.
   let rawConfig
@@ -60,13 +61,14 @@ export const initResources = (configPath, baseDir = process.env.CALYPSO_BASE_DIR
     if (err.code !== 'MODULE_NOT_FOUND') throw err
     console.log('calypso.js: error: Could not find the config file.')
     console.log(`Ensure a config file is available at this location: ${configPath}`)
+    console.log(`You can generate one: calypso.js --new-config '${configPath}'`)
     process.exit(0)
   }
 
   // Expose our configuration and package data.
   data.config = {
     // Our config.js file.
-    ...replaceMagic(rawConfig, baseDir, cacheDir),
+    ...replaceMagic(rawConfig, baseDir, configDir),
     CALYPSO_BASE_DIR: process.env.CALYPSO_BASE_DIR
   }
   data.pkg = pkg
