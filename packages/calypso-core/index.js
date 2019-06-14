@@ -27,7 +27,7 @@ export const discord = {
  * If 'task' is set, we'll run the bot with that one task only. Others get ignored.
  * 'level' sets the console logging verbosity.
  */
-export const run = async ({ task, level, db, noPost = false }) => {
+export const run = async ({ task, level, dbPath, configPath, noPost = false }) => {
   // Prevent us from being able to actually post to Discord if --no-post was passed.
   discord.noPost = noPost
 
@@ -42,7 +42,7 @@ export const run = async ({ task, level, db, noPost = false }) => {
   console.log(`Press CTRL+C to exit.`)
 
   // Attempt to open the databse (or exit on failure).
-  dbInitOrExit(db)
+  dbInitOrExit(dbPath)
 
   // Start message and request queues, which will send messages to Discord one by one.
   startQueueLoop()

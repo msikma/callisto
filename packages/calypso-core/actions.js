@@ -4,8 +4,9 @@
  */
 
 import logger from 'calypso-logging'
+import mkdirp from 'mkdirp'
 import { existsSync, writeFileSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
 import { dbInitOrExit } from 'calypso-cache'
 
 import { newConfig } from './config'
@@ -16,6 +17,9 @@ import { findTasks, getConfigTemplates } from './task-manager'
  */
 export const newSystemFile = async (type, path) => {
   const pathAbs = resolve(path)
+  const pathDir = dirname(pathAbs)
+  mkdirp(pathDir)
+
   if (type === 'db') {
     const result = await dbInitOrExit(pathAbs)
     if (result.exists) {

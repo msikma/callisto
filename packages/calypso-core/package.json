@@ -13,6 +13,7 @@
     "calypso-logging": "^1.0.0",
     "calypso-request": "^1.0.0",
     "calypso-misc": "^1.4.0",
+    "mkdirp": "^0.5.1",
     "include-path": "^0.4.7"
   }
 }
