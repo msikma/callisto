@@ -7,9 +7,9 @@ import { RichEmbed } from 'discord.js'
 import { get } from 'lodash'
 
 import { getDuration } from 'calypso-misc/time'
-import { sendMessage } from 'calypso-core/src/responder'
+import { sendMessage } from 'calypso-core/responder'
 import { embedTitle, wait, embedDescription, capitalizeFirst } from 'calypso-misc'
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 
 import { runCatawikiSearch } from './search'
 import { id, color, icon } from './index'
@@ -56,7 +56,7 @@ const actionSearch = async (discordClient, user, taskConfig) => {
     searchItem = searchItems[a]
     await wait(waitTime)
     try {
-      const { items, meta } = runCatawikiSearch(searchItem)
+      const { items, meta } = await runCatawikiSearch(searchItem.details)
       taskLogger.logTaskItem(`Item search`, searchItem.details, items, a, searchItems.length)
       searchItem.target.forEach(t => reportResults(t[0], t[1], items, searchItem.details, meta.url))
     }
