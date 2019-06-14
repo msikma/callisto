@@ -135,6 +135,27 @@ const taskSlug = (taskName) => (
 )
 
 /**
+ * Returns config templates for specified tasks.
+ */
+export const getConfigTemplates = tasks => {
+  const taskInfo = tasks.map(t => {
+    try {
+      // Require its config template and store the template string.
+      const tpl = require(t.configTemplate)
+      return { name: t.name, template: tpl.template().obj }
+    }
+    catch (err) {
+      // Skip this task if there is no config template for it.
+      if (err.code === 'MODULE_NOT_FOUND') {
+        return { name: t.name, template: `${t.name}: { /* no config template available */ }` }
+      }
+      else throw(err)
+    }
+  })
+  return taskInfo.sort((a, b) => (a.name < b.name ? -1 : 1))
+}
+
+/**
  * Finds all usable tasks.
  */
 export const findTasks = taskConfig => {
@@ -148,6 +169,7 @@ export const findTasks = taskConfig => {
       siteShort: packageData._siteShort,
       description: packageData.description,
       version: packageData.version,
+      configTemplate: `${base}${i}/config.template.js`,
       file: `${base}${i}/index.js`,
       slug: taskSlug(i)
     }

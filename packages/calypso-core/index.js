@@ -11,6 +11,7 @@ import { shutdown } from './shutdown'
 import { discordInitOrExit } from './discord'
 import { checkVersion, bindEmitHandlers, catchAllExceptions } from './logging'
 import { startQueueLoop } from './queue'
+import { startRequestQueue } from 'calypso-request'
 import { findAndRegisterTasks, loadSingleTask } from './task-manager'
 
 // Runtime settings.
@@ -31,7 +32,7 @@ export const run = async ({ task, level, db, noPost = false }) => {
   discord.noPost = noPost
 
   // Read and parse config file.
-  initResources(db)
+  initResources(configPath)
 
   // Make sure we can write logs.
   configureLogger(data.config.CALYPSO_BASE_DIR, level)
@@ -43,8 +44,9 @@ export const run = async ({ task, level, db, noPost = false }) => {
   // Attempt to open the databse (or exit on failure).
   dbInitOrExit(db)
 
-  // Start message queue, which will send messages to Discord one by one.
+  // Start message and request queues, which will send messages to Discord one by one.
   startQueueLoop()
+  startRequestQueue()
 
   // Attempt to log in to the server. The program will exit if something goes wrong.
   const connection = await discordInitOrExit()

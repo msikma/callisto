@@ -10,6 +10,8 @@ import { get } from 'lodash'
 import logger from 'calypso-logging'
 export { setCookies, loadCookieFile } from './cookies'
 
+// Whether the queue is running.
+let QUEUE_RUNNING = false
 // How many times we'll retry a request if it fails.
 const REQUEST_TRIES = 5
 // How long to wait before checking the workload.
@@ -99,27 +101,31 @@ const cleanFromQueue = (requestID, queueNumber) => {
  * this function will check what's next and start up a job.
  * If there are no requests left, the queue is garbage collected by re-initializing the variables.
  */
-setInterval(() => {
-  // Only run when there are no other requests running.
-  if (performingRequest) return
-  // Pick the first request and give it the green light.
-  for (let a = 0; a < queueOrder.length; ++a) {
-    // If null, the request has already been finished.
-    if (queueOrder[a] == null) continue
+export const startRequestQueue = () => {
+  if (QUEUE_RUNNING) return
+  QUEUE_RUNNING = true
+  setInterval(() => {
+    // Only run when there are no other requests running.
+    if (performingRequest) return
+    // Pick the first request and give it the green light.
+    for (let a = 0; a < queueOrder.length; ++a) {
+      // If null, the request has already been finished.
+      if (queueOrder[a] == null) continue
 
-    // Pick the next task and activate it.
-    const requestID = queuedRequests[queueOrder[a]]
-    readyRequests[requestID] = true
-    logger.silly(`calypso-request: activating task ${requestID}`)
-    return
-  }
-  // If we're here, it means the queue is completely empty.
-  // Take this time to garbage collect the queue.
-  logger.silly(`calypso-request: queue is empty; reinitializing the array`)
-  queueOrder = []
-  queuedRequests = []
-  readyRequests = {}
-}, WAIT_PERIOD)
+      // Pick the next task and activate it.
+      const requestID = queuedRequests[queueOrder[a]]
+      readyRequests[requestID] = true
+      logger.silly(`calypso-request: activating task ${requestID}`)
+      return
+    }
+    // If we're here, it means the queue is completely empty.
+    // Take this time to garbage collect the queue.
+    logger.silly(`calypso-request: queue is empty; reinitializing the array`)
+    queueOrder = []
+    queuedRequests = []
+    readyRequests = {}
+  }, WAIT_PERIOD)
+}
 
 /**
  * Returns a queue number and a request ID. These are placed in the queue pending the execution of the task.

@@ -46,21 +46,20 @@ export const data = {
 }
 
 /** Reads the config and package files. */
-export const initResources = (cacheDir, baseDir = process.env.CALYPSO_BASE_DIR) => {
-  const configFile = path.join(cacheDir, 'config.js')
+export const initResources = (configPath, baseDir = process.env.CALYPSO_BASE_DIR) => {
   const pkgFile = path.join(baseDir, 'package.json')
   const pkg = require(pkgFile)
 
   // Attempt to load the config file.
   let rawConfig
   try {
-    rawConfig = require(configFile)
+    rawConfig = require(configPath)
   }
   catch (err) {
     // Throw original error if something else went wrong.
     if (err.code !== 'MODULE_NOT_FOUND') throw err
     console.log('calypso.js: error: Could not find the config file.')
-    console.log(`Ensure a config file is available at this location: ${configFile}`)
+    console.log(`Ensure a config file is available at this location: ${configPath}`)
     process.exit(0)
   }
 

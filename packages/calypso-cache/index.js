@@ -4,6 +4,7 @@
  */
 
 import sqlite from 'sqlite'
+import { existsSync } from 'fs'
 import { isArray, isNumber } from 'lodash'
 
 import logger from 'calypso-logging'
@@ -11,25 +12,23 @@ import logger from 'calypso-logging'
 let db
 
 /**
- * Returns the path to the database, given a base path.
- */
-const dbPath = (base) => (
-  `${base}/db.sqlite`
-)
-
-/**
  * Attempts to open the database file (or create a new one if it doesn't exist).
  * If something went wrong, the process is exited.
  */
-export const dbInitOrExit = async (basePath) => {
+export const dbInitOrExit = async (dbPath) => {
+  const exists = existsSync(dbPath)
   try {
-    await dbInit(basePath)
+    const success = await dbInit(dbPath)
+    if (!success) {
+      logger.error(`Fatal: could not open or initialize the database file: ${dbPath}`)
+    }
+    return { success, exists, dbPath }
   }
   catch (e) {
     if (e.code === 'SQLITE_CANTOPEN')
-      logger.error(`Fatal: could not load the database file (${e.code}): ${basePath}db.sqlite`)
+      logger.error(`Fatal: could not load the database file (${e.code}): ${dbPath}`)
     else
-      logger.error(`Fatal: an unknown error occurred while loading the database file (${e.code}): ${basePath}db.sqlite`)
+      logger.error(`Fatal: an unknown error occurred while loading the database file (${e.code}): ${dbPath}`)
 
     process.exit(1)
   }
@@ -38,13 +37,13 @@ export const dbInitOrExit = async (basePath) => {
 /**
  * Opens the database file and checks whether we need to bootstrap our required tables.
  */
-export const dbInit = async (basePath) => {
-  db = await sqlite.open(dbPath(basePath))
-
+export const dbInit = async (dbPath) => {
+  db = await sqlite.open(dbPath)
   // If we don't have the 'cached_items' table, assume that this is a new database file.
   if (!await hasTable('cached_items')) {
-    await createTables();
+    await createTables()
   }
+  return db.driver.open
 }
 
 /**
@@ -105,6 +104,11 @@ export const filterCachedIDs = async (task, check) => {
   return cachedIDs ? cachedIDs : []
 }
 
+/** Adds (or replaces) an ID with one that includes the task name. */
+export const addTaskID = (task, items, idName = 'id') => {
+  return items.map(i => ({ ...i, [idName]: `${task}$${i.id}`}))
+}
+
 /**
  * Takes a list of items, checks which ones we've already cached in our database,
  * and returns a list of new items that we haven't reported on yet.
@@ -134,7 +138,7 @@ export const removeCached = async (task, items) => {
  */
 const getCacheTimestamp = (useUTC = false) => {
   const now = new Date()
-  
+
   if (useUTC) {
     const date = [
       now.getUTCFullYear(),

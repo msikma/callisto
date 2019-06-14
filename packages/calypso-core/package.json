@@ -1,6 +1,6 @@
 {
   "name": "calypso-core",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "private": true,
   "main": "index.js",
   "author": "Michiel Sikma <michiel@sikma.org>",
@@ -11,6 +11,7 @@
     "argparse-longhelp": "^1.0.3",
     "calypso-cache": "^1.0.0",
     "calypso-logging": "^1.0.0",
+    "calypso-request": "^1.0.0",
     "calypso-misc": "^1.4.0",
     "include-path": "^0.4.7"
   }
