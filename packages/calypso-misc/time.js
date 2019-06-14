@@ -60,12 +60,12 @@ export const getSimpleDuration = (time) => (
 /**
  * Simply returns a timestamp in the format '2018-05-23 01:09:21 +0200'.
  */
-export const getFormattedTime = () => (
-  moment().format('Y-MM-DD HH:mm:ss ZZ')
+export const getFormattedTime = (dateStr) => (
+  moment(dateStr ? dateStr : null).format('Y-MM-DD HH:mm:ss ZZ')
 )
 /**
  * Simply returns a timestamp in the format '01:09:21 +0200'.
  */
-export const getFormattedTimeOnly = () => (
-  moment().format('HH:mm:ss ZZ')
+export const getFormattedTimeOnly = (dateStr) => (
+  moment(dateStr ? dateStr : null).format('HH:mm:ss ZZ')
 )
