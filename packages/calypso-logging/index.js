@@ -76,8 +76,14 @@ const logObjectToString = (object) => {
  */
 const log = (verbosity) => (object) => {
   const info = logObjectToString(object)
-  fileLogger[verbosity](info.string)
-  consoleLogger[verbosity](info.string)
+  if (configuredLogger) {
+    fileLogger[verbosity](info.string)
+    consoleLogger[verbosity](info.string)
+  }
+  else {
+    // If the logger isn't initialized yet, log to console.
+    console.log(info.string)
+  }
 }
 
 /**

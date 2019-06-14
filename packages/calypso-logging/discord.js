@@ -5,6 +5,7 @@
 
 import { RichEmbed } from 'discord.js'
 import { zipObject } from 'lodash'
+import { isTemporaryError } from 'calypso-request'
 import { sendMessage } from 'calypso-core/responder'
 import { embedTitle, embedDescription, getFormattedTimeOnly, objectInspect, wrapInJSCode } from 'calypso-misc'
 import { data } from 'calypso-misc/resources'
@@ -105,32 +106,66 @@ const logMsgToDiscord = (level, id, version, name, icon, isSystem = false) => as
  */
 export const createTaskLogger = (id, version, name, color, icon, isSystem = false) => {
   const logFunctions = logLevels.map(level => logMsgToDiscord(level, id, version, name, icon, isSystem))
+  const logFunctionsObj = zipObject(logLevels, logFunctions)
+  const logTaskError = (errorTitle, details = {}, err = {}) => (
+    logFunctionsObj.error(
+      errorTitle,
+      `Details: ${wrapInJSCode(objectInspect(details))}`,
+      unpackError(err),
+      false,
+      false
+    )
+  )
+  const logTaskTempError = (errorTitle, details = {}, err = {}) => (
+    logFunctionsObj.debug(
+      errorTitle,
+      `Ignored temporary error during search: ${wrapInJSCode(objectInspect(details))}`,
+      unpackError(err, false),
+      false,
+      false
+    )
+  )
   return {
-    logTaskError: (errorTitle, details = {}, err = {}) => (
-      logFunctions.debug(
-        errorTitle,
-        `Details: ${wrapInJSCode(objectInspect(details))}`,
-        [
-          ...(err.name ? [['Name', err.name, true]] : []),
-          ...(err.code ? [['Code', err.code, true]] : []),
-          ...(err.stack ? [['Stack', err.stack, true]] : [])
-        ],
-        false,
-        false
+    logError: (errorTitle = null, details = {}, err = {}) => {
+      if (isTemporaryError(err))
+        return logTaskTempError(!errorTitle ? '' : errorTitle, details, err)
+      else
+        return logTaskError(errorTitle, details, err)
+    },
+    logTaskError,
+    logTaskTempError,
+    logTaskItem: (title, searchItem = {}, foundItems = [], a = 0, z = 0) => (
+      logFunctionsObj.debug(
+        title,
+        `${unpackSearchItem(searchItem, foundItems, a, z)}`
       )
     ),
-    logTaskTempError: (errorTitle, details = {}, err = {}) => (
-      logFunctions.debug(
-        errorTitle,
-        `Ignored temporary error during search: ${wrapInJSCode(objectInspect(details))}`,
-        [
-          ...(err.name ? [['Name', err.name, true]] : []),
-          ...(err.code ? [['Code', err.code, true]] : [])
-        ],
-        false,
-        false
-      )
-    ),
-    ...zipObject(logLevels, logFunctions)
+    ...logFunctionsObj
   }
 }
+
+/** Extracts information out of an object of search info. */
+const unpackSearchItem = (searchItem, foundItems = [], a = null, z = null) => {
+  let mainString = ''
+  const secondaryString = []
+
+  const mainKeys = ['query', 'q', 'slug', 'keyword', 'search']
+  const secondaryKeys = ['category', 'subscriptions', 'link', 'res']
+  for (let [key, value] of Object.entries(searchItem)) {
+    if (mainKeys.indexOf(key) !== -1) {
+      mainString = value
+    }
+    if (secondaryKeys.indexOf(key) !== -1) {
+      secondaryString.push(`${key} '${value}'`)
+    }
+  }
+
+  return `'${mainString}'${z !== 0 && a != null ? ` ${a}/${z}` : ''} - found ${foundItems.length} - ${secondaryString.join(' ')}`
+}
+
+/** Takes attributes out of an error object for logging. */
+const unpackError = (err = {}, addStack = true) => ([
+  ...(err.name ? [['Name', err.name, true]] : []),
+  ...(err.code ? [['Code', err.code, true]] : []),
+  ...(addStack && err.stack ? [['Stack', err.stack, true]] : [])
+])
