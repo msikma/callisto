@@ -110,14 +110,10 @@ const startTimedTasks = (discordClient, user, taskConfig, singleTaskData) => {
 
 /**
  * Registers a task, making it possible to access its functionality.
- *
- * Note: 'triggerActions' and 'formats' respond to actions, such as 'message'
- * to respond to user input. Currently they're not used.
  */
-const registerTask = (discordClient, user, { id, name, icon, color, formats = [], triggerActions = [], scheduledActions = [] }, slug, version) => {
-  taskDatabase[id] = { id, name, icon, color, formats, version, triggerActions, scheduledActions }
+const registerTask = (discordClient, user, { id, name, icon, color, scheduledActions = [] }, slug, version) => {
+  taskDatabase[id] = { id, name, icon, color, version, scheduledActions }
   logger.verbose(`Registered task: ${slug} (${version})`)
-  //triggerActions.forEach(action => discordClient.on(action[0], action[1]))
 }
 
 /**
