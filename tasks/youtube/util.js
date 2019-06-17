@@ -7,7 +7,7 @@ import fs from 'fs'
 import cheerio from 'cheerio'
 import xml2js from 'xml2js'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { findScriptData } from 'calypso-misc'
 import { config } from 'calypso-misc/resources'
 import { requestURL } from 'calypso-request'

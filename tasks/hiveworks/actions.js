@@ -5,8 +5,8 @@
 
 import { RichEmbed } from 'discord.js'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
-import { sendMessage } from 'calypso-core/src/responder'
+import { getTaskLogger } from 'calypso-core/logging'
+import { sendMessage } from 'calypso-core/responder'
 import { embedTitle, embedDescription, getFormattedDate, wait } from 'calypso-misc'
 import { runComicSearch } from './search'
 import { id, color, icon } from './index'

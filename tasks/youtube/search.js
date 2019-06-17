@@ -6,7 +6,7 @@
 import cheerio from 'cheerio'
 import { get } from 'lodash'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { requestURL } from 'calypso-request'
 import { cacheItems, removeCached } from 'calypso-cache'
 import { rssParse, getExactDuration, wrapInJSCode, objectInspect } from 'calypso-misc'
@@ -51,7 +51,7 @@ const addExtendedInfo = (rssItems) => (
     // If something went wrong, resolve with our basic info instead.
     if (!data) return resolve({ ...entry })
     const info = get(data, 'videoDetails', {})
-    
+
     if (!data.videoDetails) {
       // If we don't have videoDetails for some reason...
       getTaskLogger(id).warning(

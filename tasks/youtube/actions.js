@@ -6,9 +6,9 @@
 import { RichEmbed } from 'discord.js'
 import path from 'path'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { isTemporaryError } from 'calypso-request';
-import { sendMessage, sendTemporaryError, sendError } from 'calypso-core/src/responder'
+import { sendMessage, sendTemporaryError, sendError } from 'calypso-core/responder'
 import { embedTitle, embedDescription } from 'calypso-misc'
 import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
 import { readSubscriptions } from './util'
@@ -90,7 +90,7 @@ const parseSearchTask = async (searchData) => {
       )
     }
   }
-  
+
 }
 
 /**

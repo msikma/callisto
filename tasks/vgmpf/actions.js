@@ -5,9 +5,9 @@
 
 import { RichEmbed } from 'discord.js'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { isTemporaryError } from 'calypso-request'
-import { sendMessage } from 'calypso-core/src/responder'
+import { sendMessage } from 'calypso-core/responder'
 import { embedTitle } from 'calypso-misc'
 import { runVGMPFSearch } from './search'
 import { id, color, icon } from './index'

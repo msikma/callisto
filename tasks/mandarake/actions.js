@@ -8,9 +8,9 @@ import { mainCategories, shops } from 'mdrscr'
 import { uniq, get } from 'lodash'
 
 import { isTemporaryError } from 'calypso-request'
-import { sendMessage } from 'calypso-core/src/responder'
+import { sendMessage } from 'calypso-core/responder'
 import { embedTitle, wait, objectInspect, removeDefaults } from 'calypso-misc'
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { runMandarakeSearch, runMandarakeAuctionSearch } from './search'
 import { id, color, colorAuctions, icon, iconAuctions } from './index'
 

@@ -6,7 +6,7 @@
 import cheerio from 'cheerio'
 import URL from 'url-parse'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { cacheItems, removeCached } from 'calypso-cache'
 import { requestURL } from 'calypso-request'
 import { rssParse, objectInspect } from 'calypso-misc'

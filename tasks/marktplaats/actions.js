@@ -7,9 +7,9 @@ import { RichEmbed } from 'discord.js'
 import { get, isArray } from 'lodash'
 
 import { isTemporaryError } from 'calypso-request'
-import { sendMessage } from 'calypso-core/src/responder'
+import { sendMessage } from 'calypso-core/responder'
 import { embedTitle, wrapArray, wait, objectInspect, embedDescription, mapsCoordsLink, capitalizeFirst } from 'calypso-misc'
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 
 import { runMarktplaatsSearch } from './search'
 import { id, color, icon } from './index'

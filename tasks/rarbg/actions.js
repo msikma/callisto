@@ -5,10 +5,10 @@
 
 import { RichEmbed } from 'discord.js'
 
-import { sendMessage } from 'calypso-core/src/responder'
+import { sendMessage } from 'calypso-core/responder'
 import { setCookies } from 'calypso-request'
 import { wait, embedTitle, getFormattedDate } from 'calypso-misc'
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { findNewEpisodes, getEpisodeInfo, getTorrentDetails, cacheEpisode } from './search'
 import { id, color, icon } from './index'
 

@@ -5,8 +5,8 @@
 
 import { RichEmbed } from 'discord.js'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
-import { sendMessage, sendTemporaryError } from 'calypso-core/src/responder'
+import { getTaskLogger } from 'calypso-core/logging'
+import { sendMessage, sendTemporaryError } from 'calypso-core/responder'
 import { isTemporaryError } from 'calypso-request'
 import { embedTitle, embedDescription, getFormattedDate } from 'calypso-misc'
 import { findNewItems } from './search'

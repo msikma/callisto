@@ -5,7 +5,7 @@
 
 import cheerio from 'cheerio'
 
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { requestURL } from 'calypso-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'calypso-cache'
 import { wait, getIntegerTimestamp } from 'calypso-misc'

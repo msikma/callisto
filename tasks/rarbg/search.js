@@ -9,7 +9,7 @@ import logger from 'calypso-logging'
 import { slugify, isValidDate } from 'calypso-misc'
 import { requestURL } from 'calypso-request'
 import { cacheItems, removeCached, filterCachedIDs } from 'calypso-cache'
-import { getTaskLogger } from 'calypso-core/src/logging'
+import { getTaskLogger } from 'calypso-core/logging'
 import { id } from './index'
 
 const episodeIDRe = new RegExp('^episode_(.+?)$', 'i')
