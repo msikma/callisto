@@ -3,7 +3,12 @@ export const template = () => {
 bandcamp: {
   defaultTarget: [[/* server, channel */]],
   searches: [
-    { details: { search: '/* searchstring */' }, target: [[/* server, channel */]] }
+    {
+      details: {
+        search: '/* searchString */'
+      },
+      target: [[/* server, channel */]]
+    }
     // ...
   ]
 }
