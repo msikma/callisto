@@ -4,7 +4,7 @@
 
 ## Application specific
 
-config.js
+/config.js
 cache/
 
 # Development files.
@@ -157,4 +157,3 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-Icon
