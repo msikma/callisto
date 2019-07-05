@@ -4,6 +4,7 @@
  */
 
 import { actionRemixes } from './actions'
+import { configTemplate } from './config'
 
 export const id = 'ocremix'
 export const name = 'OverClocked ReMix'
@@ -14,5 +15,5 @@ const scheduledActions = [
 ]
 
 export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions }
+  return { id, name, color, icon, scheduledActions, configTemplate }
 }

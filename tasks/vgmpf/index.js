@@ -4,6 +4,7 @@
  */
 
 import { actionRecentReleases } from './actions'
+import { configTemplate } from './config'
 
 export const id = 'vgmpf'
 export const name = 'Video Game Music Preservation Foundation'
@@ -14,5 +15,5 @@ const scheduledActions = [
 ]
 
 export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions }
+  return { id, name, color, icon, scheduledActions, configTemplate }
 }

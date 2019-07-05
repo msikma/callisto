@@ -4,6 +4,7 @@
  */
 
 import { actionRunSearches } from './actions'
+import { configTemplate } from './config'
 
 export const id = 'nyaa'
 export const name = 'Nyaa.si'
@@ -15,5 +16,5 @@ const scheduledActions = [
 ]
 
 export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions }
+  return { id, name, color, icon, scheduledActions, configTemplate }
 }

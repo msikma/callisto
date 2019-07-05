@@ -4,6 +4,7 @@
  */
 
 import { actionNewChapters } from './actions'
+import { configTemplate } from './config'
 
 export const id = 'hiveworks'
 export const name = 'Hiveworks Comics'
@@ -14,5 +15,5 @@ const scheduledActions = [
 ]
 
 export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions }
+  return { id, name, color, icon, scheduledActions, configTemplate }
 }
