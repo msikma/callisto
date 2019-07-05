@@ -20,10 +20,19 @@ const parser = new ArgumentParser({
   description: `${pkgData.description}.`,
   epilog: 'Send questions and comments to @michielsikma on Twitter.'
 })
-addLongHelp(parser, `To run this bot, you need to register an application in the Discord\ndeveloper portal, create a new bot user on that application, and then invite\nthat bot to the server you intend on posting to.\nSee the readme for more information.\n\nDiscord developer portal: <https://discordapp.com/developers/applications>\nCalypso documentation: <${pkgData.homepage}>\n`, true)
+const appNotice = `To run this bot, you need to register an application in the Discord
+developer portal, create a new bot user on that application, and then invite
+that bot to the server you intend on posting to.
+See the readme for more information.
+
+Discord developer portal:   <https://discordapp.com/developers/applications>
+Calypso documentation:      <${pkgData.homepage}>
+`
+
+addLongHelp(parser, appNotice, true)
 parser.addArgument('--config-path', { help: 'Path to the config file (~/.config/calypso/config.js).', metavar: 'PATH', dest: 'configPath', defaultValue: `${homePath}/.config/calypso/config.js` })
 parser.addArgument('--db-path', { help: 'Path to the database (~/.config/calypso/db.sqlite).', metavar: 'PATH', dest: 'dbPath', defaultValue: `${homePath}/.config/calypso/db.sqlite` })
-parser.addArgument('--new-config', { help: 'Creates a config file with standard values and exits.', metavar: 'PATH', dest: 'newConfig' })
+parser.addArgument('--new-config', { nargs: '?', help: 'Creates a config file with standard values and exits.', metavar: 'PATH', dest: 'newConfig' })
 parser.addArgument('--new-db', { help: 'Creates a new, empty database and exits.', metavar: 'PATH', dest: 'newDb' })
 parser.addArgument('--list-tasks', { help: 'Lists supported tasks in Markdown format and exits.', dest: 'listTasks', action: 'storeTrue' })
 parser.addArgument('--test', { help: 'Runs the bot with a single task only for testing.', dest: 'task' })
@@ -49,13 +58,19 @@ require('babel-register')({
 
 // Import actions now, since we only just activated Babel.
 const actions = require('./actions')
-
 const coreTasks = {
   newConfig: (path) => actions.newSystemFile('config', path),
   newDb: (path) => actions.newSystemFile('db', path),
   listTasks: actions.listPackages
 }
-const doTasks = Object.keys(parsed).filter(cmd => !!coreTasks[cmd] && !!parsed[cmd])
+// FIXME: the --new-config argument is optional, and has one optional argument.
+// If the option is passed, but no argument is used, the value becomes 'null'.
+// However, other optional values like --new-db are also null if they are not passed.
+// To separate them we need to check the argv array directly.
+const cmds = {
+  newConfig: '--new-config'
+}
+const doTasks = Object.keys(parsed).filter(cmd => !!coreTasks[cmd] && (!!parsed[cmd] || process.argv.indexOf(cmds[cmd]) !== -1))
 
 if (doTasks.length > 0) {
   // Run task scripts and exit.

@@ -137,8 +137,9 @@ export const getConfigTemplates = tasks => {
   const taskInfo = tasks.map(t => {
     try {
       // Require its config template and store the template string.
-      const tpl = require(t.configTemplate)
-      return { name: t.name, template: tpl.template().obj }
+      const task = require(t.file)
+      const info = task.getTaskInfo()
+      return { name: t.name, configTemplate: info.configTemplate().obj }
     }
     catch (err) {
       // Skip this task if there is no config template for it.
@@ -165,7 +166,6 @@ export const findTasks = taskConfig => {
       siteShort: packageData._siteShort,
       description: packageData.description,
       version: packageData.version,
-      configTemplate: `${base}${i}/config.template.js`,
       file: `${base}${i}/index.js`,
       slug: taskSlug(i)
     }
