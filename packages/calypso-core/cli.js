@@ -34,6 +34,7 @@ parser.addArgument('--config-path', { help: 'Path to the config file (~/.config/
 parser.addArgument('--db-path', { help: 'Path to the database (~/.config/calypso/db.sqlite).', metavar: 'PATH', dest: 'dbPath', defaultValue: `${homePath}/.config/calypso/db.sqlite` })
 parser.addArgument('--new-config', { nargs: '?', help: 'Creates a config file with standard values and exits.', metavar: 'PATH', dest: 'newConfig' })
 parser.addArgument('--new-db', { help: 'Creates a new, empty database and exits.', metavar: 'PATH', dest: 'newDb' })
+parser.addArgument('--check-config', { help: 'Verifies whether the config file is correct.', action: 'storeTrue', dest: 'checkConfig' })
 parser.addArgument('--list-tasks', { help: 'Lists supported tasks in Markdown format and exits.', dest: 'listTasks', action: 'storeTrue' })
 parser.addArgument('--test', { help: 'Runs the bot with a single task only for testing.', dest: 'task' })
 parser.addArgument('--log', { help: `Sets console logging level ('info').`, dest: 'level', choices: ['error', 'warn', 'info', 'verbose', 'debug', 'silly'], defaultValue: 'info' })
@@ -61,6 +62,7 @@ const actions = require('./actions')
 const coreTasks = {
   newConfig: (path) => actions.newSystemFile('config', path),
   newDb: (path) => actions.newSystemFile('db', path),
+  checkConfig: () => actions.checkConfig(parsed.configPath),
   listTasks: actions.listPackages
 }
 // FIXME: the --new-config argument is optional, and has one optional argument.
