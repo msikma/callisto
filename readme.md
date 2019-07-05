@@ -17,6 +17,10 @@ Replace `CLIENT_ID` with the generated client ID from before. The `permissions` 
 
 The bot will now be able to post messages to whatever channels it's permitted to access.
 
+### Activity
+
+This bot *only* posts messages (plain text and rich embeds). It does not use any other API features except for logging in.
+
 ### Log channels
 
 Calypso posts log messages to two channels: one for all general logs, the other for errors only. To finalize setup, create two channels and save their IDs to `CALYPSO_SETTINGS.logChannels` and `CALYPSO_SETTINGS.logChannelsImportant`.
