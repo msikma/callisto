@@ -119,7 +119,7 @@ const findVideos = (initialData, query, params, slug) => {
     if (!data) return false
     const id = data.videoId
     const link = videoURL(id)
-    const title = get(data, 'title.simpleText', '(unknown)')
+    const title = get(data, 'title.runs.0.text', get(data, 'title.simpleText', '(unknown)'))
     const author = get(data, 'ownerText.runs[0].text', get(data, 'longBylineText.runs[0].text', get(data, 'shortBylineText.runs[0].text', '(unknown)')))
     const views = get(data, 'viewCountText.simpleText', '0')
     const uploadTime = get(data, 'publishedTimeText.simpleText', '(unknown)')
