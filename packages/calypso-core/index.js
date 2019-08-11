@@ -7,6 +7,7 @@ import { data, initResources } from 'calypso-misc/resources'
 import logger, { configureLogger, printLogSize } from 'calypso-logging'
 import { dbInitOrExit } from 'calypso-cache'
 
+import { checkConfigOrExit } from './actions'
 import { shutdown } from './shutdown'
 import { discordInitOrExit } from './discord'
 import { checkVersion, bindEmitHandlers, catchAllExceptions } from './logging'
@@ -32,7 +33,7 @@ export const run = async ({ task, level, dbPath, configPath, noPost = false }) =
   discord.noPost = noPost
 
   // Read and parse config file.
-  initResources(configPath)
+  const config = initResources(configPath)
 
   // Make sure we can write logs.
   configureLogger(data.config.CALYPSO_BASE_DIR, level)
@@ -41,7 +42,10 @@ export const run = async ({ task, level, dbPath, configPath, noPost = false }) =
   logger.info(`calypso-bot ${data.pkg.version}`, false)
   console.log(`Press CTRL+C to exit.`)
 
-  // Attempt to open the databse (or exit on failure).
+  // Check whether the config file is valid, or exit.
+  checkConfigOrExit(config)
+
+  // Attempt to open the database, or exit.
   dbInitOrExit(dbPath)
 
   // Start message and request queues, which will send messages to Discord one by one.

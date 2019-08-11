@@ -72,4 +72,7 @@ export const initResources = (configPath, baseDir = process.env.CALYPSO_BASE_DIR
     CALYPSO_BASE_DIR: process.env.CALYPSO_BASE_DIR
   }
   data.pkg = pkg
+
+  // Return the config as well so we can reuse it in the startup routine.
+  return data.config
 }
