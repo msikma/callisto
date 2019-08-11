@@ -1,7 +1,7 @@
 {
   "name": "calypso-logging",
   "private": true,
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Logging functionality",
   "main": "index.js",
   "scripts": {

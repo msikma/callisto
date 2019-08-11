@@ -1,7 +1,7 @@
 {
   "_calypso_commit_url": "https://github.com/msikma/calypso/commit/",
   "name": "calypso-bot",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "A simple Discord bot that pulls info and posts periodic updates",
   "private": true,
   "workspaces": [

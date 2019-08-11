@@ -1,6 +1,6 @@
 {
   "name": "calypso-core",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "private": true,
   "main": "index.js",
   "author": "Michiel Sikma <michiel@sikma.org>",
