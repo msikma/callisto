@@ -101,6 +101,14 @@ export const printLogSize = (baseDir) => {
 }
 
 /**
+ * Sets the log level sent to the console.
+ * Normally the level is 'verbose', but after initiating shutdown it gets set to 'silly' until the bot quits.
+ */
+export const configureConsoleLogLevel = (consoleLevel = 'verbose') => {
+  consoleLogger.transports[0].level = consoleLevel
+}
+
+/**
  * Sets up the logger by creating the log directory and then sending
  * errors to a specific error file, and everything else to a combined log file.
  * 'consoleLevel' sets the logging level for the console only.
@@ -121,7 +129,7 @@ export const configureLogger = (baseDir, consoleLevel = 'verbose', logToFile = t
   }
 
   // Set console logging level. 'verbose' by default.
-  consoleLogger.transports[0].level = consoleLevel
+  configureConsoleLogLevel(consoleLevel)
   configuredLogger = true
 }
 

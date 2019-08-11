@@ -3,7 +3,7 @@
  * © MIT license
  */
 
-import logger from 'calypso-logging'
+import logger, { configureConsoleLogLevel } from 'calypso-logging'
 import { saveShutdownTime } from 'calypso-cache/system'
 import { wait } from 'calypso-misc'
 
@@ -23,9 +23,13 @@ export const isShuttingDown = () => (
 
 /**
  * Graceful shutdown function. This is called on SIGINT.
+ * After shutdown is initiated, the log level gets set to 'silly'.
+ * This allows us to see exactly how many calls are made until exit.
  */
 export const shutdown = async () => {
   logger.error('\nSIGINT received. Shutting down the bot...', false)
+  logger.warning('Logging all events until shutdown.', false)
+  configureConsoleLogLevel('silly')
   waitingShutdown = true
   try {
     // Save the current time. Next time we start up we'll display how long the bot was offline.
