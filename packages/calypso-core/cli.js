@@ -50,7 +50,10 @@ require('include-path')(`${__dirname}/../../`)
 // Install the require() hook.
 require('babel-polyfill')
 require('babel-register')({
-  presets: [require('babel-preset-env'), require('babel-preset-react')],
+  presets: [
+    [require('babel-preset-env'), { "targets": "node 10" }],
+    require('babel-preset-react')
+  ],
   plugins: [
     require('babel-plugin-transform-class-properties'),
     require('babel-plugin-transform-object-rest-spread')
