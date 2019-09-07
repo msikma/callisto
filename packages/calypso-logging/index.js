@@ -18,6 +18,7 @@ import { logLevels } from './severity'
 export { default as severity } from './severity'
 
 let configuredLogger = false
+let enabledFileLogs = false
 
 // Colors that correspond to logging levels.
 const levelConsoleColors = {
@@ -77,7 +78,7 @@ const logObjectToString = (object) => {
 const log = (verbosity) => (object) => {
   const info = logObjectToString(object)
   if (configuredLogger) {
-    fileLogger[verbosity](info.string)
+    enabledFileLogs && fileLogger[verbosity](info.string)
     consoleLogger[verbosity](info.string)
   }
   else {
@@ -126,6 +127,8 @@ export const configureLogger = (baseDir, consoleLevel = 'verbose', logToFile = t
     fileLogger
       .add(new winston.transports.File({ filename: `${errBase}/error.log`, level: 'error' }))
       .add(new winston.transports.File({ filename: `${errBase}/combined.log` }))
+    
+    enabledFileLogs = true
   }
 
   // Set console logging level. 'verbose' by default.

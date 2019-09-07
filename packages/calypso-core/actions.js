@@ -25,7 +25,7 @@ export const checkConfigOrExit = (path) => {
  * Checks if the config file is correct.
  */
 export const checkConfig = (path, quietSuccess = false) => {
-  configureLogger()
+  configureLogger(null, 'verbose', false)
   try {
     // Check whether this will throw due to a syntax error.
     const cfg = require(path);
