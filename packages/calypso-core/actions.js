@@ -16,19 +16,20 @@ import { findTasks, getConfigTemplates } from './task-manager'
 const CONFIG_NECESSITIES = ['CALYPSO_BOT_TOKEN', 'CALYPSO_BOT_CLIENT_ID', 'CALYPSO_BOT_NAME', 'CALYPSO_SETTINGS', 'CALYPSO_TASK_SETTINGS']
 
 /** Checks the config and exits if it isn't valid. */
-export const checkConfigOrExit = (path) => {
-  const configCorrect = checkConfig(path, true)
+export const checkConfigOrExit = (configData) => {
+  const configCorrect = checkConfig(null, configData, true)
   if (!configCorrect) process.exit(1)
 }
 
 /**
  * Checks if the config file is correct.
  */
-export const checkConfig = (path, quietSuccess = false) => {
+export const checkConfig = (path, configData = {}, quietSuccess = false) => {
+  const hasData = Object.keys(configData).length > 0
   configureLogger(null, 'verbose', false)
   try {
     // Check whether this will throw due to a syntax error.
-    const cfg = require(path);
+    const cfg = hasData ? configData : require(path)
     const errIsEmpty = !cfg || Object.keys(cfg).length === 0
 
     // Check if any crucial config keys are not filled in.
@@ -57,12 +58,12 @@ export const checkConfig = (path, quietSuccess = false) => {
     }
     else if (errSyntaxError) {
       logger.error('Fatal: config file contains syntax errors - details follow:\n')
-      logger.verbose(err)
+      logger.error(err)
       return false
     }
     else {
       logger.error('Fatal: an error occurred while checking the config file - details follow:\n')
-      logger.verbose(err)
+      logger.error(err)
       return false
     }
   }
