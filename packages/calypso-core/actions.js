@@ -29,7 +29,7 @@ export const checkConfig = (path, quietSuccess = false) => {
   try {
     // Check whether this will throw due to a syntax error.
     const cfg = require(path);
-    const errIsEmpty = Object.keys(cfg).length > 0
+    const errIsEmpty = !cfg || Object.keys(cfg).length === 0
 
     // Check if any crucial config keys are not filled in.
     const missingItems = CONFIG_NECESSITIES.reduce((all, i) => [...all, !cfg[i] && i], []).filter(i => i)
