@@ -54,7 +54,7 @@ const addExtendedInfo = (rssItems) => (
 
     if (!data.videoDetails) {
       // If we don't have videoDetails for some reason...
-      getTaskLogger(id).warning(
+      getTaskLogger(id).warn(
         'Could not add extended info to video',
         'The video item\'s `videoDetails` key was not found',
         [
@@ -111,7 +111,7 @@ const findVideos = (initialData, query, params, slug) => {
   if (!initialData) return []
   const videos = get(initialData, 'contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents', [])
   if (videos.length === 0) {
-    getTaskLogger(id).warning('Search with zero results', `Found zero videos for search: ${slug}\nQuery: ${query}, params: ${params}`)
+    getTaskLogger(id).warn('Search with zero results', `Found zero videos for search: ${slug}\nQuery: ${query}, params: ${params}`)
   }
   // Extract all useful information from each video.
   return videos.map(video => {

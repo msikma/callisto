@@ -28,7 +28,7 @@ export const isShuttingDown = () => (
  */
 export const shutdown = async () => {
   logger.error('\nSIGINT received. Shutting down the bot...', false)
-  logger.warning('Logging all events until shutdown.', false)
+  logger.warn('Logging all events until shutdown.', false)
   configureConsoleLogLevel('silly')
   waitingShutdown = true
   try {
