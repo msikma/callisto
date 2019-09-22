@@ -1,19 +1,21 @@
-/**
- * Calypso - calypso-task-youtube <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionSearchUpdates } from './actions'
-import { configTemplate } from './config'
+const { taskSearchVideos, taskSubVideos } = require('./actions')
 
-export const id = 'youtube'
-export const name = 'Youtube'
-export const color = 0xff0000
-export const icon = 'https://i.imgur.com/rAFBjZ4.jpg'
-const scheduledActions = [
-  { delay: 480000, desc: 'find new videos from Youtube searches and subscriptions', fn: actionSearchUpdates }
+const taskInfo = {
+  id: 'youtube',
+  name: 'Youtube',
+  color: 0xff0000,
+  icon: 'https://i.imgur.com/rAFBjZ4.jpg'
+}
+
+const taskActions = [
+  { delay: 480000, description: 'find new videos from Youtube searches', fn: taskSearchVideos },
+  { delay: 480000, description: 'find new videos from Youtube subscriptions', fn: taskSubVideos }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  taskInfo,
+  taskActions
 }

@@ -1,104 +1,71 @@
-/**
- * Calypso - calypso-task-youtube <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
+// © MIT license
 
-import { RichEmbed } from 'discord.js'
-import path from 'path'
+const { RichEmbed } = require('discord.js')
+const path = require('path')
+const { taskLogger } = require('callisto-logging')
+const { isTempError } = require('callisto-request')
+const { postMessage } = require('callisto-core')
+const { addDefaults, wrapStack } = require('callisto-util')
 
-import { getTaskLogger } from 'calypso-core/logging'
-import { isTemporaryError } from 'calypso-request';
-import { sendMessage, sendTemporaryError, sendError } from 'calypso-core/responder'
-import { embedTitle, embedDescription } from 'calypso-misc'
-import { findNewSubscriptionVideos, findNewSearchVideos } from './search'
-import { readSubscriptions } from './util'
-import { id, color, icon } from './index'
+const { findSubVideos, findSearchVideos } = require('./search')
+const { readSubFile } = require('./util')
+const { taskInfo } = require('./index')
 
-/**
- * Main entry point for this task.
- * Find new videos in Youtube searches and subscriptions.
- */
-export const actionSearchUpdates = (discordClient, user, taskConfig) => {
-  taskConfig.subscriptions.forEach(async taskData => parseSubscriptionTask(taskData))
-  taskConfig.searches.forEach(async taskData => parseSearchTask(taskData))
+const log = taskLogger(taskInfo)
+
+/** Searches for new videos from search results. */
+const taskSearchVideos = (taskConfig, discordClient, user) => (
+  taskConfig.searches.map(async taskData => runSearchTask(taskData, taskConfig))
+)
+
+/** Searches for new videos from subscriptions. */
+const taskSubVideos = (taskConfig) => (
+  taskConfig.subscriptions.map(async taskData => runSubTask(taskData, taskConfig))
+)
+
+/** Checks a search term for new video results on Youtube. */
+const runSearchTask = async (taskData, taskConfig) => {
+  const { slug, searchParameters, searchQuery, target } = addDefaults(taskData, taskConfig)
 }
 
-/**
- * Find new subscription videos.
- */
-const parseSubscriptionTask = async (accountData) => {
-  const taskLogger = getTaskLogger(id)
-  const subscriptionsFile = accountData.subscriptions
-  const subscriptionData = await readSubscriptions(subscriptionsFile, accountData.slug)
-  taskLogger.debug(`${accountData.slug}`, `Iterating through subscriptions`)
-  const subscriptions = subscriptionData.opml.body[0].outline[0].outline.map(n => n.$)
+/** Checks a list of accounts from a subscriptions file for new videos. */
+const runSubTask = async (taskData, taskConfig) => {
+  // Extract data from subscriptions.
+  const { slug, subscriptions, target } = addDefaults(taskData, taskConfig)
+  const subList = await readSubFile(subscriptions, slug)
+  const subBase = path.basename(subscriptions)
+  log.debug(`${slug}`, `Iterating through ${subList.length} subscription${subList.length === 1 ? '' : 's'}`)
 
   const updates = []
 
-  for (const sub of subscriptions) {
+  for (const sub of subList) {
     const { title, xmlUrl } = sub
     try {
-      // Pass on the 'slug' from the account data, which we'll use for caching.
-      const results = await findNewSubscriptionVideos(xmlUrl, accountData.slug)
+      const results = await findSubVideos(xmlUrl, slug)
       if (results.length) {
-        taskLogger.silly(`${path.basename(subscriptionsFile)}: channel: ${title}`, `Found ${results.length} new ${results.length === 1 ? 'item' : 'items'}`)
-        updates.push({ target: accountData.target, results, subscriptionsFile })
+        log.silly(`${subBase} - Channel: ${title}`, `Found ${results.length} new result${results.length === 1 ? '' : 's'}`)
+        updates.push({ target, results, subscriptions })
       }
     }
     catch (err) {
-      // Sometimes the RSS parser complains if it can't find any items.
-      // Also, occasionally a request will fail for some reason. E.g. if the channel disappeared.
-      // Only report an error if it's something else.
-      const badStatusCode = String(err).indexOf('Bad status code') > 0
-      if (err !== 'no articles' && !badStatusCode) {
-        taskLogger.error('An error occurred while scraping subscription videos', `File: ${path.basename(subscriptionsFile)}, channel: ${title}.\n\n${err.stack}`)
-      }
+      if (isTempError(err)) continue
+      log.error('An error occurred while scraping subscription videos', wrapStack(err.stack), [['File', subBase], ['Channel', title]])
     }
   }
 
   // Post all updates we've gathered.
   if (updates.length) {
-    taskLogger.debug(`${accountData.slug}`, `Posting ${updates.length} new ${updates.length === 1 ? 'item' : 'items'}`)
+    log.debug(`${slug}`, `Posting ${results.length} new item${results.length === 1 ? '' : 's'}`)
+    postRichItems(updates, formatMessage)
     updates.forEach(update =>
       update.target.forEach(t => reportResults(t[0], t[1], update.results, update.subscriptionsFile))
     )
   }
 }
 
-/**
- * Find new videos from a search task.
- */
-const parseSearchTask = async (searchData) => {
-  const taskLogger = getTaskLogger(id)
-  const { slug, searchParameters, searchQuery, target } = searchData
-  taskLogger.debug(`${searchQuery} (${slug})`, `Running Youtube search`)
-  try {
-    const results = await findNewSearchVideos(searchParameters, searchQuery, slug)
-    if (results.length) {
-      taskLogger.debug(`${searchQuery} (${slug})`, `Posting ${results.length} ${results.length === 1 ? 'item' : 'items'}`)
-      target.forEach(t => reportResults(t[0], t[1], results, null, searchQuery))
-    }
-  }
-  catch (err) {
-    if (isTemporaryError(err)) {
-      sendTemporaryError(taskLogger, err)
-    }
-    else {
-      taskLogger.error(
-        'Could not run Youtube video search',
-        `${err.name ? `Name: ${err.name}` : ''}${err.name && err.code ? ' - ' : ''}${err.code ? `Code: ${err.code}` : ''}${err.name || err.code ? '\n\n' : ''}${err.stack}`
-      )
-    }
-  }
-
-}
-
-/**
- * Passes on the search results to the server.
- */
-const reportResults = (server, channel, results, file, query) => {
-  if (results.length === 0) return
-  results.forEach(item => sendMessage(server, channel, null, formatMessage(item, file, query)))
+const postRichItems = (items, formatter) => {
+  items.forEach(item => item.target.forEach(target => postRichEmbed(target[0], target[1], null, formatter(item))))
 }
 
 /**
@@ -152,9 +119,10 @@ const shortenDescription = (desc, maxLength = 400, errorRatio = 100) => {
  *      durationAria: '51 minutes',
  *      is4K: true }
  */
-const formatMessage = (item, file = '', query = '') => {
+const formatMessage = (messageData) => {
+  const { item, file = '', query = '' } = messageData
   const embed = new RichEmbed();
-  embed.setAuthor(`New Youtube video by ${item.author}`, icon)
+  embed.setAuthor(`New Youtube video by ${item.author}`, taskInfo.icon)
   if (item.title) embed.setTitle(embedTitle(item.title))
   if (item.description && item.description !== item.title) {
     embed.setDescription(embedDescription(shortenDescription(item.description)))
@@ -166,7 +134,7 @@ const formatMessage = (item, file = '', query = '') => {
   if (item.link) embed.setURL(item.link)
   if (item.channelThumbnail) embed.setThumbnail(encodeURI(item.channelThumbnail))
 
-  embed.setColor(color)
+  embed.setColor(taskInfo.color)
   embed.setTimestamp()
 
   // Include the source of this video.
@@ -177,4 +145,9 @@ const formatMessage = (item, file = '', query = '') => {
     embed.setFooter(`Searched for keyword: ${query}`)
   }
   return embed
+}
+
+module.exports = {
+  taskSearchVideos,
+  taskSubVideos
 }

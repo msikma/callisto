@@ -1,15 +1,13 @@
-/**
- * Calypso - calypso-task-youtube <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
+// © MIT license
 
 import cheerio from 'cheerio'
 import { get } from 'lodash'
 
-import { getTaskLogger } from 'calypso-core/logging'
-import { requestURL } from 'calypso-request'
-import { cacheItems, removeCached } from 'calypso-cache'
-import { rssParse, getExactDuration, wrapInJSCode, objectInspect } from 'calypso-misc'
+import { getTaskLogger } from 'callisto-core/logging'
+import { requestURL } from 'callisto-request'
+import { cacheItems, removeCached } from 'callisto-cache'
+import { rssParse, getExactDuration, wrapInJSCode, objectInspect } from 'callisto-misc'
 import { videoURL, getVideoExtendedInfo, getPageInitialData, getBestThumbnail } from './util'
 import { id } from './index'
 

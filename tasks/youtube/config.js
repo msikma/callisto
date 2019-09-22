@@ -1,6 +1,31 @@
-export const configTemplate = () => {
-  const obj = `
+const PropTypes = require('prop-types')
+
+const configValidator = {
+  youtube: PropTypes.shape({
+    defaults: PropTypes.shape({
+      target: PropTypes.array
+    }),
+    subscriptions: PropTypes.arrayOf(PropTypes.shape({
+      slug: PropTypes.string.isRequired,
+      subscriptions: PropTypes.string.isRequired,
+      target: PropTypes.array
+    })).isRequired,
+    searches: PropTypes.arrayOf(PropTypes.shape({
+      slug: PropTypes.string.isRequired,
+      searchParameters: PropTypes.string.isRequired,
+      searchQuery: PropTypes.string.isRequired,
+      target: PropTypes.array
+    })).isRequired
+  })
+}
+
+const configTemplate = () => (
+  `
 youtube: {
+  // Setting a default target means it can be omitted in subscriptions and searches.
+  defaults: {
+    target: [[/* server, channel */]]
+  },
   // This task retrieves new videos through a subscriptions XML file.
   // To get your latest subscriptions XML files, you need to export them.
   // Subscription manager: <https://www.youtube.com/subscription_manager>
@@ -32,6 +57,10 @@ youtube: {
     }
   ]
 }
-  `
-  return { obj: obj.trim() }
+  `.trim()
+)
+
+module.exports = {
+  configTemplate,
+  configValidator
 }
