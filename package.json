@@ -1,6 +1,6 @@
 {
-  "_calypso_commit_url": "https://github.com/msikma/calypso/commit/",
-  "name": "calypso-bot",
+  "_callisto_commit_url": "https://github.com/msikma/callisto/commit/",
+  "name": "callisto-bot",
   "version": "1.7.3",
   "description": "A simple Discord bot that pulls info and posts periodic updates",
   "private": true,
@@ -8,15 +8,15 @@
     "packages/*",
     "tasks/*"
   ],
-  "homepage": "https://github.com/msikma/calypso",
+  "homepage": "https://github.com/msikma/callisto",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/msikma/calypso.git"
+    "url": "git+https://github.com/msikma/callisto.git"
   },
   "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "MIT",
   "bin": {
-    "calypso.js": "./bin/calypso.js"
+    "callisto": "./bin/callisto.js"
   },
   "engines": {
     "node": ">=10.0.0"
@@ -25,18 +25,7 @@
     "node 10"
   ],
   "devDependencies": {
-    "babel-eslint": "^7.2.3",
-    "babel-plugin-transform-class-properties": "^6.1.0",
-    "babel-plugin-transform-object-rest-spread": "^6.1.0",
-    "babel-polyfill": "^6.1.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-register": "^6.1.0",
-    "eslint": "^4.4.1",
-    "eslint-config-airbnb": "^15.1.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^5.1.0",
-    "eslint-plugin-react": "^7.2.0"
+    "eslint": "^4.4.1"
   },
   "optionalDependencies": {
     "erlpack": "^0.1.2",
