@@ -1,7 +1,18 @@
 // Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
 // © MIT license
 
-const { taskSearchVideos, taskSubVideos } = require('./actions')
+const { runSearchTask, runSubTask } = require('./actions')
+
+/** Searches for new videos from search results. */
+const taskSearchVideos = (taskConfig, discordClient, user) => (
+  taskConfig.searches.map(async taskData => runSearchTask(taskData, taskConfig))
+)
+
+/** Searches for new videos from subscriptions. */
+const taskSubVideos = (taskConfig) => (
+  taskConfig.subscriptions.map(async taskData => runSubTask(taskData, taskConfig))
+  // TODO
+)
 
 const taskInfo = {
   id: 'youtube',
