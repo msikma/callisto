@@ -9,7 +9,7 @@ import { requestURL } from 'callisto-request'
 import { cacheItems, removeCached } from 'callisto-cache'
 import { rssParse, getExactDuration, wrapInJSCode, objectInspect } from 'callisto-misc'
 import { videoURL, getVideoExtendedInfo, getPageInitialData, getBestThumbnail } from './util'
-import { id } from './index'
+import { id } from '../index'
 
 // Produces a search URL for a given query.
 const searchURL = (params, query) => (

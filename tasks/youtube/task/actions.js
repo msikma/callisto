@@ -9,7 +9,7 @@ const { addDefaults, wrapStack } = require('callisto-util')
 
 const { findSubVideos, findSearchVideos } = require('./search')
 const { readSubFile } = require('./util')
-const { taskInfo } = require('./index')
+const { taskInfo } = require('../index')
 
 const log = taskLogger(taskInfo)
 

@@ -4,7 +4,7 @@
 const { RichEmbed } = require('discord.js')
 const { basename } = require('path')
 
-const { taskInfo } = require('./index')
+const { taskInfo } = require('../index')
 
 /**
  * Returns a RichEmbed describing a new found item.

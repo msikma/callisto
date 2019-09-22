@@ -1,7 +1,7 @@
 // Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
 // © MIT license
 
-const { runSearchTask, runSubTask } = require('./actions')
+const { runSearchTask, runSubTask } = require('./task/actions')
 
 /** Searches for new videos from search results. */
 const taskSearchVideos = (taskConfig, discordClient, user) => (

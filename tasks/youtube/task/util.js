@@ -9,7 +9,7 @@ import { getTaskLogger } from 'callisto-core/logging'
 import { findScriptData } from 'callisto-misc'
 import { config } from 'callisto-misc/resources'
 import { requestURL } from 'callisto-request'
-import { id } from './index'
+import { id } from '../index'
 
 const parser = new xml2js.Parser()
 
