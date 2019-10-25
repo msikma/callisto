@@ -1,0 +1,13 @@
+{
+  "name": "callisto-cli",
+  "version": "1.7.3",
+  "private": true,
+  "main": "index.js",
+  "author": "Michiel Sikma <michiel@sikma.org>",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "dada-cli-tools": "^0.0.8",
+    "callisto-core": "^1.0.0"
+  }
+}
