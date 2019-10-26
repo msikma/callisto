@@ -11,6 +11,7 @@ const initRuntime$ = async (cliArgs, runtimeData) => {
   runtime.pkgData = runtimeData.pkgData
   runtime.baseDir = runtimeData.baseDir
   runtime.cliArgs = cliArgs
+  runtime.dev.noPost = cliArgs.devNoop
 }
 
 module.exports = {

@@ -47,7 +47,7 @@ Callisto documentation:     <${pkgData.homepage}>
 
 Create a new config file with:
 
-  callisto.js --new-config <path>
+  callisto.js --new-config --config-path <path>
 
 The default location for config files is in ~/.config/callisto; the cache
 file is located in ~/.cache/callisto, and will be created on first run.
