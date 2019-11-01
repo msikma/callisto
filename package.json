@@ -1,6 +1,6 @@
 {
   "_callisto_commit_url": "https://github.com/msikma/callisto/commit/",
-  "name": "callisto-bot",
+  "name": "callisto",
   "version": "1.7.3",
   "description": "A simple Discord bot that pulls info and posts periodic updates",
   "private": true,
@@ -16,7 +16,7 @@
   "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "MIT",
   "bin": {
-    "callisto": "./bin/callisto.js"
+    "callisto.js": "./bin/callisto.js"
   },
   "engines": {
     "node": ">=10.0.0"
