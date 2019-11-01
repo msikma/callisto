@@ -1,19 +1,12 @@
-/**
- * Calypso - calypso-core <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-core <https://github.com/msikma/callisto>
+// © MIT license
 
-import { data, initResources } from 'callisto-misc/resources'
-import logger, { configureLogger, printLogSize } from 'callisto-logging'
-import { dbInitOrExit } from 'callisto-cache'
-
-import { checkConfigOrExit } from './actions'
-import { shutdown } from './shutdown'
-import { discordInitOrExit } from './discord'
-import { checkVersion, bindEmitHandlers, catchAllExceptions } from './logging'
-import { startQueueLoop } from './queue'
-import { startRequestQueue } from 'callisto-request'
-
+const initRuntime$ = require('./init/runtime')
+const initConfig$ = require('./init/config')
+const initCache$ = require('./init/cache')
+const initTasks$ = require('./init/tasks')
+const initCallisto$ = require('./init/callisto')
+const initDiscord$ = require('./init/discord')
 const runtime = require('./state')
 const tasks = require('./tasks')
 
@@ -36,22 +29,22 @@ const initDiscordConnection$ = async (noPost = false) => {
  * to be terminated. Any function whose name ends with $ will exit on error.
  */
 const runBot$ = async (cliArgs, runtimeData) => {
-  const { pathCache, pathConfig, logLevel, devTask, devNoop = false } = cliArgs
+  const { pathCache, pathConfig, logLevel, devTask, devNoop } = cliArgs
 
   await initRuntime$(cliArgs, runtimeData)  // Stores invocation arguments and runtime environment.
   await initConfig$(pathConfig)             // Read and parse config file.
-  await initLogFiles$(pathCache, logLevel)  // Make sure we can write logs.
   await initCache$(pathCache)               // Initializes the cache database.
+  //
   await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
   await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
   await initDiscord$(devNoop)               // Logs in on Discord.
 
   // The bot is now running its tasks and connected to Discord.
   // Print feedback to let the user know how to exit.
-  log(`callisto ${data.pkg.version}`)
+  log(`callisto ${runtime.pkgData.version}`)
   log(`Press CTRL+C to exit.`)
+  process.exit(0)
 }
-
 
 module.exports = {
   runBot$,

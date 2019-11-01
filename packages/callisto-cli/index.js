@@ -50,7 +50,7 @@ Create a new config file with:
   callisto.js --new-config
 
 The default location for config files is in ~/.config/callisto; the cache
-file is located in ~/.cache/callisto, and will be created on first run.
+file is located in ~/.cache/callisto and will be created on first run.
 `
   ),
   description: ensurePeriod(pkgData.description),
@@ -63,11 +63,11 @@ const cacheDir = resolveTilde('~/.cache/callisto')
 
 parser.addArgument('--config-path', { help: 'Path to the config file.', metavar: 'PATH', dest: 'pathConfig', defaultValue: `${configDir}/config.js` })
 parser.addArgument('--check-config', { action: 'storeTrue', help: 'Verifies whether the config file is correct.', dest: 'checkConfig' })
-parser.addArgument('--cache-path', { help: 'Path to the cache and logs directory.', metavar: 'PATH', dest: 'pathCache', defaultValue: `${cacheDir}/` })
+parser.addArgument('--cache-path', { help: 'Path to the cache directory.', metavar: 'PATH', dest: 'pathCache', defaultValue: `${cacheDir}/` })
 parser.addArgument('--check-cache', { action: 'storeTrue', help: 'Verifies whether the cache database is intact.', dest: 'checkCache' })
 
-parser.addArgument('--new-cache', { action: 'storeTrue', help: 'Creates a new, empty cache database.', metavar: 'PATH', dest: 'newCache' })
 parser.addArgument('--new-config', { action: 'storeTrue', help: 'Creates a config file with standard values.', metavar: 'PATH', dest: 'newConfig' })
+parser.addArgument('--new-cache', { action: 'storeTrue', help: 'Creates a new, empty cache database.', metavar: 'PATH', dest: 'newCache' })
 
 parser.addArgument('--log', { help: `Sets console logging level ("${logDefaultLevel}" by default). Choices: {${logLevels.join(',')}}.`, dest: 'logLevel', choices: logLevels, metavar: 'LEVEL', defaultValue: 'info' })
 parser.addArgument('--dev-task', { help: 'Runs the bot with a single task only for testing.', metavar: 'TASK', dest: 'devTask' })
@@ -77,7 +77,7 @@ parser.addArgument('--dev-list-tasks', { help: 'Lists supported tasks in Markdow
 // Parse input. If usage is incorrect, the program will exit and display an error.
 const parsed = { ...parser.parseArgs() }
 
-// Run either the requested task (e.g. 'checkConfig') or the bot.
+// Run either the requested task (e.g. 'checkConfig') or the bot's main program.
 const core = require('callisto-core')
 const tasks = ['checkConfig', 'checkCache', 'newConfig', 'newCache', 'listTasks']
 const task = Object.entries(parsed).find(n => ~tasks.indexOf(n[0]) && n[1])

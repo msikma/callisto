@@ -9,31 +9,23 @@ const { readJSON } = require('dada-cli-tools/util/read')
 const { checkConfigProps } = require('../lib/config')
 const runtime = require('../state')
 
-/** Exits the program if there's something wrong with the config syntax. */
+/** Exits the program if there's something wrong with the config file. */
 const exitConfig = (prog, error, path, valResults) => {
-  logErrorFatal(`${progName()}: error: ${error}`)
+  logErrorFatal(`${prog}: error: ${error}`)
   if (valResults) {
     // Contains specific validation result errors.
     // valResults
   }
-  logError(`Ensure a valid config file is available at this location: ${configPath}`)
-  logError(`You can generate one: ${progName()} --new-config`)
+  logError(`Ensure a valid config file is available at this location: ${path}`)
+  logError(`You can generate one: ${prog} --new-config`)
   die()
 }
 
 /**
- * Checks the config data for whether it's correct for a specific task.
- */
-const checkTaskConfig$ = async (taskName) => {
-  logWarn('Not implemented yet: checkTaskConfig$()')
-  const configSyntax = checkConfigProps()
-  return {
-    
-  }
-}
-
-/**
  * Reads and checks the config file.
+ * 
+ * If something is wrong, this exits the program. If all goes well, the runtime
+ * state object will have 'config' set to the config file's data.
  */
 const initConfig$ = async (pathConfig) => {
   const prog = progName()
@@ -51,7 +43,4 @@ const initConfig$ = async (pathConfig) => {
   }
 }
 
-module.exports = {
-  initConfig$,
-  checkTaskConfig$
-}
+module.exports = initConfig$

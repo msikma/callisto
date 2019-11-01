@@ -4,7 +4,10 @@
 const runtime = require('../state')
 
 /**
- * Stores invocation and package data for later use.
+ * Prepares the program state object.
+ * 
+ * This just does some basic housekeeping: storing the invocation arguments
+ * and package data for later use.
  */
 const initRuntime$ = async (cliArgs, runtimeData) => {
   // The package data must be retrieved beforehand (normally the CLI interface does this).
@@ -14,6 +17,4 @@ const initRuntime$ = async (cliArgs, runtimeData) => {
   runtime.dev.noPost = cliArgs.devNoop
 }
 
-module.exports = {
-  initRuntime$
-}
+module.exports = initRuntime$
