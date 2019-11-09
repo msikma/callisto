@@ -1,25 +1,10 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { access } = require('fs').promises
-const { logErrorFatal, logWarn, logError, die } = require('dada-cli-tools/log')
-const { progName } = require('dada-cli-tools/util/fs')
-const { readJSON } = require('dada-cli-tools/util/read')
-
-const { checkConfigProps } = require('../lib/config')
+const { logFatal, logError, die } = require('dada-cli-tools/log')
+const { progName, canAccess } = require('dada-cli-tools/util/fs')
+const { readConfig } = require('../lib/config')
 const runtime = require('../state')
-
-/** Exits the program if there's something wrong with the config file. */
-const exitConfig = (prog, error, path, valResults) => {
-  logErrorFatal(`${prog}: error: ${error}`)
-  if (valResults) {
-    // Contains specific validation result errors.
-    // valResults
-  }
-  logError(`Ensure a valid config file is available at this location: ${path}`)
-  logError(`You can generate one: ${prog} --new-config`)
-  die()
-}
 
 /**
  * Reads and checks the config file.
@@ -28,19 +13,30 @@ const exitConfig = (prog, error, path, valResults) => {
  * state object will have 'config' set to the config file's data.
  */
 const initConfig$ = async (pathConfig) => {
-  const prog = progName()
-  if (!(await access(pathConfig))) {
-    return exitConfig(prog, 'could not find the config file.', pathConfig)
+  if (!(await canAccess(pathConfig))) {
+    return exitConfig('could not find the config file.', pathConfig)
   }
 
   try {
     // Retrieve config data and replace magic strings (like <%baseDir%>).
-    const data = await readJSON(pathConfig)
-    runtime.config = replaceMagic(data, baseDir, configDir)
+    runtime.config = readConfig(pathConfig)
   }
   catch (err) {
-    return exitConfig(prog, 'could not parse config file - run config check.', pathConfig)
+    return exitConfig('could not parse config file - run config check.', pathConfig)
   }
+}
+
+/** Exits the program if there's something wrong with the config file. */
+const exitConfig = (error, path, valResults) => {
+  const prog = progName()
+  logFatal(`${prog}: error: ${error}`)
+  if (valResults) {
+    // Contains specific validation result errors.
+    // valResults
+  }
+  logError('Ensure a valid config file is available at this location:', path)
+  logError(`You can generate one: ${prog} --new-config`)
+  die()
 }
 
 module.exports = initConfig$

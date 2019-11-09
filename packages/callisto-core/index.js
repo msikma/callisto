@@ -1,6 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
+const { log, logNotice } = require('dada-cli-tools/log')
 const initRuntime$ = require('./init/runtime')
 const initConfig$ = require('./init/config')
 const initCache$ = require('./init/cache')
@@ -10,7 +11,8 @@ const initDiscord$ = require('./init/discord')
 const runtime = require('./state')
 const tasks = require('./tasks')
 
-
+const { createNewDb } = require('./lib/cache')
+const { _openDb } = require('./lib/cache/sqlite')
 
 const initDiscordConnection$ = async (noPost = false) => {
   // Bind warn/error handling routines.
@@ -31,17 +33,18 @@ const initDiscordConnection$ = async (noPost = false) => {
 const runBot$ = async (cliArgs, runtimeData) => {
   const { pathCache, pathConfig, logLevel, devTask, devNoop } = cliArgs
 
+  
   await initRuntime$(cliArgs, runtimeData)  // Stores invocation arguments and runtime environment.
   await initConfig$(pathConfig)             // Read and parse config file.
   await initCache$(pathCache)               // Initializes the cache database.
   //
-  await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
+  /*await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
   await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
   await initDiscord$(devNoop)               // Logs in on Discord.
-
+*/
   // The bot is now running its tasks and connected to Discord.
   // Print feedback to let the user know how to exit.
-  log(`callisto ${runtime.pkgData.version}`)
+  logNotice(`callisto ${runtime.pkgData.version}`)
   log(`Press CTRL+C to exit.`)
   process.exit(0)
 }

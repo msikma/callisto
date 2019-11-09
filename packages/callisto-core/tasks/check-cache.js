@@ -2,7 +2,7 @@
 // © MIT license
 
 const { logDebug, logWarn, log } = require('dada-cli-tools/log')
-const { checkConfigSyntax } = require('../lib/config')
+const { checkCacheDb } = require('../lib/cache')
 
 /**
  * Checks whether a given cache file is in proper order.
@@ -10,10 +10,10 @@ const { checkConfigSyntax } = require('../lib/config')
  * Returns a value to be used as exit code.
  */
 const checkCache = ({ pathConfig }) => {
-  logDebug(`Checking config file: ${pathConfig}`)
+  logDebug(`Checking cache file: ${pathConfig}`)
 
-  logWarn('Not implemented yet: checkConfigSyntax()')
-  const result = checkConfigSyntax(pathConfig)
+  logWarn('Not implemented yet: checkCacheDb()')
+  const result = checkCacheDb(pathConfig)
   if (result.success) {
     log(`Config file syntax OK: ${pathConfig}`)
   }

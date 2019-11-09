@@ -7,8 +7,11 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "dada-cli-tools": "^0.0.14",
+    "dada-cli-tools": "^0.0.19",
+    "lodash": "^4.17.10",
     "prop-types": "^15.2.0",
-    "prop-types-checker": "^1.0.0"
+    "prop-types-checker": "^1.0.0",
+    "sqlite": "^3.0.0",
+    "sqlite3": "^4.0.0"
   }
 }

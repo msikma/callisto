@@ -1,7 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { logErrorFatal, logWarn, logError, die } = require('dada-cli-tools/log')
+const { logFatal, logWarn, logError, die } = require('dada-cli-tools/log')
 const runtime = require('../state')
 
 /** Returns whether we are shutting down. */
@@ -41,7 +41,7 @@ const shutdown = async () => {
   }
   catch (err) {
     // Something went wrong while shutting down. Ensure the process exits.
-    logErrorFatal('todo: something went wrong while shutting down')
+    logFatal('todo: something went wrong while shutting down')
     console.log(err)
     die()
   }

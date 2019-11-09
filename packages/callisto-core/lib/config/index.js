@@ -4,25 +4,45 @@
 const checkPropTypes = require('prop-types-checker')
 const { readJSON } = require('dada-cli-tools/util/read')
 
-const { configTpl, configModel } = require('./config-tpl')
+const { replaceMagic } = require('./magic')
+const { configTpl, configModel } = require('./tpl')
+const runtime = require('../../state')
+
+/**
+ * Reads the config file and returns its data, with magic strings replaced.
+ */
+const readConfig = configPath => {
+  const { baseDir, cacheDir, configDir } = runtime
+  // Note: config file is .js.
+  const data = require(configPath)
+  return replaceMagic(data, baseDir, configDir, cacheDir)
+}
 
 /**
  * Loads a config file's data and validates its structure.
  */
-const validateConfigFile = async configPath => {
-  const data = await readJSON(configPath)
-  const main = checkMainConfig(data)
+const validateConfigFile = configPath => {
+  const data = readConfig(configPath)
+  return _validateMainConfig(data)
 }
 
 /**
  * Checks config data to see if it's base structure is valid.
  * This does NOT check the tasks' config.
  */
-const checkMainConfig = (configData) => {
-  logWarn('Not implemented yet: checkMainConfig()')
-  const configSyntax = checkPropTypes()
-  return {
-    success: true
+const _validateMainConfig = (configData) => {
+  logWarn('Not implemented yet: _validateMainConfig()')
+  try {
+    const configSyntax = checkPropTypes(configModel, configData.SYSTEM)
+    return {
+      success: true
+    }
+  }
+  catch (err) {
+    return {
+      err,
+      success: false
+    }
   }
 }
 
@@ -30,8 +50,8 @@ const checkMainConfig = (configData) => {
  * Checks the config data for whether it's correct for a specific task.
  * TODO
  */
-const checkTaskConfig = async (taskName) => {
-  logWarn('Not implemented yet: checkTaskConfig()')
+const _validateTaskConfig = async (taskName) => {
+  logWarn('Not implemented yet: _validateTaskConfig()')
   const configSyntax = checkPropTypes()
   return {
     success: true
@@ -50,8 +70,7 @@ const writeNewConfig = (configTemplates) => {
 }
 
 module.exports = {
+  readConfig,
   validateConfigFile,
-  checkMainConfig,
-  checkTaskConfig,
   writeNewConfig
 }

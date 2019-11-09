@@ -63,7 +63,7 @@ const cacheDir = resolveTilde('~/.cache/callisto')
 
 parser.addArgument('--config-path', { help: 'Path to the config file.', metavar: 'PATH', dest: 'pathConfig', defaultValue: `${configDir}/config.js` })
 parser.addArgument('--check-config', { action: 'storeTrue', help: 'Verifies whether the config file is correct.', dest: 'checkConfig' })
-parser.addArgument('--cache-path', { help: 'Path to the cache directory.', metavar: 'PATH', dest: 'pathCache', defaultValue: `${cacheDir}/` })
+parser.addArgument('--cache-path', { help: 'Path to the cache directory.', metavar: 'PATH', dest: 'pathCache', defaultValue: `${cacheDir}` })
 parser.addArgument('--check-cache', { action: 'storeTrue', help: 'Verifies whether the cache database is intact.', dest: 'checkCache' })
 
 parser.addArgument('--new-config', { action: 'storeTrue', help: 'Creates a config file with standard values.', metavar: 'PATH', dest: 'newConfig' })

@@ -4,6 +4,7 @@
 /** Runtime state. */
 const runtime = {
   baseDir: null,    // Base dir of the application code
+  cacheDir: null,   // Cache directory (e.g. for the sqlite database)
   bot: null,        // Ref to the Discord bot user
   client: null,     // Ref to the Discord client interface
   cliArgs: null,    // Settings passed via CLI
