@@ -29,7 +29,7 @@ const { readJSONSync } = require('dada-cli-tools/util/read')
 // which can be found in callisto-core/tasks, or starts up the main application.
 // If an invalid set of arguments is passed, usage information will be displayed.
 
-// Path to the application code, i.e. where the top level package.json resides.
+// Path to the application code, i.e. where the top level package.json resides. No trailing slash.
 const pkgPath = resolve(`${__dirname}/../../`)
 const pkgData = readJSONSync(`${pkgPath}/package.json`)
 
@@ -84,7 +84,7 @@ const script = Object.entries(parsed).find(n => ~scripts.indexOf(n[0]) && n[1])
 
 if (script) {
   (async () => {
-    const exitCode = await core.scripts[`${script[0]}$`](parsed)
+    const exitCode = await core.scripts[`${script[0]}$`](parsed, { pkgData, baseDir: pkgPath })
     process.exit(exitCode)
   })()
   return
