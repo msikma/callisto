@@ -2,6 +2,7 @@
 // © MIT license
 
 const { log, logNotice } = require('dada-cli-tools/log')
+
 const initRuntime$ = require('./init/runtime')
 const initConfig$ = require('./init/config')
 const initCache$ = require('./init/cache')
@@ -37,9 +38,8 @@ const runBot$ = async (cliArgs, runtimeData) => {
   await initRuntime$(cliArgs, runtimeData)  // Stores invocation arguments and runtime environment.
   await initConfig$(pathConfig)             // Read and parse config file.
   await initCache$(pathCache)               // Initializes the cache database.
-  //
-  /*await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
-  await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
+  await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
+  /*await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
   await initDiscord$(devNoop)               // Logs in on Discord.
 */
   // The bot is now running its tasks and connected to Discord.

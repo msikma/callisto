@@ -7,6 +7,13 @@ const fs = require('fs')
 const runtime = require('../state')
 
 /**
+ * Initializes tasks (loads the code) and returns task data.
+ */
+const loadTasks = async (tasksData, devTask = null) => {
+  return []
+}
+
+/**
  * Generates a list of all available tasks so that they can be initialized.
  */
 const getTasksData = async (tasksDir = runtime.tasksDir) => {
