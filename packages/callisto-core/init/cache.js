@@ -2,11 +2,9 @@
 // © MIT license
 
 const { logFatal, logInfo, logError, die } = require('dada-cli-tools/log')
-const { canAccess, progName, ensureDirBool } = require('dada-cli-tools/util/fs')
+const { progName, ensureDirBool } = require('dada-cli-tools/util/fs')
 
-const { getCachePath, openDb } = require('../lib/cache')
-
-
+const { cacheDbFilePath, openDb } = require('../lib/cache')
 
 /**
  * Initializes the cache directory and database.
@@ -20,30 +18,30 @@ const { getCachePath, openDb } = require('../lib/cache')
  * a new file will be created.
  */
 const initCache$ = async (pathCacheDir, createNew = true) => {
-  const pathCache = getCachePath(pathCacheDir)
+  const pathCacheFile = cacheDbFilePath(pathCacheDir)
   const pathExists = await ensureDirBool(pathCacheDir)
   if (!pathExists) {
-    return exitCache('could not find cache base directory, and failed to create it.', pathCacheDir)
+    return exitError('could not find cache base directory, and failed to create it.', null, null, pathCacheDir)
   }
   
-  const result = await openDb(pathCache, createNew)
+  const result = await openDb(pathCacheFile, createNew)
   if (!result.success) {
     if (!result.exists && !result.create) {
-      return exitCache('could not find cache database (and not creating a new file).', pathCache)
+      return exitError('could not find cache database (and not creating a new file).', pathCacheFile)
     }
     if (!result.exists && result.create) {
-      return exitCache('could not find cache database, and failed to create a new file.', pathCache)
+      return exitError('could not find cache database, and failed to create a new file.', pathCacheFile)
     }
     if (result.exists && !result.access) {
-      return exitCache('could open cache database - insufficient rights to read and write to file.', pathCache)
+      return exitError('could not open cache database - insufficient rights to read and write to file.', pathCacheFile)
     }
-    if (result.status.couldNotOpen) {
-      return exitCache(`could not open cache database file (${result.error.code})${result.status.maybeCorrupted ? ' - the file may be corrupted' : ''}.`, pathCache, result.error)
+    else {
+      return exitError(`could not open cache database (${result.error && result.error.code})${result.status.maybeCorrupted ? ' - the file may be corrupted' : ''}.`, pathCacheFile, result.error)
     }
   }
   if (result.success) {
     if (result.status.createdNew) {
-      logInfo('Created new database file:', pathCache)
+      logInfo('Created new database file:', pathCacheFile)
     }
 
     return true
@@ -51,11 +49,12 @@ const initCache$ = async (pathCacheDir, createNew = true) => {
 }
 
 /** Exits the program if there's something wrong with the cache file. */
-const exitCache = (error, path, err) => {
+const exitError = (error, file, err, baseDir) => {
   const prog = progName()
   logFatal(`${prog}: error: ${error}`)
   if (err) logError(err)
-  logError(`Used the following file: ${path}`)
+  if (file) logError(`Used the following file:`, file)
+  if (baseDir) logError(`Used the following base directory:`, baseDir)
   logError(`You can create a new database file: ${prog} --new-cache`)
   die()
 }

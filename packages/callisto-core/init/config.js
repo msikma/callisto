@@ -14,20 +14,20 @@ const runtime = require('../state')
  */
 const initConfig$ = async (pathConfig) => {
   if (!(await canAccess(pathConfig))) {
-    return exitConfig('could not find the config file.', pathConfig)
+    return exitError('could not find the config file.', pathConfig)
   }
 
-  try {
-    // Retrieve config data and replace magic strings (like <%baseDir%>).
-    runtime.config = readConfig(pathConfig)
+  // Retrieve config data and replace magic strings (like <%baseDir%>).
+  const config = readConfig(pathConfig)
+  if (!config.success) {
+    console.log(config)
+    return exitError('could not parse config file - run config check.', pathConfig)
   }
-  catch (err) {
-    return exitConfig('could not parse config file - run config check.', pathConfig)
-  }
+  runtime.config = config.data
 }
 
 /** Exits the program if there's something wrong with the config file. */
-const exitConfig = (error, path, valResults) => {
+const exitError = (error, path, valResults) => {
   const prog = progName()
   logFatal(`${prog}: error: ${error}`)
   if (valResults) {

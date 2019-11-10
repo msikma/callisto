@@ -83,8 +83,11 @@ const tasks = ['checkConfig', 'checkCache', 'newConfig', 'newCache', 'listTasks'
 const task = Object.entries(parsed).find(n => ~tasks.indexOf(n[0]) && n[1])
 
 if (task) {
-  const exitCode = core.tasks[task[0]](parsed)
-  process.exit(exitCode)
+  (async () => {
+    const exitCode = await core.tasks[`${task[0]}$`](parsed)
+    process.exit(exitCode)
+  })()
+  return
 }
 
 // Start the bot.
