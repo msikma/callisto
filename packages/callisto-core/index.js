@@ -9,7 +9,7 @@ const initTasks$ = require('./init/tasks')
 const initCallisto$ = require('./init/callisto')
 const initDiscord$ = require('./init/discord')
 const runtime = require('./state')
-const tasks = require('./tasks')
+const scripts = require('./scripts')
 
 const { createNewDb } = require('./lib/cache')
 const { _openDb } = require('./lib/cache/sqlite')
@@ -51,5 +51,5 @@ const runBot$ = async (cliArgs, runtimeData) => {
 
 module.exports = {
   runBot$,
-  tasks
+  scripts
 }

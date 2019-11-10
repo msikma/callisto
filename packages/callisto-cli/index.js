@@ -79,12 +79,12 @@ const parsed = { ...parser.parseArgs() }
 
 // Run either the requested task (e.g. 'checkConfig') or the bot's main program.
 const core = require('callisto-core')
-const tasks = ['checkConfig', 'checkCache', 'newConfig', 'newCache', 'listTasks']
-const task = Object.entries(parsed).find(n => ~tasks.indexOf(n[0]) && n[1])
+const scripts = ['checkConfig', 'checkCache', 'newConfig', 'newCache', 'listTasks']
+const script = Object.entries(parsed).find(n => ~scripts.indexOf(n[0]) && n[1])
 
-if (task) {
+if (script) {
   (async () => {
-    const exitCode = await core.tasks[`${task[0]}$`](parsed)
+    const exitCode = await core.scripts[`${script[0]}$`](parsed)
     process.exit(exitCode)
   })()
   return
