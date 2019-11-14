@@ -11,6 +11,4 @@ const initCallisto$ = async () => {
   process.on('SIGINT', shutdown)
 }
 
-module.exports = {
-  initCallisto$
-}
+module.exports = initCallisto$

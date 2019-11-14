@@ -6,12 +6,10 @@ const runtime = require('../state')
 
 const initTasks$ = async (devTask) => {
   const { tasksDir } = runtime
-  const tasksData = await getTasksData(tasksDir)
-  const tasks = await loadTasks(tasksDara, devTask)
-  // TODO
+  const tasksData = getTasksData(tasksDir)
+  const tasks = loadTasks(tasksData.installedTasks, devTask)
+  runtime.tasks = tasks;
   return
 }
 
-module.exports = {
-  initTasks$
-}
+module.exports = initTasks$

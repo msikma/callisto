@@ -16,6 +16,7 @@ const runtime = {
   dev: {
     noPost: true    // Posting is replaced by a no-op
   },
+  tasks: null,      // Parsed list of tasks that the bot is able to run
   pkgData: null,    // Application code package data
   taskData: null    // Code and metadata for all registered tasks
 }

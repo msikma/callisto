@@ -4,6 +4,4 @@
 const initDiscord$ = async () => {
 }
 
-module.exports = {
-  initDiscord$
-}
+module.exports = initDiscord$

@@ -34,7 +34,6 @@ const initDiscordConnection$ = async (noPost = false) => {
 const runBot$ = async (cliArgs, runtimeData) => {
   const { pathCache, pathConfig, logLevel, devTask, devNoop } = cliArgs
 
-  
   await initRuntime$(cliArgs, runtimeData)  // Stores invocation arguments and runtime environment.
   await initConfig$(pathConfig)             // Read and parse config file.
   await initCache$(pathCache)               // Initializes the cache database.

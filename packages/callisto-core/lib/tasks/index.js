@@ -4,19 +4,46 @@
 const path = require('path')
 const fs = require('fs')
 
-const runtime = require('../state')
+const runtime = require('../../state')
 
 /**
  * Initializes tasks (loads the code) and returns task data.
+ * If a dev task is set, only that task will be loaded.
  */
-const loadTasks = async (tasksData, devTask = null) => {
-  return []
+const loadTasks = (tasksData, devTask = null) => {
+  return tasksData
+    .map(task => (devTask && task.name !== devTask) ? null : loadTask(task))
+    .filter(task => task)
+}
+
+/**
+ * Returns the data for a single task.
+ */
+const loadTask = (taskData) => {
+  let mainData = null
+  let isValidTask = false
+  let error = null
+
+  try {
+    mainData = require(taskData.main)
+    isValidTask = Boolean(mainData && mainData.taskInfo && mainData.taskActions)
+  }
+  catch (err) {
+    error = err
+  }
+
+  return {
+    success: isValidTask,
+    error,
+    taskMeta: taskData,
+    taskMain: mainData
+  }
 }
 
 /**
  * Generates a list of all available tasks so that they can be initialized.
  */
-const getTasksData = async (tasksDir = runtime.tasksDir) => {
+const getTasksData = (tasksDir = runtime.tasksDir) => {
   const installedTasks = _listTaskDirs(tasksDir).map(taskName => {
     const taskDir = `${tasksDir}/${taskName}`
     const packageData = require(`${taskDir}/package.json`)
@@ -49,5 +76,6 @@ const _listTaskDirs = (baseDir) => (
 )
 
 module.exports = {
+  loadTasks,
   getTasksData
 }
