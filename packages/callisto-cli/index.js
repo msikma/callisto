@@ -5,8 +5,7 @@ const { resolve } = require('path')
 const { makeArgParser } = require('dada-cli-tools/argparse')
 const { logLevels, logDefaultLevel } = require('dada-cli-tools/log')
 const { ensurePeriod } = require('dada-cli-tools/util/text')
-const { resolveTilde } = require('dada-cli-tools/util/fs')
-const { readJSONSync } = require('dada-cli-tools/util/read')
+const { resolveTilde, readJSONSync } = require('dada-cli-tools/util/fs')
 
 // Command line interface for Callisto.
 //

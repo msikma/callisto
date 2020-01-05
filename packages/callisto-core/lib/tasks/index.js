@@ -35,8 +35,8 @@ const loadTask = (taskData) => {
   return {
     success: isValidTask,
     error,
-    taskMeta: taskData,
-    taskMain: mainData
+    meta: taskData,
+    data: mainData
   }
 }
 
@@ -71,6 +71,7 @@ const _listTaskDirs = (baseDir) => (
   fs.readdirSync(baseDir)
     .filter(i =>
       fs.statSync(path.join(baseDir, i)).isDirectory() &&
+      i === 'youtube' &&
       fs.statSync(path.join(baseDir, i, 'package.json')).isFile()
     )
 )

@@ -1,6 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
+const { writeFileSync } = require('fs')
 const checkPropTypes = require('prop-types-checker')
 const { logWarn } = require('dada-cli-tools/log')
 const { fileExists } = require('dada-cli-tools/util/fs')
@@ -92,13 +93,25 @@ const _validateTaskConfig = async (taskName) => {
 /**
  * Generates a new config file and saves it to a given location.
  */
-const writeNewConfig = async configPath => {
-  const exists = await fileExists(configPath)
-  const templates = []
-  //const configContent = generateNewConfig(templates)
-  const configContent = 'test'
+const writeNewConfig = async (configPath, tasks) => {
+  let exists = await fileExists(configPath)
+  let success = false
+  let error = null
+
+  if (!exists) {
+    try {
+      const tplFns = tasks.map(task => task.data.config.template)
+      const configContent = generateNewConfig(tplFns)
+      writeFileSync(configPath, configContent)
+      success = await fileExists(configPath)
+    }
+    catch (err) {
+      error = err
+    }
+  }
   return {
-    success: false,
+    success,
+    error,
     exists
   }
 }
@@ -106,10 +119,10 @@ const writeNewConfig = async configPath => {
 /**
  * Generates a new config object based on all available tasks' config templates.
  */
-const generateNewConfig = (configTemplates) => {
+const generateNewConfig = tplFns => {
   const padding = '    '
-  const config = configTemplates.map(tpl => tpl.configTemplate).join(',\n')
-  const configPadded = `${padding}${config.replace(/\n/g, `\n${padding}`)}`
+  const configContent = tplFns.map(tplFn => tplFn()).join(',\n')
+  const configPadded = `${padding}${configContent.replace(/\n/g, `\n${padding}`)}`
   const mainTpl = configTpl(configPadded)
   return `${mainTpl.trim()}\n`
 }

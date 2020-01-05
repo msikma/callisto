@@ -1,7 +1,7 @@
-// Callisto - callisto-util <https://github.com/msikma/callisto>
+// Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-import vm from 'vm'
+const vm = require('vm')
 
 // Provides 'window' by default to be more compatible with common <script> contents.
 const DEFAULT_SANDBOX = { window: {} }

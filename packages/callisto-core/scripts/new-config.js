@@ -5,6 +5,7 @@ const { dirname } = require('path')
 const { logFatal, logDebug, logError } = require('dada-cli-tools/log')
 const { progName, ensureDirBool } = require('dada-cli-tools/util/fs')
 
+const { getTasksData, loadTasks } = require('../lib/tasks')
 const { writeNewConfig } = require('../lib/config')
 
 /**
@@ -12,7 +13,8 @@ const { writeNewConfig } = require('../lib/config')
  * 
  * Returns a number to be used as exit code.
  */
-const newConfig$ = async ({ pathConfig }) => {
+const newConfig$ = async ({ pathConfig }, { baseDir }) => {
+  const tasksDir = `${baseDir}/tasks`
   const pathConfigDir = dirname(pathConfig)
   
   logDebug(`Creating new config file: ${pathConfig}`)
@@ -22,7 +24,9 @@ const newConfig$ = async ({ pathConfig }) => {
     return exitError('could not find config base directory, and failed to create it.', null, null, pathConfigDir)
   }
 
-  const result = await writeNewConfig(pathConfig)
+  const tasksData = getTasksData(tasksDir)
+  const tasks = loadTasks(tasksData.installedTasks)
+  const result = await writeNewConfig(pathConfig, tasks)
   if (result.exists) {
     return exitError('could not create new config file - one already exists at the given path.', pathConfig)
   }

@@ -29,6 +29,10 @@ const configModel = {
 const configTpl = configPadded => (`
 // Calypso bot config file
 
+// Example server and channel IDs. Get these by right-clicking a server/channel and using 'Copy ID'.
+const SERVER = '415267835054690314'
+const CHANNEL = '415478825623211282'
+
 module.exports = {
   // App bot user token.
   CALYPSO_BOT_TOKEN: '',
@@ -41,12 +45,12 @@ module.exports = {
   // General settings for the core functionality of the bot.
   CALYPSO_SETTINGS: {
     // On what channels do we listen and respond to user input?
-    respond: [[/* server, channel */]],
+    respond: [[SERVER, CHANNEL]],
     // Calypso can log errors to Discord (aside from the standard log file).
     // Send log messages to these channels:
-    logChannels: [[/* server, channel */]],
+    logChannels: [[SERVER, CHANNEL]],
     // Log channels for important log messages:
-    logChannelsImportant: [[/* server, channel */]],
+    logChannelsImportant: [[SERVER, CHANNEL]],
     // Log messages of this severity and above are logged as rich embeds:
     // (Can be: debug, verbose, info, warn, error.)
     logLevel: 'info',
@@ -57,7 +61,7 @@ module.exports = {
   },
   // Task settings.
   CALYPSO_TASK_SETTINGS: {
-${configEmbedded}
+${configPadded}
   }
 }`)
 

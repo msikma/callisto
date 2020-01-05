@@ -12,9 +12,6 @@ const initDiscord$ = require('./init/discord')
 const runtime = require('./state')
 const scripts = require('./scripts')
 
-const { createNewDb } = require('./lib/cache')
-const { _openDb } = require('./lib/cache/sqlite')
-
 const initDiscordConnection$ = async (noPost = false) => {
   // Bind warn/error handling routines.
   //bindEmitHandlers(discord.client)

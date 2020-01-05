@@ -9,6 +9,9 @@ const initTasks$ = async (devTask) => {
   const tasksData = getTasksData(tasksDir)
   const tasks = loadTasks(tasksData.installedTasks, devTask)
   runtime.tasks = tasks;
+  console.log('====================')
+  console.log('====================')
+  console.log(tasks)
   return
 }
 

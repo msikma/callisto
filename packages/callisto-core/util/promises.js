@@ -1,4 +1,4 @@
-// Callisto - callisto-util <https://github.com/msikma/callisto>
+// Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
 /**
@@ -12,6 +12,17 @@ const promiseSerial = (tasks) => (
   ), Promise.resolve([]))
 )
 
+/**
+ * Promisified version of setInterval() for use with await.
+ * Use like: await wait(1000) to halt execution 1 second.
+ */
+const wait = (ms) => (
+  new Promise((resolve) => (
+    setInterval(() => resolve(), ms)
+  ))
+)
+
 module.exports = {
-  promiseSerial
+  promiseSerial,
+  wait
 }
