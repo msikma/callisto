@@ -56,13 +56,13 @@ const getSimpleDuration = (time) => (
 )
 
 /**
- * Simply returns a timestamp in the format '2018-05-23 01:09:21 +0200'.
+ * Returns a timestamp in the format '2018-05-23 01:09:21 +0200'.
  */
 const getFormattedTimestamp = (dateStr) => (
   moment(dateStr ? dateStr : undefined).format('Y-MM-DD HH:mm:ss ZZ')
 )
 /**
- * Simply returns a timestamp in the format '01:09:21 +0200'.
+ * Returns a timestamp in the format '01:09:21 +0200'.
  */
 const getFormattedTime = (dateStr) => (
   moment(dateStr ? dateStr : undefined).format('HH:mm:ss ZZ')

@@ -3,7 +3,7 @@
 
 const { resolve } = require('path')
 const { makeArgParser } = require('dada-cli-tools/argparse')
-const { logLevels, logDefaultLevel } = require('dada-cli-tools/log')
+const { logLevels, logDefaultLevel, setVerbosity } = require('dada-cli-tools/log')
 const { ensurePeriod } = require('dada-cli-tools/util/text')
 const { resolveTilde, readJSONSync } = require('dada-cli-tools/util/fs')
 
@@ -75,6 +75,9 @@ parser.addArgument('--dev-list-tasks', { help: 'Lists supported tasks in Markdow
 
 // Parse input. If usage is incorrect, the program will exit and display an error.
 const parsed = { ...parser.parseArgs() }
+
+// Set logging verbosity (for either the main program or a requested task).
+setVerbosity(parsed.logLevel)
 
 // Run either the requested task (e.g. 'checkConfig') or the bot's main program.
 const core = require('callisto-core')

@@ -2,6 +2,7 @@
 // © MIT license
 
 const { dirname } = require('path')
+const { cacheDbFilePath } = require('../lib/cache')
 const runtime = require('../state')
 
 /**
@@ -16,7 +17,9 @@ const initRuntime$ = async (cliArgs, runtimeData) => {
   runtime.baseDir = runtimeData.baseDir
   runtime.tasksDir = `${runtimeData.baseDir}/tasks`
   runtime.cacheDir = cliArgs.pathCache
+  runtime.cachePath = cacheDbFilePath(cliArgs.pathCache)
   runtime.configDir = dirname(cliArgs.pathConfig)
+  runtime.configPath = cliArgs.pathConfig
   runtime.cliArgs = cliArgs
   runtime.dev.noPost = cliArgs.devNoop
 }

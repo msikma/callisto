@@ -2,6 +2,7 @@
 // © MIT license
 
 const { writeFileSync } = require('fs')
+const { get } = require('lodash')
 const checkPropTypes = require('prop-types-checker')
 const { logWarn } = require('dada-cli-tools/log')
 const { fileExists } = require('dada-cli-tools/util/fs')
@@ -9,6 +10,14 @@ const { fileExists } = require('dada-cli-tools/util/fs')
 const { replaceMagic } = require('./magic')
 const { configTpl, configModel } = require('./tpl')
 const runtime = require('../../state')
+
+/**
+ * Returns the value of a config key.
+ */
+const getConfigKey = (key, ns = null, config = runtime.config) => {
+  const path = `${!ns || ns == null ? 'systemConfig' : `taskConfig.${ns}`}`
+  return get(config, `${path}.${key}`, null)
+}
 
 /**
  * Reads the contents of a config file.
@@ -128,6 +137,7 @@ const generateNewConfig = tplFns => {
 }
 
 module.exports = {
+  getConfigKey,
   readConfig,
   validateConfigFile,
   writeNewConfig

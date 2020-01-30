@@ -6,21 +6,11 @@ const { log, logNotice } = require('dada-cli-tools/log')
 const initRuntime$ = require('./init/runtime')
 const initConfig$ = require('./init/config')
 const initCache$ = require('./init/cache')
-const initTasks$ = require('./init/tasks')
-const initCallisto$ = require('./init/callisto')
+const initLogger$ = require('./init/logger')
 const initDiscord$ = require('./init/discord')
-const runtime = require('./state')
+const initCallisto$ = require('./init/callisto')
+const initTasks$ = require('./init/tasks')
 const scripts = require('./scripts')
-
-const initDiscordConnection$ = async (noPost = false) => {
-  // Bind warn/error handling routines.
-  //bindEmitHandlers(discord.client)
-  // Catch uncaught exceptions (this happens in very rare cases only).
-  //catchAllExceptions()
-}
-
-
-
 
 /**
  * Main entry point. Initializes the system, finds and runs tasks, and contacts Discord.
@@ -29,20 +19,21 @@ const initDiscordConnection$ = async (noPost = false) => {
  * to be terminated. Any function whose name ends with $ will exit on error.
  */
 const runBot$ = async (cliArgs, runtimeData) => {
-  const { pathCache, pathConfig, logLevel, devTask, devNoop } = cliArgs
+  const { pathCache, pathConfig, devTask } = cliArgs
+
+  logNotice(`callisto ${runtimeData.pkgData.version}`)
+  log(`Press CTRL+C to exit.\n`)
 
   await initRuntime$(cliArgs, runtimeData)  // Stores invocation arguments and runtime environment.
   await initConfig$(pathConfig)             // Read and parse config file.
-  await initCache$(pathCache)               // Initializes the cache database.
+  await initCache$(pathCache)               // Opens the cache database.
+  await initLogger$()                       // Initializes the system logger.
+  await initDiscord$()                      // Logs in on Discord.
+  await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
   await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
-  /*await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
-  await initDiscord$(devNoop)               // Logs in on Discord.
-*/
+
   // The bot is now running its tasks and connected to Discord.
-  // Print feedback to let the user know how to exit.
-  logNotice(`callisto ${runtime.pkgData.version}`)
-  log(`Press CTRL+C to exit.`)
-  process.exit(0)
+  log('Done initializing.')
 }
 
 module.exports = {

@@ -2,16 +2,21 @@
 // © MIT license
 
 const { logFatal, logWarn, logError, die } = require('dada-cli-tools/log')
+const { wait } = require('dada-cli-tools/util/misc')
+const { progName } = require('dada-cli-tools/util/fs')
 const runtime = require('../state')
+
+// Amount of time to wait when checking if we can shut down.
+const queueEmptyWait = 1000
 
 /** Returns whether we are shutting down. */
 const isShuttingDown = () => (
-  runtime.state.willTerminate
+  runtime.state.isShuttingDown
 )
 
 /** Stores whether the bot is currently in state of shutting down. */
-const setWillTerminate = (value) => (
-  runtime.state.willTerminate = value
+const setShuttingDown = (value) => (
+  runtime.state.isShuttingDown = value
 )
 
 /**
@@ -20,9 +25,9 @@ const setWillTerminate = (value) => (
  * Tasks will be allowed to finish running their current job.
  * No new task jobs will be added to the queue.
  */
-const shutdown = async () => {
+const execShutdown = async () => {
   logWarn('\nSIGINT received. Shutting down the bot...')
-  setWillTerminate(true)
+  setShuttingDown(true)
 
   try {
     // Save the current time. Next time we start up we'll display how long the bot was offline.
@@ -41,13 +46,15 @@ const shutdown = async () => {
   }
   catch (err) {
     // Something went wrong while shutting down. Ensure the process exits.
-    logFatal('todo: something went wrong while shutting down')
-    console.log(err)
+    logFatal(`${progName()}: an error occurred while shutting down:\n`)
+    if (err.stack) logFatal(err.stack)
+    else logFatal(String(err))
+    logFatal('\nExiting program.')
     die()
   }
 }
 
 module.exports = {
-  shutdown,
+  execShutdown,
   isShuttingDown
 }

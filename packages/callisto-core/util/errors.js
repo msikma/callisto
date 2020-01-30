@@ -1,16 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const requestTools = require('dada-cli-tools/request')
 const { get } = require('lodash')
-
-/**
- * Requests a remote call. Logs to Discord.
- */
-const request = async (url, opts = {}) => {
-  // TODO: logging
-  return requestTools.request(url, opts)
-}
 
 /**
  * Returns true for errors that are temporary network errors that can safely be ignored.
@@ -63,6 +54,5 @@ const isTempError = error => {
 }
 
 module.exports = {
-  request,
   isTempError
 }
