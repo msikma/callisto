@@ -8,11 +8,12 @@ const configModel = {
     botToken: PropTypes.string.isRequired,
     botClientID: PropTypes.string.isRequired,
     botName: PropTypes.string.isRequired,
+    botColor: PropTypes.string.isRequired,
     botAvatarURL: PropTypes.string.isRequired,
     logInfoChannels: PropTypes.arrayOf(PropTypes.array).isRequired,
     logErrorChannels: PropTypes.arrayOf(PropTypes.array).isRequired
   }),
-  taskConfig: PropTypes.arrayOf(PropTypes.object).isRequired
+  taskConfig: PropTypes.object.isRequired
 }
 
 // Default values: uses a picture of Callisto, Jupiter's second moon.
@@ -27,11 +28,13 @@ const botDefaults = {
  * The resulting string should be trimmed before saving to a file.
  */
 const configTpl = configPadded => (`
-// Calypso bot config file
+// Callisto bot config file
 
 // Example server and channel IDs. Get these by right-clicking a server/channel and using 'Copy ID'.
 const SERVER = '415267835054690314'
 const CHANNEL = '415478825623211282'
+const CHANNEL_INFO_LOGS = ''
+const CHANNEL_ERROR_LOGS = ''
 
 module.exports = {
   systemConfig: {
@@ -46,9 +49,9 @@ module.exports = {
     // An avatar used during bootup. This won't replace the bot's own user avatar.
     botAvatarURL: '${botDefaults.botAvatarURL}',
     // Send log messages to these channels:
-    logInfoChannels: [[SERVER, CHANNEL]],
+    logInfoChannels: [[SERVER, CHANNEL_INFO_LOGS]],
     // Log channels for important log messages:
-    logErrorChannels: [[SERVER, CHANNEL]]
+    logErrorChannels: [[SERVER, CHANNEL_ERROR_LOGS]]
   },
   // Task settings.
   taskConfig: {

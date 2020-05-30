@@ -1,3 +1,6 @@
+// Callisto - callisto-core <https://github.com/msikma/callisto>
+// © MIT license
+
 /**
  * Catches all uncaught exceptions.
  *

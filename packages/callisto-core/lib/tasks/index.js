@@ -3,9 +3,11 @@
 
 const path = require('path')
 const fs = require('fs')
+const { logWarn } = require('dada-cli-tools/log')
 const PropTypes = require('prop-types')
 
-const { system } = require('../logger')
+const { validatePropsModel, reportValidationErrors, getTaskConfig } = require('../config')
+const { system } = require('../discord')
 const runtime = require('../../state')
 const systemFns = require('./system')
 
@@ -42,9 +44,9 @@ const systemFns = require('./system')
  */
 
 /**
- * Validator to check if a task has all requirements.
+ * Validator to check if a task has all requirements after parsing.
  */
-const taskValidator = {
+const taskStructureValidator = {
   package: PropTypes.shape({
     name: PropTypes.string.isRequired,
     site: PropTypes.string.isRequired,
@@ -70,9 +72,58 @@ const taskValidator = {
   })
 }
 
-const isValidTask = taskData => {
-  // TODO: validate task
-  return true
+/**
+ * Checks a task's structure after parsing and initializing.
+ */
+const validateTaskStructure = taskData => {
+  return validatePropsModel(taskStructureValidator, taskData)
+}
+
+/**
+ * Validator for the internal structure of a task.
+ * 
+ * This is what a task should export from its main entry point.
+ * Included is the task's basic information (its name, icon, etc.)
+ * and a template to generate config file, and a validator function to
+ * validate the user's config settings.
+ * 
+ * If a task fails this validation, the code itself needs to be changed,
+ * not the config.
+ */
+const taskExportValidator = {
+  task: PropTypes.shape({
+    info: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      color: PropTypes.number.isRequired,
+      icon: PropTypes.string.isRequired
+    }).isRequired,
+    actions: PropTypes.arrayOf(PropTypes.shape({
+      delay: PropTypes.number.isRequired,
+      description: PropTypes.string.isRequired,
+      fn: PropTypes.func.isRequired
+    })).isRequired
+  }),
+  config: PropTypes.shape({
+    template: PropTypes.func.isRequired,
+    validator: PropTypes.object.isRequired
+  }).isRequired
+}
+
+/**
+ * Checks whether an imported task contains a proper structure.
+ * 
+ * This checks the task's export from its main entry point (index.js).
+ */
+const validateTaskExport = taskData => {
+  return validatePropsModel(taskExportValidator, taskData)
+}
+
+/**
+ * Checks the user's configuration data against a task's validator function.
+ */
+const validateTaskConfig = (validator, configData) => {
+  return validatePropsModel(validator, configData)
 }
 
 /**
@@ -91,38 +142,67 @@ const loadTasks = (tasksData, devTask = null, useLogging = false) => {
 const loadTask = (taskPkg, useLogging = false) => {
   let mainData = null
   let error = null
+  let configData = null
+  let exportTest = null
+  let structureTest = null
+  let configTest = null
 
+  // The task structure test that's done here is a test to see if the task code
+  // itself is well-formed. If it doesn't pass validation, the code needs to be
+  // changed, not the config.
   try {
-    useLogging && system.logDebug('Registering task:', `${taskPkg.name}@${taskPkg.version}`)
+    useLogging && system.logDebug('Loading task:', `${taskPkg.name}@${taskPkg.version}`)
     mainData = require(taskPkg.main)
-    error = !_isValidTaskMain(mainData) ? new Error('Invalid task main data') : null
+    exportTest = validateTaskExport(mainData)
+    error = !exportTest.success ? new Error('Invalid task export') : null
   }
   catch (err) {
     error = err
-    useLogging && system.logException('Failed to load register task main entry point', taskPkg, error)
+    useLogging && system.logError('Failed to load task main entry point', taskPkg, error)
   }
 
   // Put together the final task object.
-  const taskData = {
+  // TODO: optional chaining
+  const taskStructure = {
     package: taskPkg,
-    meta: mainData.task.info,
-    actions: mainData.task.actions,
-    config: mainData.config
+    meta: mainData && mainData.task && mainData.task.info,
+    actions: mainData && mainData.task && mainData.task.actions,
+    config: mainData && mainData.config
   }
 
-  // TODO: validate.
-  if (!isValidTask(taskData)) {
-    error = new Error('Invalid task')
+  // Check the user's config for this task for structural errors.
+  structureTest = validateTaskStructure(taskStructure)
+
+  // Load the user's config and validates it against the task's expectations.
+  configData = getTaskConfig(taskStructure.meta.id)
+  configTest = validateTaskConfig(taskStructure.config.validator, configData)
+
+  // Print any errors for either the task structure or the config that might've been detected.
+  if (!structureTest.success) {
+    useLogging && system.logWarn('Task structure errors were found for task', `${taskPkg.name}@${taskPkg.version}`)
+    useLogging && reportValidationErrors(structureTest)
+  }
+  if (configData == null) {
+    useLogging && system.logWarn('No user config was present for task', `${taskPkg.name}@${taskPkg.version}`)
+    error = new Error('No user config')
+  }
+  if (!configTest.success) {
+    useLogging && system.logWarn('Task config errors were found for task', `${taskPkg.name}@${taskPkg.version}`)
+    useLogging && reportValidationErrors(configTest)
+    error = new Error('Invalid task config')
+  }
+  if (!structureTest.success || !configTest.success || configData == null) {
+    useLogging && system.logWarn('Task', `${taskPkg.name}@${taskPkg.version}`, 'will not run due to errors.')
   }
 
   if (error) {
-    useLogging && system.logException('Failed to load register task', taskData, error)
+    useLogging && system.logException('Failed to load or register task', taskStructure, error)
   }
 
   return {
     success: error == null,
     error,
-    task: taskData
+    task: taskStructure
   }
 }
 
@@ -161,23 +241,6 @@ const _listTaskDirs = (baseDir) => (
       fs.statSync(path.join(baseDir, i, 'package.json')).isFile()
     )
 )
-
-/**
- * Checks whether a task contains all the required fields.
- */
-const _isValidTaskMain = taskData => {
-  if (taskData
-    && taskData.task
-    && taskData.task.info
-    && taskData.task.actions
-    && taskData.config
-    && taskData.config.template
-    && taskData.config.validator
-  ) {
-    return true
-  }
-  return false
-}
 
 module.exports = {
   loadTasks,

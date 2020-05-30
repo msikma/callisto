@@ -5,8 +5,9 @@ const Discord = require('discord.js')
 const chalk = require('chalk')
 const { logError, logDebug, die } = require('dada-cli-tools/log')
 
+const { makeSystemTask } = require('../lib/tasks')
 const { getConfigKey } = require('../lib/config')
-const { catchAllExceptions, bindEmitHandlers } = require('../lib/logger')
+const { catchAllExceptions, bindEmitHandlers, initSystemLogger } = require('../lib/discord')
 const runtime = require('../state')
 
 /**
@@ -39,8 +40,10 @@ const discordLogin$ = async () => {
  * Logs in to Discord and saves the bot's user and client reference to the runtime.
  */
 const initDiscord$ = async () => {
+  runtime.systemTask = makeSystemTask()
+  initSystemLogger()
   const { bot, client } = await discordLogin$()
-  logDebug('Logged in as', chalk.blue(`${bot.username}#${bot.discriminator}`))
+  logDebug('Logged in as', chalk.blue(`${bot.username}#${bot.discriminator}\n`))
   runtime.discord.bot = bot
   runtime.discord.client = client
   runtime.state.isLoggedIn = true

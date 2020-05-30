@@ -2,7 +2,7 @@
 // © MIT license
 
 const Converter = require('hex2dec')
-const runtime = require('../state')
+const runtime = require('../../state')
 
 /**
  * Creates a task to be used by the system, mostly for logging.

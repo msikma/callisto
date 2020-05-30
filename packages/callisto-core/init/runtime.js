@@ -5,6 +5,10 @@ const { dirname } = require('path')
 const { cacheDbFilePath } = require('../lib/cache')
 const runtime = require('../state')
 
+// Note: polyfill for Object.fromEntries().
+// <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries>
+require('polyfill-object.fromentries')
+
 /**
  * Prepares the program state object.
  * 
@@ -22,6 +26,7 @@ const initRuntime$ = async (cliArgs, runtimeData) => {
   runtime.configPath = cliArgs.pathConfig
   runtime.cliArgs = cliArgs
   runtime.dev.noPost = cliArgs.devNoop
+  runtime.state.startTime = Number(new Date())
 }
 
 module.exports = initRuntime$

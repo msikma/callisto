@@ -3,13 +3,19 @@
 
 const { writeFileSync } = require('fs')
 const { get } = require('lodash')
-const checkPropTypes = require('prop-types-checker')
-const { logWarn } = require('dada-cli-tools/log')
 const { fileExists } = require('dada-cli-tools/util/fs')
 
+const { validatePropsModel, reportValidationErrors } = require('./props')
 const { replaceMagic } = require('./magic')
 const { configTpl, configModel } = require('./tpl')
 const runtime = require('../../state')
+
+/**
+ * Returns the complete user configuration for a specific task.
+ */
+const getTaskConfig = (task, config = runtime.config) => {
+  return get(config, `taskConfig.${task}`, null)
+}
 
 /**
  * Returns the value of a config key.
@@ -64,39 +70,14 @@ const readConfig = configPath => {
  */
 const validateConfigFile = configPath => {
   const config = readConfig(configPath)
-  return _validateMainConfig(config.data)
+  return validateConfigData(config.data)
 }
 
 /**
- * Checks config data to see if it's base structure is valid.
- * This does NOT check the tasks' config.
+ * Validates the data of a loaded config file.
  */
-const _validateMainConfig = (configData) => {
-  logWarn('Not implemented yet: _validateMainConfig()')
-  try {
-    const configSyntax = checkPropTypes(configModel, configData.SYSTEM)
-    return {
-      success: true
-    }
-  }
-  catch (err) {
-    return {
-      error: err,
-      success: false
-    }
-  }
-}
-
-/**
- * Checks the config data for whether it's correct for a specific task.
- * TODO
- */
-const _validateTaskConfig = async (taskName) => {
-  logWarn('Not implemented yet: _validateTaskConfig()')
-  const configSyntax = checkPropTypes()
-  return {
-    success: true
-  }
+const validateConfigData = configData => {
+  return validatePropsModel(configModel, configData)
 }
 
 /**
@@ -109,7 +90,7 @@ const writeNewConfig = async (configPath, tasks) => {
 
   if (!exists) {
     try {
-      const tplFns = tasks.map(task => task.data.config.template)
+      const tplFns = tasks.map(taskData => taskData.task.config.template)
       const configContent = generateNewConfig(tplFns)
       writeFileSync(configPath, configContent)
       success = await fileExists(configPath)
@@ -138,7 +119,11 @@ const generateNewConfig = tplFns => {
 
 module.exports = {
   getConfigKey,
+  getTaskConfig,
   readConfig,
+  reportValidationErrors,
+  validateConfigData,
   validateConfigFile,
-  writeNewConfig
+  writeNewConfig,
+  validatePropsModel
 }

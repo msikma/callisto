@@ -2,14 +2,20 @@
 // © MIT license
 
 const chalk = require('chalk')
-const { system, getCacheSize } = require('../lib/logger')
+const { getFormattedTimestamp } = require('../util/time')
+const { getCacheSize } = require('../lib/cache')
+const { system } = require('../lib/discord')
 const { execShutdown } = require('../lib/shutdown')
-const { initQueueLoop } = require('../lib/queue')
+const { initQueueLoop } = require('../lib/discord')
 const runtime = require('../state')
+
+const printStartupIndicator = () => {
+  system.logDebug(['Starting up Callisto', null, { time: getFormattedTimestamp() }])
+}
 
 const printCacheSize = () => {
   const cacheSize = getCacheSize()
-  system.logDebug('Current cache file size:', chalk.green(cacheSize))
+  system.logDebug('Current cache file size:', cacheSize)
 }
 
 const printRuntimeInfo = () => {
@@ -18,7 +24,8 @@ const printRuntimeInfo = () => {
 }
 
 const initCallisto$ = async () => {
-  // Log config and cache locations, and the size of the cache files.
+  // Print startup messages.
+  printStartupIndicator()
   printRuntimeInfo()
   printCacheSize()
   // Start message and request queues, which will send messages to Discord one by one.

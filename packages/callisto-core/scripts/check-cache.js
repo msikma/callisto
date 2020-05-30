@@ -1,7 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { logFatal, logError, logDebug, log } = require('dada-cli-tools/log')
+const { logFatal, logError, log } = require('dada-cli-tools/log')
 const { progName } = require('dada-cli-tools/util/fs')
 
 const { cacheDbFilePath, openDb } = require('../lib/cache')
@@ -13,9 +13,6 @@ const { cacheDbFilePath, openDb } = require('../lib/cache')
  */
 const checkCache$ = async ({ pathCache }) => {
   const pathCacheFile = cacheDbFilePath(pathCache)
-  
-  logDebug(`Checking cache database file: ${pathCacheFile}`)
-
   const result = await openDb(pathCacheFile, false)
   if (!result.success) {
     if (!result.exists) {
@@ -29,7 +26,10 @@ const checkCache$ = async ({ pathCache }) => {
     }
   }
   if (result.success) {
-    log(`Cache database file OK${!result.status.hasAppTables ? ', but missing required tables (these will get created when running the bot)' : ''}.`)
+    if (!result.status.hasAppTables) {
+      log('Database is missing required tables (these will get created when running the bot for the first time).')
+    }
+    log('Cache database file OK:', pathCacheFile)
     return 0
   }
 }
@@ -39,7 +39,7 @@ const exitError = (error, file, err, baseDir) => {
   const prog = progName()
   logFatal(`${prog}: error: ${error}`)
   if (err) logError(err)
-  if (file) logError(`Used the following path:`, file)
+  if (file) logError(`Cache database file invalid:`, file)
   if (baseDir) logError(`Used the following base directory:`, baseDir)
   return 1
 }

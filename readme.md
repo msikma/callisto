@@ -7,7 +7,7 @@ This repository is structured as a monorepo, with a core namespace for bot funct
 
 ## Setting up a bot
 
-To set up a bot, you must first create an *application* and a *bot user*. Head over to the [Discord developer portal](https://discordapp.com/developers/applications) to do this. When you're done with this, save the generated *client ID* and the bot's *token* to your config file, to `CALLISTO_BOT_CLIENT_ID` and `CALLISTO_BOT_TOKEN` respectively.
+To set up a bot, you must first create an *application* and a *bot user*. Head over to the [Discord developer portal](https://discordapp.com/developers/applications) to do this. When you're done with this, save the generated *client ID* and the bot's *token* to your config file, to `systemConfig.botClientID` and `systemConfig.botToken` respectively.
 
 Now invite your bot to the server you intend to use by running the OAuth 2 flow:
 
@@ -23,7 +23,11 @@ This bot *only* posts messages (plain text and rich embeds). It does not use any
 
 ### Log channels
 
-Callisto posts log messages to two channels: one for all general logs, the other for errors only. To finalize setup, create two channels and save their IDs to `CALLISTO_SETTINGS.logChannels` and `CALLISTO_SETTINGS.logChannelsImportant`.
+Callisto posts log messages to two channels: one for all general logs, the other for errors only. To finalize setup, create two channels and save their IDs to `systemConfig.logInfoChannels` and `systemConfig.logErrorChannels`.
+
+## Links
+
+* [Discord embed visualizer](https://leovoel.github.io/embed-visualizer/)
 
 ## Copyright
 

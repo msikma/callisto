@@ -28,7 +28,7 @@ const findCachedIDs = async (taskName, ids) => {
  * 
  * Used to make IDs global in the database.
  */
-const globalizeIDs = (taskName, items, idName = 'id') => {
+const addNamespaceToIDs = (taskName, items, idName = 'id') => {
   if (!_hasItems(taskName, items, 'items')) return []
   return items.map(i => ({ ...i, [idName]: `${taskName}$${i.id}`}))
 }
@@ -102,6 +102,6 @@ const _hasItems = (taskName, iterable, iterableName) => {
 module.exports = {
   findCachedIDs,
   filterOutCachedItems,
-  globalizeIDs,
+  addNamespaceToIDs,
   cacheItems
 }

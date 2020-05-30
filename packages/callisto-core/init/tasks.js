@@ -2,7 +2,7 @@
 // © MIT license
 
 const { getTasksData, loadTasks } = require('../lib/tasks')
-const { system } = require('../lib/logger')
+const { system } = require('../lib/discord')
 const runtime = require('../state')
 
 const initTasks$ = async (devTask) => {
@@ -15,11 +15,14 @@ const initTasks$ = async (devTask) => {
   }
   const succeededTasks = taskInfo.filter(taskItem => taskItem.success)
   if (succeededTasks.length === 0) {
-    system.logFatal('No tasks could be loaded. The bot will not post any output.')
+    system.logFatal('No tasks could be successfully loaded. The bot will not post any output.')
   }
 
-  // Filter out the 'success' and 'error' data for the tasks.
-  runtime.tasks = tasks;
+  // Save the tasks to the runtime variables.
+  runtime.tasks = Object.fromEntries(succeededTasks.map(item => [item.task.package.name, item.task]))
+  runtime.tasksMeta.failedTasks = Object.fromEntries(failedTasks.map(item => [item.task.package.name, item.task]))
+  runtime.tasksMeta.singleTask = devTask ? taskInfo.find(item => item.task.package.name === devTask).task : null
+  system.logDebug(['Finished loading tasks', null, { succeededTasks: succeededTasks.length }])
   return
 }
 

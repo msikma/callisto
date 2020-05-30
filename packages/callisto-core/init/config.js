@@ -3,7 +3,7 @@
 
 const { logFatal, logError, die } = require('dada-cli-tools/log')
 const { progName, canAccess } = require('dada-cli-tools/util/fs')
-const { readConfig } = require('../lib/config')
+const { readConfig, reportValidationErrors, validateConfigData } = require('../lib/config')
 const runtime = require('../state')
 
 /**
@@ -20,20 +20,20 @@ const initConfig$ = async (pathConfig) => {
   // Retrieve config data and replace magic strings (like <%baseDir%>).
   const config = readConfig(pathConfig)
   if (!config.success) {
-    console.log(config)
     return exitError('could not parse config file - run config check.', pathConfig)
+  }
+  const result = validateConfigData(config.data)
+  if (!result.success) {
+    reportValidationErrors(result, true)
+    return exitError('config file syntax invalid.', pathConfig)
   }
   runtime.config = config.data
 }
 
 /** Exits the program if there's something wrong with the config file. */
-const exitError = (error, path, valResults) => {
+const exitError = (error, path) => {
   const prog = progName()
   logFatal(`${prog}: error: ${error}`)
-  if (valResults) {
-    // Contains specific validation result errors.
-    // valResults
-  }
   logError('Ensure a valid config file is available at this location:', path)
   logError(`You can generate one: ${prog} --new-config`)
   die()

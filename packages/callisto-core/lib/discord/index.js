@@ -1,10 +1,15 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const channelsFns = require('./channels')
-const postFns = require('./post')
+const channelsExports = require('./channels')
+const postExports = require('./post')
+const exceptionsExports = require('./exceptions')
+const systemMessagesExports = require('./system-messages')
 
 module.exports = {
-  ...channelsFns,
-  ...postFns
+  ...channelsExports,
+  ...exceptionsExports,
+  ...systemMessagesExports,
+  // Includes 'system' for logging.
+  ...postExports
 }

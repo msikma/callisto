@@ -1,20 +1,18 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { db, openDb, closeDb, installSystemTables } = require('./sqlite')
-const { findCachedIDs, filterOutCachedItems, globalizeIDs, cacheItems } = require('./cache-items')
-const { cacheDbFilePath } = require('./files')
+const cacheItemsExports = require('./cache-items')
+const filesExports = require('./files')
+const miscExports = require('./misc')
+const sqliteExports = require('./sqlite')
+const systemExports = require('./system')
 
 module.exports = {
-  cacheDbFilePath,
-  cacheItems,
-  closeDb,
-  filterOutCachedItems,
-  findCachedIDs,
-  globalizeIDs,
-  installSystemTables,
-  openDb,
+  ...cacheItemsExports,
+  ...filesExports,
+  ...miscExports,
+  ...systemExports,
 
-  // Object containing the raw sqlite handle.
-  db
+  // Note: contains 'db', which is the raw SQLite handle.
+  ...sqliteExports
 }

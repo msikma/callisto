@@ -4,7 +4,7 @@
 const { PassThrough } = require('stream')
 const feedParser = require('FeedParser')
 
-const { request } = require('./request')
+const { request } = require('../lib/request')
 
 /**
  * Parses a feed string and returns its items. Returns a Promise.
@@ -12,7 +12,7 @@ const { request } = require('./request')
  * @param {String} content String contents of an RSS, Atom or RDF feed
  * @param {Object?} options Extra options to pass on to the FeedParser object
  */
-export const parseFeed = (content, options = {}) => new Promise((resolve, reject) => {
+const parseFeed = (content, options = {}) => new Promise((resolve, reject) => {
   // Create a stream from our string.
   const contentStream = new PassThrough()
   contentStream.write(content)

@@ -4,7 +4,7 @@
 const { logFatal, logInfo, logError, die } = require('dada-cli-tools/log')
 const { progName, ensureDirBool } = require('dada-cli-tools/util/fs')
 
-const { cacheDbFilePath, openDb } = require('../lib/cache')
+const { cacheDbFilePath, openDb, ensureAppTables } = require('../lib/cache')
 
 /**
  * Initializes the cache directory and database.
@@ -42,6 +42,10 @@ const initCache$ = async (pathCacheDir, createNew = true) => {
   if (result.success) {
     if (result.status.createdNew) {
       logInfo('Created new database file:', pathCacheFile)
+    }
+    if (!result.status.hasAppTables) {
+      await ensureAppTables()
+      logInfo('Inserted application tables.')
     }
 
     return true

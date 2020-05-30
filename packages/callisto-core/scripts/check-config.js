@@ -1,8 +1,8 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { logDebug, logError, log } = require('dada-cli-tools/log')
-const { validateConfigFile } = require('../lib/config')
+const { logError, log } = require('dada-cli-tools/log')
+const { validateConfigFile, reportValidationErrors } = require('../lib/config')
 
 /**
  * Checks whether a given config file has valid syntax.
@@ -13,14 +13,13 @@ const { validateConfigFile } = require('../lib/config')
  * Returns a value to be used as exit code.
  */
 const checkConfig$ = ({ pathConfig }) => {
-  logDebug(`Checking config file: ${pathConfig}`)
-
   const result = validateConfigFile(pathConfig)
   if (result.success) {
-    log(`Config file syntax OK: ${pathConfig}`)
+    log('Config file syntax OK:', pathConfig)
   }
   else {
-    logError(`Config file syntax invalid: ${pathConfig}`)
+    reportValidationErrors(result, true)
+    logError('Config file syntax invalid:', pathConfig)
   }
 
   return result.success === true ? 0 : 1

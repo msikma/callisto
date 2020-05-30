@@ -30,14 +30,14 @@ const openDb = async (dbFilePath, createNew = true) => {
   let success = false
   let error = null
 
-  let hasAppTables = false
+  let dbHasAppTables = false
   let createdNew = false
   let couldNotOpen = false
   let maybeCorrupted = false
   
   try {
     db.handle = await sqlite.open(dbFilePath, { mode })
-    hasAppTables = await dbHasAppTables()
+    dbHasAppTables = await hasAppTables()
     success = true
     createdNew = !exists && createNew
   }
@@ -45,6 +45,7 @@ const openDb = async (dbFilePath, createNew = true) => {
     success = false
     couldNotOpen = err.code === 'SQLITE_CANTOPEN'
     maybeCorrupted = exists && couldNotOpen
+    error = err
   }
 
   return {
@@ -54,7 +55,7 @@ const openDb = async (dbFilePath, createNew = true) => {
     exists,
     create: createNew,
     status: {
-      hasAppTables,
+      hasAppTables: dbHasAppTables,
       createdNew,
       couldNotOpen,
       maybeCorrupted,
@@ -70,10 +71,19 @@ const closeDb = () => (
 )
 
 /**
- * Inserts the required tables into an empty database.
+ * Checks whether the required application tables are present in the database,
+ * and inserts them if they're not.
  */
-const installSystemTables = async () => {
-  return await _createTables(dbHasAppTables, createCacheTable)
+const ensureAppTables = async () => {
+  return await _createTables(hasAppTables, createAppTables)
+}
+
+/**
+ * Creates the tables needed to run the application.
+ */
+const createAppTables = async () => {
+  await createCacheTable()
+  await createSettingsTable()
 }
 
 /**
@@ -81,15 +91,16 @@ const installSystemTables = async () => {
  * 
  * This returns a boolean: if it returns 'false', it means we need to create the tables.
  */
-const dbHasAppTables = async () => {
-  const tables = await Promise.all(['cached_items'].map(tableName => new Promise(async resolve => resolve(await dbHasTable(tableName)))))
+const hasAppTables = async () => {
+  const tables = await Promise.all(['cached_items', 'task_settings'].map(tableName =>
+    new Promise(async resolve => resolve(await hasTable(tableName)))))
   return !~tables.indexOf(false)
 }
 
 /**
  * Checks whether a table exists. Resolves with true/false.
  */
-const dbHasTable = async ($name) => (
+const hasTable = async ($name) => (
   !!await db.handle.get(`select * from sqlite_master where type='table' and name=$name`, { $name })
 )
 
@@ -104,6 +115,20 @@ const createCacheTable = () => (
       title text,
       added datetime default current_timestamp,
       primary key (id, task)
+    )
+  `)
+)
+
+/**
+ * Create the settings table.
+ */
+const createSettingsTable = () => (
+  db.handle.run(`
+    create table task_settings (
+      identifier varchar(127),
+      namespace varchar(127),
+      data text,
+      primary key (identifier, namespace)
     )
   `)
 )
@@ -133,9 +158,53 @@ const _createTables = async (checkTablesFn, createTablesFn) => {
   }
 }
 
+/**
+ * Returns task settings. If settings do not exist in the database, we will create an empty row.
+ * There are two settings objects in the database: one for the task itself, and one for the system.
+ * The system task includes when the task was last run. It uses this to decide when to
+ * run the task.
+ *
+ * @param {String} $identifier Name of the task
+ * @param {String} $namespace Either 'task' or 'system'
+ */
+const loadSettings = async ($identifier, $namespace = 'task') => {
+  const row = await db.handle.get(`
+    select * from task_settings
+    where identifier=$identifier
+    and namespace=$namespace
+  `, { $identifier, $namespace })
+
+  if (!row) {
+    // If no data exists, make an empty row. Data is always an object (serialized as JSON), so return {} by default.
+    await saveSettings($identifier, $namespace, {});
+    return {};
+  }
+  else {
+    // Return deserialized JSON from the database.
+    return JSON.parse(row.data);
+  }
+}
+
+/**
+ * Replaces saved task settings with a new set.
+ *
+ * @param {String} $identifier Name of the task
+ * @param {String} $namespace Either 'task' or 'system'
+ * @param {Object} $data Data to save to the setting
+ */
+const saveSettings = async ($identifier, $namespace, $data) => (
+  db.handle.run(`
+    insert or replace into task_settings
+    (identifier, namespace, data)
+    values ($identifier, $namespace, $data)
+  `, { $identifier, $namespace, $data: JSON.stringify($data) })
+)
+
 module.exports = {
   db,
   openDb,
   closeDb,
-  installSystemTables
+  ensureAppTables,
+  loadSettings,
+  saveSettings
 }
