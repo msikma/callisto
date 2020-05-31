@@ -1,5 +1,5 @@
 Callisto
-=======
+========
 
 My bot, a good boy. Callisto is a Discord bot that acts kind of like an RSS reader: it retrieves updates from various websites and posts them to Discord.
 
@@ -32,5 +32,3 @@ Callisto posts log messages to two channels: one for all general logs, the other
 ## Copyright
 
 MIT License
-
-Copyright © Michiel Sikma

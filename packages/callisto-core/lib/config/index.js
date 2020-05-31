@@ -90,7 +90,7 @@ const writeNewConfig = async (configPath, tasks) => {
 
   if (!exists) {
     try {
-      const tplFns = tasks.map(taskData => taskData.task.config.template)
+      const tplFns = tasks.map(taskData => taskData.data.config.template)
       const configContent = generateNewConfig(tplFns)
       writeFileSync(configPath, configContent)
       success = await fileExists(configPath)

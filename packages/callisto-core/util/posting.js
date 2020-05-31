@@ -2,17 +2,18 @@
 // © MIT license
 
 /**
- * Posts several rich embeds to a list of targets.
+ * Returns an array of server/channel combinations.
  * 
- * Each item must contain the following:
- * 
- *   { target: [[ ... server information ]]
- *     ... data used by the 'formatter' function }
+ * If a single server/channel is passed, a list of one combination is returned.
+ * If a list of server/channel combinations is passed, it is returned verbatim.
  */
-const postRichItems = (items, formatter) => {
-  items.forEach(item => item.target.forEach(target => postRichEmbed(target[0], target[1], null, formatter(item))))
+const getServerChannelsList = (singleOrMultipleItems) => {
+  if (!Array.isArray(singleOrMultipleItems) || singleOrMultipleItems.length === 0 || Array.isArray(singleOrMultipleItems[0])) {
+    return singleOrMultipleItems
+  }
+  return [singleOrMultipleItems]
 }
 
 module.exports = {
-  postRichItems
+  getServerChannelsList
 }

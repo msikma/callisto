@@ -1,6 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
+const { console } = require('./console')
 const { errors } = require('./errors')
 const { feeds } = require('./feeds')
 const { formatting } = require('./formatting')
@@ -14,6 +15,7 @@ const { vm } = require('./vm')
 // TODO: these should be moved to an external library ultimately.
 
 module.exports = {
+  console,
   errors,
   feeds,
   formatting,

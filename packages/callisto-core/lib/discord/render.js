@@ -2,14 +2,16 @@
 // © MIT license
 
 const { RichEmbed } = require('discord.js')
+const stringWidth = require('string-width')
 const chalk = require('chalk')
 const util = require('util')
-const { isString } = require('lodash')
-const { unpackError } = require('dada-cli-tools/util/error')
+const { isString, isNumber, isBoolean, get, isPlainObject } = require('lodash')
 
+const { extractErrorInfo } = require('../../util/errors')
 const { embedTitle, embedDescription } = require('../../util/text')
 const { getFormattedTime } = require('../../util/time')
-const { wrapStack, wrapObject } = require('../../util/formatting')
+const { getConsoleInfo } = require('../../util/console')
+const { wrapObject } = require('../../util/formatting')
 
 // Regex used to decorate certain log patterns.
 const HTTP_PROTOCOL = new RegExp('^\s?https?://')
@@ -25,8 +27,8 @@ const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) =>
   const embed = new RichEmbed()
   if (logArgs.title) embed.setTitle(embedTitle(logArgs.title))
   if (logArgs.desc) embed.setDescription(embedDescription(logArgs.desc))
-  if (taskInfo.meta.id && isSystemLogger === false) {
-    embed.setFooter(`Logged by callisto-task-${taskInfo.meta.id}${taskInfo.package.version ? ` (${taskInfo.package.version})` : ''}`)
+  if (taskInfo.data.meta.id && isSystemLogger === false) {
+    embed.setFooter(`Logged by callisto-task-${taskInfo.data.meta.id}${taskInfo.data.package.version ? ` (${taskInfo.data.package.version})` : ''}`)
   }
   if (logArgs.debug && isPlainObject(debug)) {
     // Print a whole debugging object.
@@ -34,13 +36,8 @@ const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) =>
   }
   if (logArgs.error) {
     // Unpack the error and log whatever relevant information we get.
-    const { name, code, stack, oneLiner } = unpackError(logArgs.error)
-    if (name) embed.addField('Name', name, true)
-    if (code) embed.addField('Code', `\`${code}\``, true)
-    if (stack) embed.addField('Stack', wrapStack(stack.join('\n')), false)
-    if (!name && !code && !stack && oneLiner) {
-      embed.addField('Details', wrapStack(oneLiner), false)
-    }
+    const fields = extractErrorInfo(logArgs.error)
+    Object.values(fields).forEach(field => embed.addField(...field))
   }
   if (logArgs.details && isPlainObject(logArgs.details)) {
     for (const [key, value] of Object.entries(logArgs.details)) {
@@ -49,7 +46,7 @@ const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) =>
       embed.addField(key, value, isShort)
     }
   }
-  embed.setAuthor(taskInfo.meta.name, taskInfo.meta.icon)
+  embed.setAuthor(taskInfo.data.meta.name, taskInfo.data.meta.icon)
   embed.setColor(logLevel[1])
   embed.setTimestamp()
 
@@ -59,7 +56,7 @@ const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) =>
 /**
  * Renders a plain text string log message for the console.
  */
-const renderConsole = (taskInfo, logArgs, logLevel) => {
+const renderConsole = (taskInfo, logArgs, logLevel, logAsObject, useMultilineDetails = true) => {
   let mainMessage = ''
 
   if (_isEmptyLogArgs(logArgs)) {
@@ -69,20 +66,54 @@ const renderConsole = (taskInfo, logArgs, logLevel) => {
   else if (logArgs.length === 1 && Array.isArray(logArgs[0])) {
     // If this is a [title, description, details] array:
     const [title, description, details] = logArgs[0]
-    mainMessage = [[
-      title ? chalk.bold(title) : '',
-      title && description ? ' - ' : '',
-      description ? chalk.dim(description) : '',
-      (title || description) && details ? ' - ' : '',
-      details ? _renderDetailsConsole(details) : ''
-    ].join('')]
+    mainMessage = _renderConsoleObject(taskInfo, title, description, details, null, logLevel, useMultilineDetails)
+  }
+  else if (logAsObject) {
+    const obj = logArgs[0] // Theoretically there could be more but we're ignoring those.
+    mainMessage = _renderConsoleObject(taskInfo, obj.title, obj.desc, { ...obj.details, ...obj.debug }, obj.error ? obj.error : null, logLevel, useMultilineDetails)
   }
   else {
     // In normal cases, just cast everything to string.
     mainMessage = logArgs
   }
 
-  return [`${chalk.underline(taskInfo.meta.id)}:`, ...mainMessage]
+  return [`${chalk.underline(taskInfo.data.meta.id)}:`, ...mainMessage]
+}
+
+/**
+ * Does the bulk of the work for renderConsole().
+ * 
+ * Returns an array with one item.
+ */
+const _renderConsoleObject = (taskInfo, title, description, details, error, logLevel, useMultilineDetails) => {
+  const consoleInfo = getConsoleInfo()
+  const hasDetails = details && isPlainObject(details) && Object.keys(details).length > 0
+
+  let message = [
+    title ? chalk.bold(title) : '',
+    title && description ? ' - ' : '',
+    description ? chalk.dim(description) : '',
+    (title || description) && hasDetails ? ' - ' : '',
+    _renderDetailsConsole(details, true)
+  ]
+  
+  // If we have a details object and we can't fit everything on one line,
+  // we'll create an alternate string that lists each detail item on its own line.
+  if (useMultilineDetails && hasDetails && stringWidth(message.join('')) >= consoleInfo.width) {
+    message = [
+      title ? chalk.bold(title) : '',
+      title && description ? ' - ' : '',
+      description ? chalk.dim(description) : '',
+      _renderDetailsConsole(details, false, taskInfo)
+    ]
+  }
+
+  // If an error is present, add it at the end in its own separate section.
+  if (error) {
+    message.push(`\n${error && error.stack ? error.stack : error}`)
+  }
+
+  return [message.join('')]
 }
 
 /**
@@ -112,7 +143,7 @@ const renderPlainText = (taskInfo, logArgs, logLevel) => {
     mainMessage = logArgs.map(item => _castLogArg(item)).join(' ')
   }
 
-  return `\`${getFormattedTime()}\`: \`${taskInfo.meta.id}\`: ${mainMessage}`
+  return `\`${getFormattedTime()}\`: \`${taskInfo.data.meta.id}\`: ${mainMessage}`
 }
 
 /**
@@ -132,13 +163,32 @@ const _castLogArg = arg => {
 /**
  * Renders a details key/value object to a single line of text with color escape codes.
  */
-const _renderDetailsConsole = (details) => {
+const _renderDetailsConsole = (details, singleLine = true, taskInfo = null) => {
+  // Get the task ID, e.g. 'callisto' for the system task, to know how much
+  // indentation we need for rendering multiline details.
+  const taskID = get(taskInfo, 'data.meta.id', '')
+  const taskPrefix = ' '.repeat(taskID.length + 2)
+  const multilinePrefixA = `${taskPrefix}╰ `
+  const multilinePrefixB = `${taskPrefix}  `
+
+  if (!details) return ''
   const buffer = []
+  let valueStr
   for (let [key, value] of Object.entries(details)) {
-    const valueStr = isString(value) ? chalk.green(value) : util.inspect(value, { colors: true, depth: 4 })
+    if (isString(value))
+      valueStr = chalk.green(value)
+    else if (isNumber(value))
+      valueStr = chalk.magenta(value)
+    else if (isBoolean(value))
+      valueStr = chalk.red(value)
+    else
+      valueStr = util.inspect(value, { colors: true, depth: 4 })
+    
     buffer.push(`${chalk.yellow(key)}: ${valueStr}`)
   }
-  return chalk.italic(buffer.join(', '))
+  return singleLine
+    ? chalk.italic(buffer.join(', '))
+    : chalk.italic(`\n${buffer.map((l, n) => `${n === 0 ? multilinePrefixA : multilinePrefixB}${l}`).join('\n')}`)
 }
 /**
  * Renders a details key/value object to a single line of plain text.

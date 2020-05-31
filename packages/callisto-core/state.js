@@ -26,7 +26,7 @@ const runtime = {
   tasks: null,           // Parsed list of tasks that the bot is able to run
   tasksMeta: {
     failedTasks: null,     // Parsed list of tasks that failed to initialize
-    singleTask: null       // Task slug if we're testing with a single task
+    singleTask: null       // A single task object, if we're testing with a single task
   },
   pkgData: null,         // Application code package data (note: the top level package belonging to the monorepo)
   taskData: null,        // Code and metadata for all registered tasks

@@ -1,12 +1,14 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { get } = require('lodash')
+const { get, isString } = require('lodash')
 const { logFatal, logError, logWarn, logNotice, logInfo, logDebug } = require('dada-cli-tools/log')
 const { wait } = require('dada-cli-tools/util/misc')
 const chalk = require('chalk')
 
+const { shortenDescription, shortenTitle } = require('../../util/message')
 const { isTempError } = require('../../util/errors')
+const { getServerChannelsList } = require('../../util/posting')
 const { renderRichEmbed, renderConsole, renderPlainText } = require('./render')
 const { reportPayloadError, reportPayloadTempError } = require('./errors')
 const runtime = require('../../state')
@@ -143,13 +145,13 @@ const initSystemLogger = () => {
  * the message may only show up on Discord.
  * 
  * @param {Number} level Log level
- * @param {Object} taskInfo.package Package information for the task
- * @param {Object} taskInfo.meta Object containing information of the caller
- * @param {String} taskInfo.meta.id Unique string identifier of the task or system
- * @param {String} taskInfo.meta.name Name of the task or system name
- * @param {String} taskInfo.meta.color Color to use when displaying RichEmbeds
- * @param {String} taskInfo.meta.version Version of the task, or of the system
- * @param {String} taskInfo.meta.icon Link to an icon to display
+ * @param {Object} taskInfo.data.package Package information for the task
+ * @param {Object} taskInfo.data.meta Object containing information of the caller
+ * @param {String} taskInfo.data.meta.id Unique string identifier of the task or system
+ * @param {String} taskInfo.data.meta.name Name of the task or system name
+ * @param {String} taskInfo.data.meta.color Color to use when displaying RichEmbeds
+ * @param {String} taskInfo.data.meta.version Version of the task, or of the system
+ * @param {String} taskInfo.data.meta.icon Link to an icon to display
  * @param {Boolean} logAsObject Whether to log an object, or plain text
  * @param {Boolean} isSystemLogger Whether the logger is for the system (normally, for a task)
  * @param {Boolean} isLocalLogger If toggled, only logs to local console and not to Discord
@@ -160,10 +162,10 @@ const createDiscordLogger = (level, taskInfo, logAsObject = false, isSystemLogge
   if (!logLevel) throw new Error(`Attempted to make a logger with an invalid level: ${level} (${id})`)
 
   // Whether this is a regular or an error log. This decides which channel it's sent to.
-  const isError = level >= logErrorThresholdGte
+  const isError = logLevel[0] >= logErrorThresholdGte
 
   // Log the string to the console. (Note: depends on the --log command line argument.)
-  const consoleSegments = renderConsole(taskInfo, args, logLevel)
+  const consoleSegments = renderConsole(taskInfo, args, logLevel, logAsObject)
   const consoleLogger = logLevel[2]
   consoleLogger(...consoleSegments)
 
@@ -202,21 +204,62 @@ const sendLogMessageRaw = ({ msgPlain = null, msgRichEmbed = null, logOnError = 
 }
 
 /**
+ * Returns an object of functions that can be used to post to Discord.
+ */
+const createTaskMessageSenders = (taskInfo, isSystem = false) => {
+  return {
+    postTextMessage: postTaskMessage(taskInfo, true),
+    postMessage: postTaskMessage(taskInfo, false)
+  }
+}
+
+/**
+ * Returns a function that can be used to post messages.
+ */
+const postTaskMessage = (taskInfo, isPlainText) => (rawMessage, serverAndChannelItems) => {
+  console.log('postTaskMessage', rawMessage)
+  const msgPlain = isPlainText ? rawMessage : null
+  const msgRichEmbed = !isPlainText ? extendRichEmbed(rawMessage, taskInfo) : null
+  const targets = getServerChannelsList(serverAndChannelItems)
+  targets.forEach(serverAndChannel =>
+    sendMessage(serverAndChannel[0], serverAndChannel[1], { msgPlain, msgRichEmbed, logOnError: true, isImportant: false }))
+}
+
+/**
+ * Modifies a RichEmbed to include a task's basic information.
+ * 
+ * Adds the task's icon, the task's color, and a timestamp.
+ */
+const extendRichEmbed = (embed, taskInfo) => {
+  if (!embed) return embed
+  if (!embed.timestamp) embed.setTimestamp(new Date())
+  if (!embed.hexColor) embed.setColor(taskInfo.data.meta.color)
+  if (embed.author && embed.author.name && !embed.author.iconURL) embed.setAuthor(embed.author.name, taskInfo.data.meta.icon, embed.author.url)
+  if (!isString(embed.description)) {
+    embed.setDescription(shortenDescription(embed.description))
+  }
+  if (!isString(embed.title)) {
+    embed.setTitle(shortenTitle(embed.title))
+  }
+  return embed
+}
+
+/**
  * Creates a logger object to be used by one specific task.
  * 
  * This creates a logger object that will post to Discord using the task's name, color and icon.
  *
  * @param {Object} taskInfo Object containing information of the caller
- * @param {String} taskInfo.package Package information for the task
- * @param {String} taskInfo.meta Meta information identifying the task (name, id, icon, color)
- * @param {Boolean} isSystemLogger Whether the logger is for the system (normally, for a task)
+ * @param {String} taskInfo.data.package Package information for the task
+ * @param {String} taskInfo.data.meta Meta information identifying the task (name, id, icon, color)
+ * @param {Boolean} isSystem Whether the logger is for the system (normally, for a task)
  */
-const createTaskLogger = (taskInfo = {}, isSystemLogger = false) => {
+const createTaskLogger = (taskInfo = {}, isSystem = false) => {
   // Generate logging functions for plain text logs and object logs.
   const levels = Object.keys(logLevels)
-  const logFnsPlain = Object.fromEntries(levels.map(level => [level, createDiscordLogger(level, taskInfo, false, isSystemLogger)]))
-  const logFnsObject = Object.fromEntries(levels.map(level => [`${level}Obj`, createDiscordLogger(level, taskInfo, true, isSystemLogger)]))
-  const logFnsLocal = Object.fromEntries(levels.map(level => [`${level}Local`, createDiscordLogger(level, taskInfo, false, isSystemLogger, true)]))
+  const logFnsPlain = Object.fromEntries(levels.map(level => [level, createDiscordLogger(level, taskInfo, false, isSystem)]))
+  const logFnsObject = Object.fromEntries(levels.map(level => [`${level}Obj`, createDiscordLogger(level, taskInfo, true, isSystem)]))
+  const logFnsLocal = Object.fromEntries(levels.map(level => [`${level}Local`, createDiscordLogger(level, taskInfo, false, isSystem, true)]))
   
   // Special logger function for errors that might be low priority, logging either
   // an 'error' if it isn't, or 'notice' if it is.
@@ -353,7 +396,7 @@ const queueHeartbeat = async () => {
       }
       // If sending the message was unsuccessful, but the error indicates a temporary problem, retry it.
       // If it's not a temporary error, log an error - unless this is already an error report.
-      if (isTemporaryError(result)) {
+      if (isTempError(result)) {
         pushToQueueBack(nextPayload, tries + 1)
         reportPayloadTempError(result, nextPayload)
       }
@@ -418,6 +461,7 @@ module.exports = {
   // logger
   system,
   createTaskLogger,
+  createTaskMessageSenders,
   initSystemLogger,
 
   // post

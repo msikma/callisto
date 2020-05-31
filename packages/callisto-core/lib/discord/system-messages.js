@@ -15,7 +15,7 @@ const STARTUP_COLOR = 0x35ed36   // #35ed36
 
 // Returns a string depicting a task item. Used by bulletizeTasks().
 const taskItemString = (task, isSingleTask, isFailedTask) => [
-  `• ${task.package.name}@${task.package.version}`,
+  `• ${task.data.package.name}@${task.data.package.version}`,
   `${isSingleTask ? ' (testing with only this task)' : ''}`,
   `${isFailedTask ? ' (failed to initialize)' : ''}`
 ].join('')
@@ -24,7 +24,7 @@ const taskItemString = (task, isSingleTask, isFailedTask) => [
 const bulletizeTasks = (allTasks, failedTaskSlugs, singleTask) => {
   const lines = []
   for (const [slug, task] of Object.entries(allTasks)) {
-    const isSingleTask = singleTask && singleTask.package.name === slug
+    const isSingleTask = singleTask && singleTask.data.package.name === slug
     const isFailedTask = ~failedTaskSlugs.indexOf(slug)
     lines.push(taskItemString(task, isSingleTask, isFailedTask))
   }
@@ -43,7 +43,7 @@ const printShutdownMessage = async () => {
 
   // Create a RichEmbed to send directly to the channel.
   const embed = new RichEmbed()
-  embed.setAuthor(`Callisto v${systemTask.package.version}`, systemTask.meta.icon, pkgData.homepage)
+  embed.setAuthor(`Callisto v${systemTask.data.package.version}`, systemTask.data.meta.icon, pkgData.homepage)
   embed.setColor(SHUTDOWN_COLOR)
   embed.setDescription(`Callisto Bot is shutting down. The queue will be locked and emptied out before quitting.`)
   embed.addField('Shutdown time', `${currentTs}`, false)
@@ -73,7 +73,7 @@ const printStartupMessage = async () => {
   const timeString = `${currentTs}${lastShutdownMs ? ` (${timeSinceLastRun} since last run)` : ''}`
 
   const embed = new RichEmbed()
-  embed.setAuthor(`Callisto v${systemTask.package.version}`, systemTask.meta.icon, pkgData.homepage)
+  embed.setAuthor(`Callisto v${systemTask.data.package.version}`, systemTask.data.meta.icon, pkgData.homepage)
   embed.setColor(STARTUP_COLOR)
   embed.setDescription(`Callisto Bot is up and running.`)
   embed.addField('Commit', `[\`${systemInfo.repo.formatted} [${systemInfo.repo.hash}]\`](${systemInfo.repo.commitLink})`, true)

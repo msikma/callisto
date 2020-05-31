@@ -1,7 +1,54 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
+const { wrapObject } = require('./formatting')
 const { get } = require('lodash')
+
+/**
+ * Extracts interesting or useful information from an error object.
+ * 
+ * The information is returned in the form of an array of arrays,
+ * which can be transformed into Discord RichEmbed fields.
+ * 
+ * The idea behind this function is that you can throw in any error
+ * and get useful information for the log.
+ */
+const extractErrorInfo = error => {
+  const code = errorMember(error, 'code')
+  const stack = errorMember(error, 'stack')
+  const name = errorMember(error, 'name')
+  const id = errorMember(error, 'id')
+  const message = errorMember(error, 'message')
+
+  const serverName = errorMember(error, '_socket.servername')
+  const targetURL = errorMember(error, 'target.url')
+
+  const fields = {}
+
+  if (name && name.toLowerCase() !== 'error')
+    fields['name'] = ['Name', `${name}`, true]
+  if (code)
+    fields['code'] = ['Code', `${wrapInMono(code)}`, true]
+  if (id)
+    fields['id'] = ['ID', `${id}`, true]
+  if (serverName)
+    fields['serverName'] = ['Socket server name', `${serverName}`, true]
+  if (targetURL)
+    fields['targetURL'] = ['Target URL', `[${targetURL}](${targetURL})`, true]
+  if (message)
+    fields['message'] = ['Message', `${message}`, true]
+  if (stack)
+    fields['stack'] = ['Stack', `${wrapObject(stack)}`, false]
+
+  return fields
+}
+
+/**
+ * Returns the content of a member from an error object.
+ * 
+ * Some errors only have their information inside of a .error object.
+ */
+const errorMember = (err, path, fallback = '') => get(err, path, get(err, `error.${path}`, fallback))
 
 /**
  * Returns true for errors that are temporary network errors that can safely be ignored.
@@ -54,5 +101,6 @@ const isTempError = error => {
 }
 
 module.exports = {
-  isTempError
+  isTempError,
+  extractErrorInfo
 }

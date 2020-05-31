@@ -3,9 +3,10 @@
 
 const path = require('path')
 const fs = require('fs')
-const { logWarn } = require('dada-cli-tools/log')
 const PropTypes = require('prop-types')
 
+const { wait, promiseSerial } = require('../../util/promises')
+const { createTaskLogger, createTaskMessageSenders } = require('../discord')
 const { validatePropsModel, reportValidationErrors, getTaskConfig } = require('../config')
 const { system } = require('../discord')
 const runtime = require('../../state')
@@ -17,30 +18,47 @@ const systemFns = require('./system')
  * 
  * Each task conforms to the following structure:
  * 
- * {
- *   package: {
- *     name: 'callisto-task-youtube',
- *     site: 'https://youtube.com/',
- *     siteShort: 'youtube.com',
- *     description: 'Posts new videos released by specified Youtube channels and reports on new videos for search queries',
- *     version: '1.2.10',
- *     main: '/path/to/index.js'
- *   },
- *   meta: {
- *     id: 'youtube',
- *     name: 'Youtube',
- *     color: 0xff0000,
- *     icon: 'https://i.imgur.com/rAFBjZ4.jpg'
- *   },
- *   actions: [
- *     { delay: 480000, description: 'find new videos from Youtube searches', fn: taskSearchVideos }
- *   ],
- *   config: {
- *     template: () => {},
- *     validator: {}
+ *   {
+ *     package: {
+ *       name: 'callisto-task-youtube',
+ *       site: 'https://youtube.com/',
+ *       siteShort: 'youtube.com',
+ *       description: 'Posts new videos released by specified Youtube channels and reports on new videos for search queries',
+ *       version: '1.2.10',
+ *       main: '/path/to/index.js'
+ *     },
+ *     meta: {
+ *       id: 'youtube',
+ *       name: 'Youtube',
+ *       color: 0xff0000,
+ *       icon: 'https://i.imgur.com/rAFBjZ4.jpg'
+ *     },
+ *     actions: [
+ *       { delay: 480000, description: 'find new videos from Youtube searches', fn: taskSearchVideos }
+ *     ],
+ *     config: { // note: not the user config; see below.
+ *       template: () => {},
+ *       validator: {}
+ *     }
  *   }
- * }
  * 
+ * When tasks are loaded and saved to the runtime variable, we also include a bit of metadata.
+ * Each task object in state.tasks looks like this:
+ * 
+ *   {
+ *     success: true,       // or false if it failed to load for some reason
+ *     error: null,         // an Error object if one occurred while loading
+ *     status: 'inactive',  // or 'active' if it has been activated and its actions queued
+ *     data: {              // the above structure
+ *       package,
+ *       meta,
+ *       actions,
+ *       config
+ *     },
+ *     config: { ... }      // the user's configuration for this task
+ *   }
+ * 
+ * A single system task with the same structure exists as well. See ./system.js.
  */
 
 /**
@@ -127,6 +145,61 @@ const validateTaskConfig = (validator, configData) => {
 }
 
 /**
+ * Starts all loaded tasks.
+ * 
+ * This runs through all parsed tasks and runs their actions.
+ * 
+ * Each action is an object containing a description, a waiting time,
+ * and a function that returns a Promise. We wait for the indicated
+ * number of ms, then run the action, and once it's done we queue
+ * the next one.
+ */
+const activateTasks = async (tasksToRegister = runtime.tasks, singleTask = runtime.tasksMeta.singleTask) => {
+  for (const [key, task] of Object.entries(tasksToRegister)) {
+    // Skip all other tasks if we're using only a single task for testing.
+    if (singleTask && singleTask.data.package.name !== key) {
+      continue
+    }
+
+    // Attempt to start this task's action.
+    try {
+      activateTaskActions(task, runTasksImmediately = !!singleTask)
+    }
+    catch (err) {
+      system.logErrorObj({ title: `Failed to initialize actions for task ${task.data.meta.name}`, error: err })
+    }
+  }
+}
+
+/**
+ * Queues a task's actions.
+ * 
+ * When testing with a single task, the actions will all run immediately.
+ */
+const activateTaskActions = (task, runTasksImmediately = false) => {
+  const taskConfig = task.config
+  const taskLogger = createTaskLogger(task)
+  const taskMessageSenders = createTaskMessageSenders(task)
+  for (const action of task.data.actions) {
+    loopTaskAction(action, taskConfig, { logger: taskLogger, ...taskMessageSenders }, runTasksImmediately)
+  }
+}
+
+/**
+ * Forever loops and calls a specific action from a task.
+ * 
+ * When testing with a single task, the first delay is skipped.
+ */
+const loopTaskAction = async (action, taskConfig, taskServices, runImmediately = false) => {
+  system.logDebug(['Starting action', null, { [action.fn.name]: action.description, delay: action.delay }])
+  if (!runImmediately) await wait(action.delay)
+  while (true) {
+    await promiseSerial(action.fn(taskConfig, { ...taskServices, taskConfig }))
+    await wait(action.delay)
+  }
+}
+
+/**
  * Initializes tasks (loads the code) and returns task data.
  * If a dev task is set, only that task will be loaded.
  */
@@ -202,7 +275,9 @@ const loadTask = (taskPkg, useLogging = false) => {
   return {
     success: error == null,
     error,
-    task: taskStructure
+    status: 'inactive',
+    data: taskStructure,
+    config: configData
   }
 }
 
@@ -244,6 +319,7 @@ const _listTaskDirs = (baseDir) => (
 
 module.exports = {
   loadTasks,
+  activateTasks,
   getTasksData,
   ...systemFns
 }

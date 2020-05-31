@@ -18,12 +18,18 @@ const makeSystemTask = () => {
   // Dummy values. The system task never uses this functionality.
   const actions = []
   const config = {}
-
+  
+  // Note: 'success', 'error' and 'status' are only used by regular tasks.
   return {
-    package,
-    meta,
-    actions,
-    config
+    success: true,
+    error: null,
+    status: null,
+    data: {
+      package,
+      meta,
+      actions,
+      config
+    }
   }
 }
 

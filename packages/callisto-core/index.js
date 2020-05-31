@@ -11,6 +11,7 @@ const initCallisto$ = require('./init/callisto')
 const initTasks$ = require('./init/tasks')
 const scripts = require('./scripts')
 const { printStartupMessage } = require('./lib/discord')
+const { activateTasks } = require('./lib/tasks')
 
 /**
  * Main entry point. Initializes the system, finds and runs tasks, and contacts Discord.
@@ -24,8 +25,6 @@ const runBot$ = async (cliArgs, runtimeData) => {
   logNotice(`callisto ${runtimeData.pkgData.version}`)
   log(`Press CTRL+C to exit.\n`)
 
-  //CHECK: DADA CLI VERSION
-
   await initRuntime$(cliArgs, runtimeData)  // Stores invocation arguments and runtime environment.
   await initConfig$(pathConfig)             // Read and parse config file.
   await initCache$(pathCache)               // Opens the cache database.
@@ -33,8 +32,9 @@ const runBot$ = async (cliArgs, runtimeData) => {
   await initCallisto$()                     // Starts Callisto queue loop and other runtime tasks.
   await initTasks$(devTask)                 // Finds and inits tasks, or the single task if requested.
 
-  // The bot is now running its tasks and connected to Discord.
+  // The bot is now initialized and ready to start sending messages.
   await printStartupMessage()
+  await activateTasks()
 }
 
 module.exports = {
