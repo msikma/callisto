@@ -46,7 +46,7 @@ const formatMessage = (item, { searchQuery, slug, subFile }) => {
   if (item.meta.published)
     embed.addField('Published', `${getFormattedTimestamp(item.meta.publishedExact)} (${getTimeAgo(item.meta.publishedExact)})`, false)
   if (item.meta.views)
-    embed.addField('Views', `${item.meta.views === '0' ? 'No views' : item.meta.views}`, true)
+    embed.addField('Views', `${item.meta.views === '0 views' ? 'No views' : item.meta.views}`, true)
   if (item.meta.length)
     embed.addField('Length', item.meta.length, true)
 
