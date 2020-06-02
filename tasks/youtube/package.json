@@ -14,9 +14,8 @@
   "devDependencies": {
   },
   "dependencies": {
+    "callisto-core": "^1.7.3",
     "cheerio": "^1.0.0-rc.2",
-    "callisto-cache": "^1.1.0",
-    "callisto-logging": "^1.3.0",
     "xml2js": "^0.4.19"
   }
 }
