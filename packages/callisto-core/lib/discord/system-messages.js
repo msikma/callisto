@@ -46,9 +46,8 @@ const printShutdownMessage = async () => {
   embed.setAuthor(`Callisto v${systemTask.data.package.version}`, systemTask.data.meta.icon, pkgData.homepage)
   embed.setColor(SHUTDOWN_COLOR)
   embed.setDescription(`Callisto Bot is shutting down. The queue will be locked and emptied out before quitting.`)
-  embed.addField('Shutdown time', `${currentTs}`, false)
-  embed.addField('test', `[link](https://discordapp.com/channels/564853282015805440/564855845469421568/716352295238893599)`)
-  embed.addField('Uptime', `${uptimeString}`, false)
+  embed.addField('Shutdown time', `${currentTs}`, true)
+  embed.addField('Uptime', `${uptimeString}`, true)
   embed.setTimestamp()
   return sendLogMessageRaw({ msgRichEmbed: embed, logOnError: true })
 }
