@@ -11,21 +11,22 @@ const DEFAULT_SANDBOX = { window: {} }
  */
 const extractScriptResult = (scriptContent, sandbox = DEFAULT_SANDBOX) => {
   try {
-    const sandbox = { window: {} }
     const script = new vm.Script(scriptContent)
-    const ctx = new vm.createContext(sandbox)
-    const value = script.runInContext(ctx)
+    const context = new vm.createContext(sandbox)
+    const returnValue = script.runInContext(context)
     return {
       success: true,
       error: null,
-      value,
-      sandbox
+      returnValue,
+      context
     }
   }
   catch (err) {
     return {
       success: false,
-      error: err
+      error: err,
+      returnValue: null,
+      context: {}
     }
   }
 }

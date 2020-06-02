@@ -21,7 +21,7 @@ const isValidDate = dateStr => (
 )
 
 /**
- * Returns a formatted date.
+ * Returns a formatted date, e.g. 'June 2, 2020'.
  */
 const getFormattedDate = (dateObject) => (
   moment(dateObject).format('MMMM D, YYYY')
@@ -56,9 +56,31 @@ const getSimpleDuration = (time) => (
 )
 
 /**
+ * Returns how much time ago something was, e.g. '5 hours ago'.
+ */
+const getTimeAgo = (time) => {
+  return moment(time).fromNow()
+}
+
+/**
+ * Returns an exact date from a relative one, e.g. '5 hours ago'.
+ */
+const getAbsoluteFromRelative = (time) => {
+  const items = time.split(' ') // ['5', 'hours', 'ago']
+  return getParseableTimestamp(moment().subtract(items[0], items[1]))
+}
+
+/**
  * Returns a timestamp in the format '2018-05-23 01:09:21 +0200'.
  */
 const getFormattedTimestamp = (dateStr) => (
+  moment(dateStr ? dateStr : undefined).format('Y-MM-DD HH:mm:ss ZZ')
+)
+
+/**
+ * Returns a timestamp in the format '2018-05-23 01:09:21+0200'.
+ */
+const getParseableTimestamp = (dateStr) => (
   moment(dateStr ? dateStr : undefined).format('Y-MM-DD HH:mm:ss ZZ')
 )
 /**
@@ -72,8 +94,11 @@ module.exports = {
   isValidDate,
   getFormattedDate,
   getIntegerTimestamp,
+  getAbsoluteFromRelative,
+  getTimeAgo,
   getExactDuration,
   getDuration,
+  getParseableTimestamp,
   getSimpleDuration,
   getFormattedTimestamp,
   getFormattedTime

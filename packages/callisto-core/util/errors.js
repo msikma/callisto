@@ -1,7 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { wrapObject } = require('./formatting')
+const { wrapStack } = require('./formatting')
 const { get } = require('lodash')
 
 /**
@@ -38,7 +38,7 @@ const extractErrorInfo = error => {
   if (message)
     fields['message'] = ['Message', `${message}`, true]
   if (stack)
-    fields['stack'] = ['Stack', `${wrapObject(stack)}`, false]
+    fields['stack'] = ['Stack', `${wrapStack(String(stack))}`, false]
 
   return fields
 }

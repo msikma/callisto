@@ -25,6 +25,8 @@ const FORMAT_LOG_PATTERNS = true
  */
 const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) => {
   const embed = new RichEmbed()
+  console.log('---', 'rich embed')
+  console.log(logArgs)
   if (logArgs.title) embed.setTitle(embedTitle(logArgs.title))
   if (logArgs.desc) embed.setDescription(embedDescription(logArgs.desc))
   if (taskInfo.data.meta.id && isSystemLogger === false) {
@@ -43,7 +45,7 @@ const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) =>
     for (const [key, value] of Object.entries(logArgs.details)) {
       // Values shorter than a certain threshold will be displayed inline.
       const isShort = value.length < 30
-      embed.addField(key, value, isShort)
+      embed.addField(`\`${key}\``, value, isShort)
     }
   }
   embed.setAuthor(taskInfo.data.meta.name, taskInfo.data.meta.icon)

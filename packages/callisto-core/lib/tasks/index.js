@@ -5,7 +5,7 @@ const path = require('path')
 const fs = require('fs')
 const PropTypes = require('prop-types')
 
-const { wait, promiseSerial } = require('../../util/promises')
+const { wait } = require('../../util/promises')
 const { createTaskLogger, createTaskMessageSenders } = require('../discord')
 const { validatePropsModel, reportValidationErrors, getTaskConfig } = require('../config')
 const { system } = require('../discord')
@@ -191,10 +191,22 @@ const activateTaskActions = (task, runTasksImmediately = false) => {
  * When testing with a single task, the first delay is skipped.
  */
 const loopTaskAction = async (action, taskConfig, taskServices, runImmediately = false) => {
-  system.logDebug(['Starting action', null, { [action.fn.name]: action.description, delay: action.delay }])
+  // Log that we're starting this action using the task's own logger.
+  taskServices.logger.logDebug(['Starting action', null, { [action.fn.name]: action.description, delay: action.delay }])
+  
   if (!runImmediately) await wait(action.delay)
   while (true) {
-    await promiseSerial(action.fn(taskConfig, { ...taskServices, taskConfig }))
+    try {
+      await action.fn(taskConfig, { ...taskServices, taskConfig })
+    }
+    catch (err) {
+      taskServices.logger.logErrorObj({
+        title: 'Caught exception while running task',
+        desc: `An exception was thrown while running the action \`${action.fn.name}\`. The action will run again after its usual delay.`,
+        details: { name: action.fn.name, description: action.description, delay: action.delay },
+        error: err
+      })
+    }
     await wait(action.delay)
   }
 }

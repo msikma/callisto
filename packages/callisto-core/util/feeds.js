@@ -1,6 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
+const fs = require('fs').promises
 const { PassThrough } = require('stream')
 const feedParser = require('FeedParser')
 
@@ -28,14 +29,25 @@ const parseFeed = (content, options = {}) => new Promise((resolve, reject) => {
   feed.on('error', err => reject(err))
 
   // Wait for all items to be collected, then resolve.
-  feed.on('readable', () => {
+  feed.on('readable', function() {
     let item
-    while (item = this.read()) {
-      items.push(item)
+    if (this.read) {
+      while (item = this.read()) {
+        items.push(item)
+      }
     }
     resolve(items)
   })
 })
+
+/**
+ * Parses a feed from a local filename.
+ */
+const parseFeedFile = async (filename, options = {}, encoding = 'utf8') => {
+  const str = await fs.readFile(filename, encoding)
+  const items = await parseFeed(str, options)
+  return items
+}
 
 /**
  * Parses a feed by URL and returns its items. Returns a Promise.
@@ -43,6 +55,9 @@ const parseFeed = (content, options = {}) => new Promise((resolve, reject) => {
 const parseFeedURL = (url, options = {}) => new Promise(async (resolve, reject) => {
   try {
     const content = await request(url)
+    if (content.statusCode !== 200) {
+      return resolve([])
+    }
     const items = await parseFeed(content.body, options)
     return resolve(items)
   }
@@ -53,5 +68,6 @@ const parseFeedURL = (url, options = {}) => new Promise(async (resolve, reject) 
 
 module.exports = {
   parseFeed,
+  parseFeedFile,
   parseFeedURL
 }

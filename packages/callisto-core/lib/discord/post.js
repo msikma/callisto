@@ -48,14 +48,14 @@ const runtime = require('../../state')
  * 
  *   {
  *     title: 'Main title describing the error/log purpose',
- *     desc: 'Longer description, e.g. containing information about what went wrong',
+ *     desc: 'Longer description, e.g. containing information about what went wrong.',
  *     details: {}, // Any arbitrary information to be shown in metadata fields
  *     debug: {}, // A plain object containing information useful for debugging (will be wrapped in a code block)
  *     error: new Error('Error object that will be unpacked'),
  *     logOnError: true // Logs a system error if the payload refuses to be accepted
  *   }
  * 
- * For this object, only 'title' is required.
+ * For this object, only 'title' is required. The title should not end with a period, but the description should.
  * 
  * The "local" functions act as the "plain" functions, except that they don't send anything
  * to Discord. They only log to the console.
@@ -179,7 +179,7 @@ const createDiscordLogger = (level, taskInfo, logAsObject = false, isSystemLogge
   // Now we'll log the message to Discord. We'll generate either a plain text string
   // or a RichEmbed (only one of the two, and the other will always be null).
   const msgPlain = !logAsObject ? renderPlainText(taskInfo, args, logLevel) : null
-  const msgRichEmbed = logAsObject ? renderRichEmbed(taskInfo, args, logLevel, isSystemLogger) : null
+  const msgRichEmbed = logAsObject ? renderRichEmbed(taskInfo, args[0], logLevel, isSystemLogger) : null
 
   // To log this message, we're sending message posting commands to each channel that needs it.
   const logCommands = []
@@ -217,7 +217,6 @@ const createTaskMessageSenders = (taskInfo, isSystem = false) => {
  * Returns a function that can be used to post messages.
  */
 const postTaskMessage = (taskInfo, isPlainText) => (rawMessage, serverAndChannelItems) => {
-  console.log('postTaskMessage', rawMessage)
   const msgPlain = isPlainText ? rawMessage : null
   const msgRichEmbed = !isPlainText ? extendRichEmbed(rawMessage, taskInfo) : null
   const targets = getServerChannelsList(serverAndChannelItems)
@@ -235,10 +234,10 @@ const extendRichEmbed = (embed, taskInfo) => {
   if (!embed.timestamp) embed.setTimestamp(new Date())
   if (!embed.hexColor) embed.setColor(taskInfo.data.meta.color)
   if (embed.author && embed.author.name && !embed.author.iconURL) embed.setAuthor(embed.author.name, taskInfo.data.meta.icon, embed.author.url)
-  if (!isString(embed.description)) {
+  if (isString(embed.description)) {
     embed.setDescription(shortenDescription(embed.description))
   }
-  if (!isString(embed.title)) {
+  if (isString(embed.title)) {
     embed.setTitle(shortenTitle(embed.title))
   }
   return embed

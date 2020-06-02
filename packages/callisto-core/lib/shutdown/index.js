@@ -64,11 +64,11 @@ const execShutdown = async () => {
 
     // Wait until the queue is empty, then exit.
     while (true) {
-      await wait(queueEmptyWait)
       if (queueIsEmpty()) {
         system.logDebugLocal('Queue is empty. Exiting.')
         process.exit(0)
       }
+      await wait(queueEmptyWait)
     }
   }
   catch (err) {
