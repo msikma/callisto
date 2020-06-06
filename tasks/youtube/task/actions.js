@@ -5,7 +5,7 @@ const { addDefaults } = require('callisto-core/util/misc')
 const { filterOutCachedItems, cacheItems } = require('callisto-core/lib/cache')
 
 const { formatMessage } = require('./format')
-const { findSearchVideos, findSubscriptionVideos } = require('./find-videos')
+const { findSearchVideos, findSubscriptionVideos } = require('./search')
 
 /**
  * Runs a search query on Youtube and reports on new videos.

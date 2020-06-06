@@ -1,20 +1,31 @@
-/**
- * Calypso - calypso-task-bandcamp <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRunSearches } from './actions'
-import { configTemplate } from './config'
+const { wait } = require('callisto-core/util/promises')
 
-export const id = 'nyaa'
-export const name = 'Nyaa.si'
-export const color = 0x007eff
-export const icon = 'https://i.imgur.com/FfNa3D1.png'
+const { runSearchTask } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-const scheduledActions = [
-  { delay: 1200000, desc: 'run Nyaa.si searches', fn: actionRunSearches }
+/** Searches Nyaa.si for new torrents. */
+const taskSearchTorrents = async (taskConfig, taskServices) => {
+  for (const taskData of taskConfig.searches) {
+    await runSearchTask(taskData, taskServices)
+    await wait(1000)
+  }
+}
+
+const actions = [
+  { delay: 1200000, description: 'find new torrents on Nyaa.si', fn: taskSearchTorrents }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

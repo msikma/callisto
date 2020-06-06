@@ -6,7 +6,7 @@ const { logFatal, logError, logWarn, logNotice, logInfo, logDebug } = require('d
 const { wait } = require('dada-cli-tools/util/misc')
 const chalk = require('chalk')
 
-const { shortenDescription, shortenTitle } = require('../../util/message')
+const { embedDescription, embedTitle } = require('../../util/richembed')
 const { isTempError } = require('../../util/errors')
 const { getServerChannelsList } = require('../../util/posting')
 const { renderRichEmbed, renderConsole, renderPlainText } = require('./render')
@@ -235,10 +235,10 @@ const extendRichEmbed = (embed, taskInfo) => {
   if (!embed.hexColor) embed.setColor(taskInfo.data.meta.color)
   if (embed.author && embed.author.name && !embed.author.iconURL) embed.setAuthor(embed.author.name, taskInfo.data.meta.icon, embed.author.url)
   if (isString(embed.description)) {
-    embed.setDescription(shortenDescription(embed.description))
+    embed.setDescription(embedDescription(embed.description))
   }
   if (isString(embed.title)) {
-    embed.setTitle(shortenTitle(embed.title))
+    embed.setTitle(embedTitle(embed.title))
   }
   return embed
 }

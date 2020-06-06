@@ -324,7 +324,6 @@ const _listTaskDirs = (baseDir) => (
   fs.readdirSync(baseDir)
     .filter(i =>
       fs.statSync(path.join(baseDir, i)).isDirectory() &&
-      i === 'youtube' &&
       fs.statSync(path.join(baseDir, i, 'package.json')).isFile()
     )
 )

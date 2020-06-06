@@ -8,7 +8,7 @@ const util = require('util')
 const { isString, isNumber, isBoolean, get, isPlainObject } = require('lodash')
 
 const { extractErrorInfo } = require('../../util/errors')
-const { embedTitle, embedDescription } = require('../../util/text')
+const { embedTitle, embedDescription } = require('../../util/richembed')
 const { getFormattedTime } = require('../../util/time')
 const { getConsoleInfo } = require('../../util/console')
 const { wrapObject } = require('../../util/formatting')
@@ -25,8 +25,6 @@ const FORMAT_LOG_PATTERNS = true
  */
 const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) => {
   const embed = new RichEmbed()
-  console.log('---', 'rich embed')
-  console.log(logArgs)
   if (logArgs.title) embed.setTitle(embedTitle(logArgs.title))
   if (logArgs.desc) embed.setDescription(embedDescription(logArgs.desc))
   if (taskInfo.data.meta.id && isSystemLogger === false) {

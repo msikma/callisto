@@ -9,7 +9,7 @@ const { request } = require('callisto-core/lib/request')
 const { parseFeedURL } = require('callisto-core/util/feeds')
 const { findTagContent } = require('callisto-core/util/html')
 const { extractScriptResult } = require('callisto-core/util/vm')
-const { getSimpleDuration, getAbsoluteFromRelative } = require('callisto-core/util/time')
+const { formatPubDateDuration, getAbsoluteFromRelative } = require('callisto-core/util/time')
 
 /** Youtube base URL. */
 const baseURL = url => `https://www.youtube.com${url}`
@@ -44,15 +44,6 @@ const getAuthorURL = authorRun => (
   get(authorRun, 'navigationEndpoint.browseEndpoint.canonicalBaseUrl',
   get(authorRun, 'navigationEndpoint.commandMetadata.webCommandMetadata.url', null))
 )
-
-/**
- * Returns how long ago the item was published.
- * 
- * 'pubDate' is a value like "2012-10-25T07:15:47.000Z".
- */
-const formatFeedDuration = pubDate => {
-  return `${getSimpleDuration(Number(new Date()) - Number(new Date(pubDate)))} ago`
-}
 
 /**
  * Converts Youtube's native ytInitialData format into a more usable one.
@@ -129,7 +120,7 @@ const normalizeVideoDataFeed = feedItems => {
   for (const item of feedItems) {
     const { title, description } = item
     const publishedExact = item.pubDate
-    const published = formatFeedDuration(publishedExact)
+    const published = formatPubDateDuration(publishedExact)
     const length = null
     const views = `${item['media:group']['media:community']['media:statistics']['@'].views} views`
     const image = item['media:group']['media:thumbnail']['@']
@@ -173,7 +164,7 @@ const findSubscriptionVideos = async (subFile) => {
     outline = isPlainObject(outline) ? [outline] : outline
   }
   catch (err) {
-    return { success: false, url: null, errorType: 'Could not find `subs.opml.outline.outline`', error: err }
+    return { success: false, errorType: 'Could not find `subs.opml.outline.outline`', error: err, meta: { url: null } }
   }
   
   for (const sub of outline) {
@@ -237,7 +228,7 @@ const findSearchVideos = async (slug, searchQuery, searchParameters) => {
     initialData = extractScriptResult(initialDataScript).context.window.ytInitialData
   }
   catch (err) {
-    return { success: false, url, errorType: 'Could not extract `initialData`', error: err }
+    return { success: false, errorType: 'Could not extract `initialData`', error: err, meta: { url } }
   }
 
   try {
@@ -245,7 +236,7 @@ const findSearchVideos = async (slug, searchQuery, searchParameters) => {
     videoData = initialData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents
   }
   catch (err) {
-    return { success: false, url, errorType: 'Could not find video data', error: err }
+    return { success: false, errorType: 'Could not find video data', error: err, meta: { url } }
   }
 
   // Add a unique ID for the database. Sort oldest items first.

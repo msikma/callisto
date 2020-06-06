@@ -90,6 +90,15 @@ const getFormattedTime = (dateStr) => (
   moment(dateStr ? dateStr : undefined).format('HH:mm:ss ZZ')
 )
 
+/**
+ * Returns how long ago the item was published.
+ * 
+ * 'pubDate' is a value like "2012-10-25T07:15:47.000Z".
+ */
+const formatPubDateDuration = pubDate => {
+  return `${getSimpleDuration(Number(new Date()) - Number(new Date(pubDate)))} ago`
+}
+
 module.exports = {
   isValidDate,
   getFormattedDate,
@@ -101,5 +110,6 @@ module.exports = {
   getParseableTimestamp,
   getSimpleDuration,
   getFormattedTimestamp,
-  getFormattedTime
+  getFormattedTime,
+  formatPubDateDuration
 }

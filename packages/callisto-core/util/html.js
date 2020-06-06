@@ -13,6 +13,33 @@ const findTagContent = ($, tag, contentHint) => {
     .get()[0]
 }
 
+/**
+ * Returns image URLs from an HTML string.
+ */
+const getImagesFromHTML = (html) => {
+  const $ = cheerio.load(`<div id="callisto-wrapper">${html}</div>`)
+  const $html = $('#calypso-wrapper')
+  return $html.find('img').get().map(i => $(i).attr('src'))
+}
+
+/**
+ * Returns whether a string is likely HTML or not.
+ */
+const isHTML = (string) => {
+  const items = [
+    string.indexOf('<p>') > 0,
+    string.indexOf('<strong>') > 0,
+    string.indexOf('<img') > 0,
+    string.indexOf('<br /') > 0,
+    string.indexOf('<br/') > 0,
+    string.indexOf('<br>') > 0,
+    string.indexOf('href="') > 0
+  ]
+  return items.indexOf(true) > -1
+}
+
 module.exports = {
-  findTagContent
+  findTagContent,
+  getImagesFromHTML,
+  isHTML
 }

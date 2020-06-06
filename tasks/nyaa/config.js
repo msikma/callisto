@@ -1,25 +1,42 @@
-export const configTemplate = () => {
-  const obj = `
+// Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
+// © MIT license
+
+const PropTypes = require('prop-types')
+
+const validator = {
+  nyaa: PropTypes.shape({
+    defaults: PropTypes.shape({
+      target: PropTypes.array
+    }).isRequired,
+    searches: PropTypes.arrayOf(PropTypes.shape({
+      searchQuery: PropTypes.string.isRequired,
+      searchCategory: PropTypes.string,
+      searchFilter: PropTypes.string,
+      target: PropTypes.array,
+      thumbnail: PropTypes.string
+    })).isRequired
+  })
+}
+
+const template = () => (
+  `
 nyaa: {
-  defaultDetails: {},
-  defaultTarget: null,
+  defaults: {
+    target: [[SERVER, CHANNEL]]
+  },
   searches: [
     {
-      // Set a search query, and optionally a category.
-      // You can get the category string from the address bar on the site.
-      // A few to get started:
-      //   * 0_0: Everything     3_0: Literature
-      //   * 1_0: Anime          4_0: Live action
-      //   * 1_4: Anime - Raw    5_0: Pictures
-      //   * 2_0: Audio          6_0: Software
-      details: { query: 'pokemon', category: '1_4' },
-      // Optionally a thumbnail can be added to the output. This could be the logo of a show or manga.
-      thumbnail: 'https://i.imgur.com/HbK8Xs8.png',
-      target: [[/* server, channel */]]
-    },
-    // ...
+      searchQuery: 'pocket monsters',
+      searchCategory: '3_0',
+      thumbnail: 'https://i.imgur.com/rOJmB46.png',
+      target: [[SERVER, CHANNEL]]
+    }
   ]
 }
-  `
-  return { obj: obj.trim() }
+  `.trim()
+)
+
+module.exports = {
+  template,
+  validator
 }
