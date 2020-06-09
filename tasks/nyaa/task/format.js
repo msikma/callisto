@@ -1,4 +1,4 @@
-// Callisto - callisto-task-youtube <https://github.com/msikma/callisto>
+// Callisto - callisto-task-nyaa <https://github.com/msikma/callisto>
 // © MIT license
 
 const { RichEmbed } = require('discord.js')
