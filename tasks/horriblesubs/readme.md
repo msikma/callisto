@@ -1,4 +1,4 @@
-Calypso - calypso-task-horriblesubs
-=====================================
+Calypso - callisto-task-horriblesubs
+====================================
 
-Scrapes HorribleSubs for new results.
+Scrapes [HorribleSubs](https://horriblesubs.info/) for new torrents for anime shows.
