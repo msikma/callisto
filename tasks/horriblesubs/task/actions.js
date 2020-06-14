@@ -23,13 +23,12 @@ const runSearchTask = async (taskDataRaw, { taskConfig, logger, postMessage }) =
 
   const searchResult = await findSearchTorrents({ showName, showCommunityWiki })
   let newItems = await filterOutCachedItems('horriblesubs', searchResult.items)
-  newItems = await addDetailedInformation(newItems, { showCommunityWiki })
-  //await cacheItems('nyaa', newItems)
+  newItems = await addDetailedInformation(newItems, { showName, showCommunityWiki }, logger)
+  await cacheItems('horriblesubs', newItems)
   
   for (const item of newItems) {
     const newMessage = formatMessage(item, { showName, showCommunityWiki, showLogo })
     postMessage(newMessage, target)
-    break
   }
 
   logger.logDebug(['Ran HorribleSubs search', null, { showName, showCommunityWiki, results: searchResult.items.length, newItems: newItems.length }])

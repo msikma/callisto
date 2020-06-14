@@ -2,6 +2,7 @@
 // © MIT license
 
 const cheerio = require('cheerio')
+const { get, isPlainObject } = require('lodash')
 const { request } = require('callisto-core/lib/request')
 const { findTagContent } = require('callisto-core/util/html')
 const { extractScriptResult } = require('callisto-core/util/vm')
@@ -49,9 +50,75 @@ const findShowID = $ => {
 }
 
 /**
+ * Function for searching inside the data returned by an infobox API call.
+ */
+const _traverseObject = (search, object) => {
+  let value
+  let dataItem
+
+  if (Array.isArray(object)) {
+    for (const member of object) {
+      value = _traverseObject(search, member)
+      if (value != null) return value
+    }
+  }
+
+  dataItem = get(object, 'data')
+  if (isPlainObject(dataItem)) {
+    dataItem = get(dataItem, 'value')
+  }
+
+  if (Array.isArray(dataItem)) {
+    for (const member of dataItem) {
+      value = _traverseObject(search, member)
+      if (value != null) return value
+    }
+  }
+
+  const searchItems = search.map(searchItem => get(object, searchItem[0]) === searchItem[1]).filter(n => n)
+  if (searchItems.length === search.length) {
+    return object
+  }
+}
+
+/**
+ * Function for finding specific data inside of an infobox object.
+ */
+const _traverseObjectOuter = (search, take, object) => {
+  const value = _traverseObject(search, object)
+  if (value != null) {
+    return take.map(t => get(value, t))
+  }
+}
+
+/**
+ * Retrieves the show's title from its infoboxes.
+ */
+const findShowTitle = infoboxes => {
+  let obj
+  obj = _traverseObjectOuter([['type', 'header']], ['data.value'], get(infoboxes, '0.data.1', {}))
+  if (obj) return obj
+  obj = _traverseObjectOuter([['type', 'title']], ['data.value'], infoboxes)
+  if (obj) return obj
+  return [null]
+}
+
+/**
+ * Retrieves the show's image from its infoboxes.
+ */
+const findShowImage = infoboxes => {
+  let obj
+  obj = _traverseObjectOuter([['type', 'image'], ['data.0.source', 'image'], ['data.0.caption', 'Episode']], ['data.0.url', 'data.0.key'], infoboxes)
+  if (obj) return obj
+  obj = _traverseObjectOuter([['type', 'image'], ['data.0.source', 'image']], ['data.0.url', 'data.0.key'], infoboxes)
+  if (obj) return obj
+  return [null, null]
+}
+
+/**
  * Adds community wiki information to new items.
  */
-const addDetailedInformation = async (items, { showName, showCommunityWiki }) => {
+const addDetailedInformation = async (items, { showName, showCommunityWiki }, logger) => {
   const newItems = []
   for (const item of items) {
     try {
@@ -66,23 +133,22 @@ const addDetailedInformation = async (items, { showName, showCommunityWiki }) =>
 
       // Remove images that are the standard "no picture available" placeholder.
       const images = infoData.images.filter(image => !~image.title.toLowerCase().indexOf('nopicavailable'))
+      // Attempt to find the episode image by searching for 'Episode xx.png'.
+      //const episodeImage = images.filter(i => ~i.title.indexOf(`${item.episodeTitle}.`))
 
       // Check whether we have at least one image and one infobox.
       const hasCommunityInfo = images.length > 0 && infoboxes.length > 0
 
-      // All relevant data should always be in the first infobox.
-      const firstInfobox = infoboxes[0]
-
       // Find title and image.
-      const title = firstInfobox.data.find(item => item.type === 'title').data.value
-      const image = firstInfobox.data.find(item => item.type === 'image').data[0]
+      const title = findShowTitle(infoboxes)
+      const image = findShowImage(infoboxes)
 
       newItems.push({
         ...item,
-        episodeTitle: title,
+        episodeTitle: title[0],
         episodeImage: {
-          url: image.url,
-          name: image.key
+          url: image[0],
+          name: image[1]
         },
         communityWikiURL: wikiURL,
         hasCommunityInfo,
@@ -90,12 +156,7 @@ const addDetailedInformation = async (items, { showName, showCommunityWiki }) =>
       })
     }
     catch (err) {
-      console.log(err)
-      newItems.push({
-        ...item,
-        hasCommunityInfo: false,
-        needsCommunityInfo: true
-      })
+      logger.logDebug(['Did not find detailed information', 'Probably a temporary error, if the episode is very recent', { showName, item, error: err }])
     }
   }
   return newItems
