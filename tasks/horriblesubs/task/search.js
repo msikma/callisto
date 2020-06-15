@@ -134,6 +134,7 @@ const addDetailedInformation = async (items, { showName, showCommunityWiki }, lo
       // Remove images that are the standard "no picture available" placeholder.
       const images = infoData.images.filter(image => !~image.title.toLowerCase().indexOf('nopicavailable'))
       // Attempt to find the episode image by searching for 'Episode xx.png'.
+      // Note: unneeded but can be used if findShowImage() doesn't work for some series.
       //const episodeImage = images.filter(i => ~i.title.indexOf(`${item.episodeTitle}.`))
 
       // Check whether we have at least one image and one infobox.
