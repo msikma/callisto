@@ -4,6 +4,7 @@
 const { Attachment } = require('discord.js')
 const { limitString } = require('dada-cli-tools/util/text')
 const { splitFilename } = require('dada-cli-tools/util/fs')
+const { getURLFilename } = require('dada-cli-tools/request')
 const { slugifyUnderscore } = require('./slug')
 
 /**
@@ -12,7 +13,8 @@ const { slugifyUnderscore } = require('./slug')
 const attachRemoteImage = (embed, url, filename) => {
   let imageName = filename
   if (!filename) {
-    const { basename, extension } = splitFilename(url)
+    const urlFilename = getURLFilename(url)
+    const { basename, extension } = splitFilename(urlFilename)
     imageName = `image_${slugifyUnderscore(basename)}.${extension}`
   }
   const attachment = new Attachment(url, imageName)

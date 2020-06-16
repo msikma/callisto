@@ -7,7 +7,7 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "dada-cli-tools": "^1.0.2",
+    "dada-cli-tools": "^1.0.5",
     "callisto-core": "^1.0.0"
   }
 }
