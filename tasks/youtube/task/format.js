@@ -3,7 +3,6 @@
 
 const { RichEmbed } = require('discord.js')
 const { basename } = require('path')
-const { getFormattedTimestamp, getTimeAgo } = require('callisto-core/util/time')
 
 const { info } = require('../info')
 
@@ -17,7 +16,8 @@ const { info } = require('../info')
  *     description: 'video description **optionally with markdown**',
  *     url: 'https://www.youtube.com/watch?v=yx8FDoIaTDg',
  *     meta:
- *      { published: '1 week ago',
+ *      { publishedExact: 2020-03-03T00:00:00.000Z,
+ *        published: '1 week ago',
  *        length: '1:27:58',
  *        views: '1,350 views' },
  *     image:
@@ -43,8 +43,10 @@ const formatMessage = (item, { searchQuery, slug, subFile }) => {
     embed.setTitle(item.title)
   if (item.description)
     embed.setDescription(item.description)
-  if (item.meta.published)
-    embed.addField('Published', `${getFormattedTimestamp(item.meta.publishedExact)} (${getTimeAgo(item.meta.publishedExact)})`, false)
+  if (item.meta.published) {
+    embed.addField('Published', `${item.meta.published}`, false)
+    embed.setTimestamp(item.meta.publishedExact)
+  }
   if (item.meta.views)
     embed.addField('Views', `${item.meta.views === '0 views' ? 'No views' : item.meta.views}`, true)
   if (item.meta.length)
