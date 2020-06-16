@@ -1,10 +1,23 @@
-export const configTemplate = () => {
-  const obj = `
-vgmrips: {
-  // No configuration. Just posts new albums from VGMRips.
-  // That is, from this page: <https://vgmrips.net/packs/latest>
-  target: [[/* server, channel */]]
+// Callisto - callisto-task-vgmrips <https://github.com/msikma/callisto>
+// © MIT license
+
+const PropTypes = require('prop-types')
+
+const validator = {
+  vgmrips: PropTypes.shape({
+    target: PropTypes.array.isRequired
+  })
 }
+
+const template = () => (
   `
-  return { obj: obj.trim() }
+vgmrips: {
+  target: [[SERVER, CHANNEL]]
+}
+  `.trim()
+)
+
+module.exports = {
+  template,
+  validator
 }

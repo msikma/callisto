@@ -1,19 +1,25 @@
-/**
- * Calypso - calypso-task-vgmrips <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-vgmrips <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRecentReleases } from './actions'
-import { configTemplate } from './config'
+const { findLatestAdditions } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-export const id = 'vgmrips'
-export const name = 'VGMRips'
-export const color = 0x00ff00
-export const icon = 'https://i.imgur.com/rb5dl18.png'
-const scheduledActions = [
-  { delay: 1800000, desc: 'find new pack releases from VGMRips', fn: actionRecentReleases }
+const taskLatestAdditions = async (taskConfig, taskServices) => {
+  await findLatestAdditions(taskConfig, taskServices)
+}
+
+const actions = [
+  { delay: 1800000, description: 'posts about the latest new soundtracks on VGMRips', fn: taskLatestAdditions }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }
