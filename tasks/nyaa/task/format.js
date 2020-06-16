@@ -53,16 +53,17 @@ const formatMessage = (item, { searchQuery, searchCategory, thumbnail }) => {
   
   if (item.images.length) {
     // Multiple images are (possibly) present. Use the first one.
-    const url = encodeURI(item.images[0].url)
-    attachRemoteImage(embed, url)
+    attachRemoteImage(embed, item.images[0].url)
   }
 
   if (item.title)
     embed.setTitle(item.title)
   if (item.description)
     embed.setDescription(item.description)
-  if (item.meta.publishedExact) 
+  if (item.meta.publishedExact) {
     embed.addField('Published', getFormattedTimestamp(item.meta.publishedExact), false)
+    embed.setTimestamp(item.meta.publishedExact)
+  }
   if (item.category)
     embed.addField('Category', item.category, true)
   if (item.size)
