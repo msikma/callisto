@@ -1,9 +1,23 @@
-export const configTemplate = () => {
-  const obj = `
-vgmpf: {
-  // No configuration. Just posts updates (new albums) from VGMPF.
-  target: [[/* server, channel */]]
+// Callisto - callisto-task-vgmpf <https://github.com/msikma/callisto>
+// © MIT license
+
+const PropTypes = require('prop-types')
+
+const validator = {
+  vgmpf: PropTypes.shape({
+    target: PropTypes.array.isRequired
+  })
 }
+
+const template = () => (
   `
-  return { obj: obj.trim() }
+  vgmpf: {
+  target: [[SERVER, CHANNEL]]
+}
+  `.trim()
+)
+
+module.exports = {
+  template,
+  validator
 }

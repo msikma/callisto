@@ -1,4 +1,4 @@
-Calypso - calypso-task-vgmrips
-================================
+Callisto - callisto-task-vgmpf
+==============================
 
-Scrapes VGMRips for new results.
+Scrapes the Video Game Music Preservation Foundation website for new soundtrack releases.
