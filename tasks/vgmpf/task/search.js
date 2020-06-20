@@ -116,6 +116,7 @@ const addAdditionalData = async soundtracks => {
     const screenshots = getScreenshots($)
     const tracksInfo = getTracksInfo($)
     newSoundtracks.push({
+      id: s.id,
       titleFull: title,
       content: contentMD,
       ...data,
