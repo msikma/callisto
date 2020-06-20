@@ -1,19 +1,25 @@
-/**
- * Calypso - calypso-task-tasvideos <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-tasvideos <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionSearchUpdates } from './actions'
-import { configTemplate } from './config'
+const { findLatestPublications } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-export const id = 'tasvideos'
-export const name = 'TASVideos'
-export const color = 0x9747cf
-export const icon = 'https://i.imgur.com/wlRgRr5.png'
-const scheduledActions = [
-  { delay: 480000, desc: 'find new TASes from TASVideos', fn: actionSearchUpdates }
+const taskLatestPublications = async (taskConfig, taskServices) => {
+  await findLatestPublications(taskConfig, taskServices)
+}
+
+const actions = [
+  { delay: 480000, description: 'posts new TAS publications on TASVideos', fn: taskLatestPublications }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

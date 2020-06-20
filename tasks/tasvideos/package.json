@@ -1,7 +1,7 @@
 {
   "_siteShort": "tasvideos.org",
   "_site": "http://tasvideos.org/",
-  "name": "calypso-task-tasvideos",
+  "name": "callisto-task-tasvideos",
   "private": true,
   "version": "1.0.9",
   "description": "Posts new tool-assisted speedruns released on TASVideos",
@@ -10,12 +10,13 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Michiel Sikma <michiel@sikma.org>",
-  "license": "SEE LICENSE IN <readme.md>",
+  "license": "MIT",
   "devDependencies": {
   },
   "dependencies": {
-    "calypso-cache": "^1.1.0",
-    "calypso-logging": "^1.3.0",
-    "calypso-misc": "^1.4.0"
+    "callisto-core": "^1.7.3",
+    "discord.js": "^11.3.0",
+    "lodash": "^4.17.10",
+    "cheerio": "^1.0.0-rc.2"
   }
 }
