@@ -94,7 +94,7 @@ const removeGenres = (categories) => (
  * Filters the description HTML, removes unneeded elements.
  */
 const filterDescription = (html) => {
-  const md = htmlToMarkdown(html, false, true, true, true)
+  const md = htmlToMarkdown(html, { removeScript: true, removeStyle: true, removeHr: true, removeImages: true })
   // Fix links that don't include http. Sometimes they're used.
   return md.split('(//tasvideos.org').join('(http://tasvideos.org')
 }

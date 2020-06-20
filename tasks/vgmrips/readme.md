@@ -1,5 +1,5 @@
-Calypso - callisto-task-vgmrips
-===============================
+Callisto - callisto-task-vgmrips
+================================
 
 Scrapes VGMRips for new results.
 
