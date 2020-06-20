@@ -1,7 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { wrapStack } = require('./formatting')
+const { wrapStack, wrapInMono } = require('./formatting')
 const { get } = require('lodash')
 
 /**

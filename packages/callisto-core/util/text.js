@@ -29,6 +29,13 @@ const removeEmptyLines = (str, leaveGap = false) => {
 }
 
 /**
+ * Converts an array into a bulleted list.
+ */
+const bulletizeList = (arr, bullet = '• ') => {
+  return arr.map(i => `${bullet}${i}`).join('\n')
+}
+
+/**
  * Separate images from Markdown. We can't display them on Discord.
  * 
  * This returns the Markdown text with all image tags removed, and the image tags separately.
@@ -95,5 +102,6 @@ module.exports = {
   limitDescriptionSentence,
   limitDescriptionParagraph,
   separateMarkdownImages,
+  bulletizeList,
   removeEmptyLines
 }

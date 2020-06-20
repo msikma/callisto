@@ -52,9 +52,9 @@ const parseFeedFile = async (filename, options = {}, encoding = 'utf8') => {
 /**
  * Parses a feed by URL and returns its items. Returns a Promise.
  */
-const parseFeedURL = (url, options = {}) => new Promise(async (resolve, reject) => {
+const parseFeedURL = (url, options = {}, reqOpts = undefined, reqCustomOpts = undefined) => new Promise(async (resolve, reject) => {
   try {
-    const content = await request(url)
+    const content = await request(url, reqOpts, reqCustomOpts)
     if (content.statusCode !== 200) {
       return resolve([])
     }
