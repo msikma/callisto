@@ -13,6 +13,22 @@ moment.suppressDeprecationWarnings = true
 momentDurationFormatSetup(moment)
 
 /**
+ * Returns a seconds duration formatted as HH:MM:SS.
+ */
+const getHHMMSS = time => {
+  const secs = parseInt(time, 10)
+  const hours = Math.floor(secs / 3600)
+  const minutes = Math.floor((secs - (hours * 3600)) / 60)
+  const seconds = secs - (hours * 3600) - (minutes * 60)
+  
+  let hoursStr = `${hours < 10 ? '0' : ''}${hours}`
+  let minutesStr = `${minutes < 10 && hours > 0 ? '0' : ''}${minutes}`
+  let secondsStr = `${seconds < 10 ? '0' : ''}${seconds}`
+
+  return (hours > 0 ? `${hoursStr}:` : '') + `${minutesStr}:${secondsStr}`
+}
+
+/**
  * Returns true for a string that can be turned into a valid date using moment(),
  * false if it is not.
  */
@@ -101,6 +117,7 @@ const formatPubDateDuration = pubDate => {
 
 module.exports = {
   isValidDate,
+  getHHMMSS,
   getFormattedDate,
   getIntegerTimestamp,
   getAbsoluteFromRelative,

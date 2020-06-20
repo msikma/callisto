@@ -2,7 +2,7 @@
 // © MIT license
 
 const { Attachment } = require('discord.js')
-const { limitString } = require('dada-cli-tools/util/text')
+const { limitString, limitStringParagraph } = require('dada-cli-tools/util/text')
 const { splitFilename } = require('dada-cli-tools/util/fs')
 const { getURLFilename } = require('dada-cli-tools/request')
 const { slugifyUnderscore } = require('./slug')
@@ -25,7 +25,7 @@ const attachRemoteImage = (embed, url, filename) => {
 
 /** Limits title and description so they fit in a RichEmbed. */
 const embedTitle = limitString(250) // Really 256, but with some buffer built in.
-const embedDescription = limitString(2000) // Really 2048.
+const embedDescription = limitStringParagraph(2000) // Really 2048.
 
 module.exports = {
   attachRemoteImage,

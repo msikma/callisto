@@ -3,7 +3,7 @@
  * © MIT license
  */
 
-const { limitStringSentence, limitStringParagraph } = require('dada-cli-tools/util/text')
+const { limitStringSentence, limitStringParagraph, charTrim } = require('dada-cli-tools/util/text')
 
 /**
  * Removes empty > quote lines.
@@ -103,5 +103,6 @@ module.exports = {
   limitDescriptionParagraph,
   separateMarkdownImages,
   bulletizeList,
+  charTrim,
   removeEmptyLines
 }
