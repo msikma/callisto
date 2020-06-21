@@ -1,19 +1,30 @@
-/**
- * Calypso - calypso-task-feed <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-feed <https://github.com/msikma/callisto>
+// © MIT license
 
-import { checkFeeds } from './actions'
-import { configTemplate } from './config'
+const { wait } = require('callisto-core/util/promises')
 
-export const id = 'feed'
-export const name = 'Feed'
-export const color = 0xff6600
-export const icon = 'https://i.imgur.com/YmcB7Tb.png'
-const scheduledActions = [
-  { delay: 200000, desc: 'retrieve syndicated feed updates', fn: checkFeeds }
+const { runFeedsTask } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
+
+const taskCheckFeeds = async (taskConfig, taskServices) => {
+  for (const taskData of taskConfig.feeds) {
+    await runFeedsTask(taskData, taskServices)
+    await wait(1000)
+  }
+}
+
+const actions = [
+  { delay: 200000, description: 'retrieve syndicated feed updates', fn: taskCheckFeeds }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

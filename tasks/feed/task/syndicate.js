@@ -1,28 +1,30 @@
-/**
- * Calypso - calypso-task-feed <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-feed <https://github.com/msikma/callisto>
+// © MIT license
 
-import { cacheItems, removeCached } from 'calypso-cache'
-import { parseFeedURL, isHTML, htmlToMarkdown, removeEmptyLines, getImagesFromHTML, limitDescription } from 'calypso-misc'
-import { getBestImage, cleanupImage } from './util'
-import { id } from './index'
+const { parseFeedURL } = require('callisto-core/util/feeds')
+const { limitDescriptionParagraph, removeEmptyLines } = require('callisto-core/util/text')
+const { getImagesFromHTML, htmlToMarkdown, isHTML } = require('callisto-core/util/html')
+const { getBestImage, cleanupImage } = require('callisto-core/util/image')
 
 /**
  * Checks the given RSS, Atom or RDF feed for updates that have not been posted yet.
  */
-export const checkForUpdates = async (url, slug, baseURL = '') => {
-  // Retrieve items from the feed, and parse the content for easy consumption later.
-  const items = (await parseFeedURL(url)).map(i => parseItem(i, baseURL))
-  if (items.length === 0) return []
+const getFeedUpdates = async ({ feedURL, feedName, feedSlug, baseURL }) => {
+  const results = (await parseFeedURL(feedURL))
+    .map(item => parseItem(item, baseURL))
+    .sort((a, b) => a.pubDate > b.pubDate ? 1 : -1)
 
-  const newItems = await removeCached(`${id}$${slug}`, items)
-  if (newItems.length === 0) return []
-  cacheItems(`${id}$${slug}`, newItems)
-
-  return newItems
+  return {
+    success: true,
+    items: results,
+    meta: {
+      url: feedURL,
+      baseURL,
+      feedName,
+      feedSlug
+    }
+  }
 }
-
 /**
  * Cleans up a feed item's data slightly so it can be easily posted later.
  */
@@ -33,7 +35,7 @@ const parseItem = (item, baseURL) => {
   // Convert the description to Markdown (or leave it as it is, if it's not HTML).
   const descriptionIsHTML = isHTML(item.description)
   const descriptionClean = descriptionIsHTML
-    ? limitDescription(removeEmptyLines(htmlToMarkdown(item.description, false, true, true, false, true), true))
+    ? limitDescriptionParagraph(removeEmptyLines(htmlToMarkdown(item.description, { removeEmpty: false, removeScript: true, removeStyle: true, removeHr: false, removeImages: true }), true))
     : item.description
 
   let _bestImage = null
@@ -67,4 +69,8 @@ const parseItem = (item, baseURL) => {
     _bestImage,
     _description: descriptionClean
   }
+}
+
+module.exports = {
+  getFeedUpdates
 }
