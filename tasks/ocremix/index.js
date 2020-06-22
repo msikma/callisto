@@ -1,19 +1,29 @@
-/**
- * Calypso - calypso-task-ocremix <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-ocremix <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRemixes } from './actions'
-import { configTemplate } from './config'
+const { findLatestTracks, findLatestAlbums } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-export const id = 'ocremix'
-export const name = 'OverClocked ReMix'
-export const color = 0xf36b00
-export const icon = 'https://i.imgur.com/4pVcJnw.png'
-const scheduledActions = [
-  { delay: 240000, desc: 'find new albums and single tracks on OCReMix', fn: actionRemixes }
+const taskNewTracks = async (taskConfig, taskServices) => {
+  await findLatestTracks(taskConfig, taskServices)
+}
+const taskNewAlbums = async (taskConfig, taskServices) => {
+  await findLatestAlbums(taskConfig, taskServices)
+}
+
+const actions = [
+  { delay: 240000, description: 'find new single tracks on OCReMix', fn: taskNewTracks },
+  { delay: 400000, description: 'find new albums on OCReMix', fn: taskNewAlbums }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

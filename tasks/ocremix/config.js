@@ -1,15 +1,33 @@
-export const configTemplate = () => {
-  const obj = `
+// Callisto - callisto-task-ocremix <https://github.com/msikma/callisto>
+// © MIT license
+
+const PropTypes = require('prop-types')
+
+const validator = {
+  ocremix: PropTypes.shape({
+    tracks: PropTypes.shape({
+      target: PropTypes.array.isRequired
+    }),
+    albums: PropTypes.shape({
+      target: PropTypes.array.isRequired
+    })
+  })
+}
+
+const template = () => (
+  `
 ocremix: {
-  // There's no configuration aside from setting a target.
-  // This task just retrieves new tracks and new albums.
   tracks: {
-    target: [[/* server, channel */]]
+    target: [[SERVER, CHANNEL]]
   },
   albums: {
-    target: [[/* server, channel */]]
+    target: [[SERVER, CHANNEL]]
   }
 }
-  `
-  return { obj: obj.trim() }
+  `.trim()
+)
+
+module.exports = {
+  template,
+  validator
 }
