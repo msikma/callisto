@@ -5,11 +5,11 @@ const { RichEmbed } = require('discord.js')
 const stringWidth = require('string-width')
 const chalk = require('chalk')
 const util = require('util')
-const { isString, isNumber, isBoolean, get, isPlainObject } = require('lodash')
+const { isString, isNumber, isBoolean, get, isPlainObject, isDate } = require('lodash')
 
 const { extractErrorInfo } = require('../../util/errors')
 const { embedTitle, embedDescription } = require('../../util/richembed')
-const { getFormattedTime } = require('../../util/time')
+const { getFormattedTime, getFormattedTimestamp } = require('../../util/time')
 const { getConsoleInfo } = require('../../util/console')
 const { wrapObject } = require('../../util/formatting')
 
@@ -177,6 +177,8 @@ const _renderDetailsConsole = (details, singleLine = true, taskInfo = null) => {
   for (let [key, value] of Object.entries(details)) {
     if (isString(value))
       valueStr = chalk.green(value)
+    else if (isDate(value))
+      valueStr = chalk.cyan(getFormattedTimestamp(value))
     else if (isNumber(value))
       valueStr = chalk.magenta(value)
     else if (isBoolean(value))

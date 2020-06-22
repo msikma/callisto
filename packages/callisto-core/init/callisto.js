@@ -10,7 +10,7 @@ const { initQueueLoop } = require('../lib/discord')
 const runtime = require('../state')
 
 const printStartupIndicator = () => {
-  system.logDebug(['Starting up Callisto', null, { time: getFormattedTimestamp() }])
+  system.logDebug(['Starting up Callisto', null, { time: new Date() }])
 }
 
 const printCacheSize = () => {
