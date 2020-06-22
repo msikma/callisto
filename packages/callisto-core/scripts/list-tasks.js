@@ -10,7 +10,7 @@ const { getTasksData } = require('../lib/tasks')
  * Creates a Markdown document string from an array of tasks.
  */
 const makeTasksMarkdown = (tasks) => {
-  const taskInfo = tasks.map(task => `| ${task.name} | ${task.description}${task.site ? ` | [${task.siteShort}](${task.site}) |` : ' | – |'}`)
+  const taskInfo = tasks.map(task => `| ${task.name} | ${task.description}${task.site ? ` | ${task.site && task.siteShort ? `[${task.siteShort}](${task.site})` : '–'} |` : ' | – |'}`)
   const md = [
     '| Name | Description | Site |',
     '|:-----|:------------|:-----|',

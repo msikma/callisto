@@ -67,8 +67,8 @@ const systemFns = require('./system')
 const taskStructureValidator = {
   package: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    site: PropTypes.string.isRequired,
-    siteShort: PropTypes.string.isRequired,
+    site: PropTypes.string,
+    siteShort: PropTypes.string,
     description: PropTypes.string.isRequired,
     version: PropTypes.string.isRequired,
     main: PropTypes.string.isRequired
