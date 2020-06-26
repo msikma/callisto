@@ -1,17 +1,14 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { isNil, omit, omitBy } = require('lodash')
+const { isNil, omit, omitBy, merge } = require('lodash')
 
 /**
  * Merges in the defaults if they exist.
  */
 const addDefaults = (itemData, taskConfig) => {
   if (taskConfig.defaults) {
-    return {
-      ...taskConfig.defaults,
-      ...itemData
-    }
+    return merge(taskConfig.defaults, itemData)
   }
   return itemData
 }
