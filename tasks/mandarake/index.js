@@ -1,21 +1,37 @@
-/**
- * Calypso - calypso-task-mandarake <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-mandarake <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRunSearches } from './actions'
-import { configTemplate } from './config'
+const { wait } = require('callisto-core/util/promises')
+const { findProducts, findAuctions } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-export const id = 'mandarake'
-export const name = 'Mandarake'
-export const color = 0xaf031d
-export const colorAuctions = 0x106770
-export const icon = 'https://i.imgur.com/30I7Ir1.png'
-export const iconAuctions = 'https://i.imgur.com/KsL3wSY.png'
-const scheduledActions = [
-  { delay: 1200000, desc: 'run Mandarake searches', fn: actionRunSearches }
+const taskFindProducts = async (taskConfig, taskServices) => {
+  for (const search of taskConfig.main.searches) {
+    await findProducts(search, taskServices)
+    await wait(1000)
+  }
+}
+
+const taskFindAuctions = async (taskConfig, taskServices) => {
+  for (const search of taskConfig.auction.searches) {
+    await findAuctions(search, taskServices)
+    await wait(1000)
+  }
+}
+// todo: fix auctions color/icon
+const actions = [
+  { delay: 1200000, description: 'searches Mandarake for new products', fn: taskFindProducts },
+  { delay: 1200000, description: 'searches Mandarake for new auctions', fn: taskFindAuctions },
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }
