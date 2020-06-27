@@ -9,7 +9,7 @@ const { request } = require('callisto-core/lib/request')
 const { parseFeedURL } = require('callisto-core/util/feeds')
 const { findTagContent } = require('callisto-core/util/html')
 const { extractScriptResult } = require('callisto-core/util/vm')
-const { formatPubDateDuration, getAbsoluteFromRelative } = require('callisto-core/util/time')
+const { formatPubDateDuration, getAbsoluteFromRelative, getParseableTimestamp, getTimeAgo } = require('callisto-core/util/time')
 
 /** Youtube base URL. */
 const baseURL = url => `https://www.youtube.com${url}`
@@ -56,6 +56,9 @@ const getAuthorURL = authorRun => (
  *     url: 'https://www.youtube.com/watch?v=yx8FDoIaTDg',
  *     meta:
  *      { published: '1 week ago',
+ *        publishedExact: '2018-05-23 01:09:21+0200',
+ *        isPublished: true,
+ *        isScheduled: false,
  *        length: '1:27:58',
  *        views: '1,350 views' },
  *     image:
@@ -69,6 +72,11 @@ const getAuthorURL = authorRun => (
  *         { url: 'https://i.ytimg.com/vi/filename',
  *           width: 168,
  *           height: 94 } } }
+ * 
+ * If 'upcomingEventData' is defined, the video has not premiered yet and is set to
+ * go live at a specific time. In this case 'publishedTimeText' will be null, and the
+ * 'published' and 'publishedExact' fields will contain the time the video is set
+ * to go live.
  */
 const normalizeVideoData = videoData => {
   const videos = []
@@ -78,10 +86,12 @@ const normalizeVideoData = videoData => {
     const image = getLargestThumbnail(base.thumbnail.thumbnails)
     const title = base.title.runs.map(wrapRunInMarkdown).join('')
     const description = base.descriptionSnippet.runs.map(wrapRunInMarkdown).join('')
-    const published = base.publishedTimeText.simpleText
-    const publishedExact = getAbsoluteFromRelative(published)
+    const isScheduled = base.upcomingEventData != null
+    const isPublished = !isScheduled
+    const published = isPublished ? base.publishedTimeText.simpleText : getTimeAgo(new Date(base.upcomingEventData.startTime * 1000))
+    const publishedExact = isPublished ? getAbsoluteFromRelative(published) : getParseableTimestamp(new Date(base.upcomingEventData.startTime * 1000))
     const length = base.lengthText.simpleText
-    const views = base.viewCountText.simpleText
+    const views = base.viewCountText ? base.viewCountText.simpleText : '0 views'
     const url = videoURL(videoID)
     const channelThumbnail = getLargestThumbnail(base.channelThumbnailSupportedRenderers.channelThumbnailWithLinkRenderer.thumbnail.thumbnails)
     const authorData = base.ownerText.runs[0]
@@ -90,7 +100,6 @@ const normalizeVideoData = videoData => {
       url: baseURL(getAuthorURL(authorData)),
       image: channelThumbnail
     }
-
     videos.push({
       videoID,
       title,
@@ -99,6 +108,8 @@ const normalizeVideoData = videoData => {
       meta: {
         publishedExact,
         published,
+        isScheduled,
+        isPublished,
         length,
         views
       },

@@ -3,6 +3,7 @@
 
 const { RichEmbed } = require('discord.js')
 const { basename } = require('path')
+const { getFormattedTimestamp } = require('callisto-core/util/time')
 
 const { info } = require('../info')
 
@@ -18,6 +19,8 @@ const { info } = require('../info')
  *     meta:
  *      { publishedExact: 2020-03-03T00:00:00.000Z,
  *        published: '1 week ago',
+ *        isPublished: true,
+ *        isScheduled: false,
  *        length: '1:27:58',
  *        views: '1,350 views' },
  *     image:
@@ -43,11 +46,13 @@ const formatMessage = (item, { searchQuery, slug, subFile }) => {
     embed.setTitle(item.title)
   if (item.description)
     embed.setDescription(item.description)
-  if (item.meta.published) {
+  if (item.meta.isPublished && item.meta.published)
     embed.addField('Published', `${item.meta.published}`, false)
+  if (item.meta.isScheduled && item.meta.publishedExact)
+    embed.addField('Scheduled for', `${getFormattedTimestamp(item.meta.publishedExact)}`, false)
+  if (item.meta.publishedExact)
     embed.setTimestamp(item.meta.publishedExact)
-  }
-  if (item.meta.views)
+  if (item.meta.views && item.meta.isPublished)
     embed.addField('Views', `${item.meta.views === '0 views' ? 'No views' : item.meta.views}`, true)
   if (item.meta.length)
     embed.addField('Length', item.meta.length, true)
