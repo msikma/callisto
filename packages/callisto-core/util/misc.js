@@ -1,16 +1,17 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { isNil, omit, omitBy, merge } = require('lodash')
+const { isNil, omit, omitBy, merge, cloneDeep } = require('lodash')
 
 /**
- * Merges in the defaults if they exist.
+ * Merges in the defaults if they exist. Returns a new object with final task data.
  */
 const addDefaults = (itemData, taskConfig) => {
+  const itemClone = cloneDeep(itemData)
   if (taskConfig.defaults) {
-    return merge(taskConfig.defaults, itemData)
+    return merge(cloneDeep(taskConfig.defaults), itemClone)
   }
-  return itemData
+  return itemClone
 }
 
 /**
