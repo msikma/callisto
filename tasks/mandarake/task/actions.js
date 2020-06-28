@@ -8,7 +8,7 @@ const { formatMessageMain, formatMessageAuction } = require('./format')
 const { runShopSearch, runAuctionSearch } = require('./search')
 
 /**
- * Finds the latest soundtrack releases on VGMPF and posts them.
+ * Searches Mandarake for new products for sale.
  */
 const findProducts = async (searchConfig, { taskConfig, logger, postMessage }) => {
   const searchData = addDefaults(searchConfig, taskConfig.main)
@@ -27,6 +27,9 @@ const findProducts = async (searchConfig, { taskConfig, logger, postMessage }) =
   }])
 }
 
+/**
+ * Searches Mandarake for new products in auctions.
+ */
 const findAuctions = async (searchConfig, { taskConfig, logger, postMessage }) => {
   const searchData = addDefaults(searchConfig, taskConfig.main)
   const { details, target } = searchData
