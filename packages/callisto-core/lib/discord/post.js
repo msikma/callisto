@@ -232,8 +232,8 @@ const postTaskMessage = (taskInfo, isPlainText) => (rawMessage, serverAndChannel
 const extendRichEmbed = (embed, taskInfo) => {
   if (!embed) return embed
   if (!embed.timestamp) embed.setTimestamp(new Date())
-  if (!embed.hexColor) embed.setColor(taskInfo.data.meta.color)
-  if (embed.author && embed.author.name && !embed.author.iconURL) embed.setAuthor(embed.author.name, taskInfo.data.meta.icon, embed.author.url)
+  if (!embed.color) embed.setColor(taskInfo.data.meta.color)
+  if (embed.author && embed.author.name && !embed.author.icon_url) embed.setAuthor(embed.author.name, taskInfo.data.meta.icon, embed.author.url)
   if (isString(embed.description)) {
     embed.setDescription(embedDescription(embed.description))
   }
