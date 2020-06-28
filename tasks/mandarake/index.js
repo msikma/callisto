@@ -19,7 +19,7 @@ const taskFindAuctions = async (taskConfig, taskServices) => {
     await wait(1000)
   }
 }
-// todo: fix auctions color/icon
+
 const actions = [
   { delay: 1200000, description: 'searches Mandarake for new products', fn: taskFindProducts },
   { delay: 1200000, description: 'searches Mandarake for new auctions', fn: taskFindAuctions },
