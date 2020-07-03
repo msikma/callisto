@@ -114,6 +114,9 @@ const formatMessage = (item, meta, fields = ['price', 'seller', 'location', 'del
     else if (priceType === 'FREE') {
       embed.addField('Price', `Free`, false)
     }
+    else if (priceType === 'NOTK') {
+      embed.addField('Price', `To be agreed upon later`, false)
+    }
     else {
       embed.addField('Price', `Unknown price type${priceCents ? ` (${formatCurrency(priceCents / 100, 'EUR')})` : ''}`, false)
     }
