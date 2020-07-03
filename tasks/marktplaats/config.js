@@ -1,34 +1,64 @@
-export const configTemplate = () => {
-  const obj = `
+// Callisto - callisto-task-marktplaats <https://github.com/msikma/callisto>
+// © MIT license
+
+const PropTypes = require('prop-types')
+
+const validator = {
+  marktplaats: PropTypes.shape({
+    defaults: PropTypes.shape({
+      details: PropTypes.shape({
+        keywords: PropTypes.arrayOf(PropTypes.string),
+        categories: PropTypes.arrayOf(PropTypes.oneOf([PropTypes.string, PropTypes.number]))
+      }).isRequired,
+      target: PropTypes.array,
+    }),
+    searches: PropTypes.arrayOf(PropTypes.shape({
+      details: PropTypes.shape({
+        keywords: PropTypes.arrayOf(PropTypes.string).isRequired,
+        categories: PropTypes.arrayOf(PropTypes.oneOf([PropTypes.string, PropTypes.number])).isRequired
+      }).isRequired,
+      target: PropTypes.array,
+    }))
+  })
+}
+
+const template = () => (
+  `
 marktplaats: {
-  // Just leave this empty.
-  defaultDetails: {},
-  defaultTarget: [[/* server, channel */]],
+  defaults: {
+    details: {},
+    target: [[SERVER, CHANNEL]]
+  },
   searches: [
-    // This is where the searches are set up. You can enter multiple keywords,
-    // and multiple categories - the task will search every combination.
-    //
-    // For example:
-    //
-    // {
-    //   details: {
-    //     keyword: ['diskette', 'floppy'],
-    //     category: ['322', '356']
-    //   },
-    //   target: [['target', 'here']]
-    // },
-    //
-    // This will fire off 4 searches (2 * 2), one after the other.
-    // The options in 'details' override the 'defaultDetails', if any are set there.
-    //
-    // Categories can be found on the website itself by copying them from the address bar.
-    // E.g. 322: Computers and software
-    //      356: Consoles and games
-    { details: { keyword: ['diskette', 'floppy'], category: ['322', '356'] }, target: [[/* server, channel */]] },
-    { details: { keyword: ['zolderopruiming'], category: ['322'] }, target: [[/* server, channel */]] }
-    // ...
+    // Each search has a 'details' object, containing 'keywords' and 'categories'.
+    // Both of these are arrays. Each combination of keyword and category is searched.
+    // Finally a server/channel target can be set per search.
+    {
+      details: {
+        keywords: [
+          'diskette',
+          'floppies',
+          'floppie',
+          'floppy',
+          'disketten',
+          'diskettes',
+          'cd vintage'
+        ],
+        categories: [
+          MARKTPLAATS_CATEGORY_SOFTWARE_ANTIVIRUS,
+          MARKTPLAATS_CATEGORY_SOFTWARE_MAC,
+          MARKTPLAATS_CATEGORY_SOFTWARE_OS,
+          MARKTPLAATS_CATEGORY_SOFTWARE_EDU,
+        ]
+      },
+      target: [[SERVER, CHANNEL]]
+    }
   ]
 }
-  `
-  return { obj: obj.trim() }
+  `.trim()
+)
+
+module.exports = {
+  template,
+  validator
 }
