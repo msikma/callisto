@@ -15,6 +15,21 @@ const addDefaults = (itemData, taskConfig) => {
 }
 
 /**
+ * Turns an array into an object of keys all set to true.
+ */
+const toKeys = arr => arr.reduce((all, item) => ({ ...all, [item]: true }), {})
+
+/**
+ * Returns all permutations of two arrays of strings (or objects castable to string).
+ * 
+ * E.g. ['a', 'b', 'c'], ['1', '2', '3'] returns:
+ * [['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '2'], ['b', '3'], ['c', '1'], ['c', '2'], ['c', '3']].
+ */
+const combineArrays = (arrA, arrB) => (
+  arrA.reduce((allA, itemA) => [...allA, ...arrB.reduce((allB, itemB) => [...allB, [itemA, itemB]], [])], [])
+)
+
+/**
  * Removes null and undefined from objects.
  * Useful for cleaning up objects before printing/inspecting them.
  */
@@ -41,6 +56,8 @@ const removeDefaults = (details, defaults) => (
 module.exports = {
   addDefaults,
   removeNil,
+  combineArrays,
   wrapArray,
+  toKeys,
   removeDefaults
 }

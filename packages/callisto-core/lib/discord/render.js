@@ -94,7 +94,7 @@ const _renderConsoleObject = (taskInfo, title, description, details, error, logL
     title && description ? ' - ' : '',
     description ? chalk.dim(description) : '',
     (title || description) && hasDetails ? ' - ' : '',
-    _renderDetailsConsole(details, true)
+    _renderDetailsConsole(details, true, null, consoleInfo)
   ]
   
   // If we have a details object and we can't fit everything on one line,
@@ -104,7 +104,7 @@ const _renderConsoleObject = (taskInfo, title, description, details, error, logL
       title ? chalk.bold(title) : '',
       title && description ? ' - ' : '',
       description ? chalk.dim(description) : '',
-      _renderDetailsConsole(details, false, taskInfo)
+      _renderDetailsConsole(details, false, taskInfo, consoleInfo)
     ]
   }
 
@@ -161,9 +161,16 @@ const _castLogArg = arg => {
 }
 
 /**
+ * Prefixes lines with either string A (line 1) or string B (line 2 and up).
+ */
+const _prefixLines = (lines, prefixOne, prefixN) => {
+  return lines.map((l, n) => `${n === 0 ? prefixOne : prefixN}${l}`)
+}
+
+/**
  * Renders a details key/value object to a single line of text with color escape codes.
  */
-const _renderDetailsConsole = (details, singleLine = true, taskInfo = null) => {
+const _renderDetailsConsole = (details, singleLine = true, taskInfo = null, consoleInfo = null) => {
   // Get the task ID, e.g. 'callisto' for the system task, to know how much
   // indentation we need for rendering multiline details.
   const taskID = get(taskInfo, 'data.meta.id', '')
@@ -175,6 +182,9 @@ const _renderDetailsConsole = (details, singleLine = true, taskInfo = null) => {
   const buffer = []
   let valueStr
   for (let [key, value] of Object.entries(details)) {
+    // This prefix is for strings produced by util.inspect(). It includes the usual prefix, plus the keyword length (plus ': ').
+    const multilinePrefixC = `${multilinePrefixB}${' '.repeat(key.length + 2)}`
+
     if (isString(value))
       valueStr = chalk.green(value)
     else if (isDate(value))
@@ -183,14 +193,17 @@ const _renderDetailsConsole = (details, singleLine = true, taskInfo = null) => {
       valueStr = chalk.magenta(value)
     else if (isBoolean(value))
       valueStr = chalk.red(value)
-    else
-      valueStr = util.inspect(value, { colors: true, depth: 4 })
-    
-    buffer.push(`${chalk.yellow(key)}: ${valueStr}`)
+    else {
+      // TODO: I don't know why we need to subtract 12 to make it work.
+      // Subtracting 'multilinePrefixC' should be enough.
+      valueStr = util.inspect(value, { colors: true, depth: 4, breakLength: singleLine ? Infinity : (consoleInfo.width - multilinePrefixC.length - 12) })
+    }
+
+    buffer.push(`${chalk.yellow(key)}: ${_prefixLines(valueStr.split('\n'), '', multilinePrefixC).join('\n')}`)
   }
   return singleLine
     ? chalk.italic(buffer.join(', '))
-    : chalk.italic(`\n${buffer.map((l, n) => `${n === 0 ? multilinePrefixA : multilinePrefixB}${l}`).join('\n')}`)
+    : chalk.italic(`\n${_prefixLines(buffer, multilinePrefixA, multilinePrefixB).join('\n')}`)
 }
 /**
  * Renders a details key/value object to a single line of plain text.
@@ -198,7 +211,7 @@ const _renderDetailsConsole = (details, singleLine = true, taskInfo = null) => {
 const _renderDetailsPlainText = (details) => {
   const buffer = []
   for (let [key, value] of Object.entries(details)) {
-    const valueStr = isString(value) ? value : util.inspect(value, { colors: false, depth: 4 })
+    const valueStr = isString(value) ? value : util.inspect(value, { colors: false, depth: 4, maxStringLength: 400, breakLength: Infinity })
     buffer.push(`${key}: ${valueStr}`)
   }
   return `*${buffer.join(', ')}*`

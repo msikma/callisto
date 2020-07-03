@@ -6,6 +6,23 @@
 const { limitStringSentence, limitStringParagraph, charTrim } = require('dada-cli-tools/util/text')
 
 /**
+ * Formats money as a string.
+ */
+const formatCurrency = (units, currency = 'EUR', locale = 'en-US') => {
+  const formatter = new Intl.NumberFormat(locale, { style: 'currency', currency })
+  return formatter.format(units)
+}
+
+/**
+ * Returns a 'hierarchy' string from an array.
+ * 
+ * For example, ['World', 'Europe', 'Netherlands'] becomes 'World ⟩ Europe ⟩ Netherlands'.
+ */
+const hierarchyList = arr => {
+  return arr.join(' ⟩ ')
+}
+
+/**
  * Removes empty > quote lines.
  */
 const removeEmptyQuotesMd = (md) => {
@@ -97,12 +114,14 @@ const limitDescriptionSentence = limitStringSentence(700)
 const limitDescriptionParagraph = limitStringParagraph(400)
 
 module.exports = {
-  removeEmptyQuotesMd,
-  titleFromFilename,
-  limitDescriptionSentence,
-  limitDescriptionParagraph,
-  separateMarkdownImages,
   bulletizeList,
   charTrim,
-  removeEmptyLines
+  formatCurrency,
+  hierarchyList,
+  limitDescriptionParagraph,
+  limitDescriptionSentence,
+  removeEmptyLines,
+  removeEmptyQuotesMd,
+  separateMarkdownImages,
+  titleFromFilename
 }

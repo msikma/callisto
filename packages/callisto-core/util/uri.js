@@ -12,6 +12,18 @@ const getQueryVariable = (url, varName) => {
   return query.get(varName)
 }
 
+/**
+ * Ensures a URL has http:// or https:// in front of it.
+ * 
+ * Primarily for URLs that start with // so that they work either on http or https pages.
+ */
+const ensureHttp = (url, preferHttps = true) => {
+  if (url.startsWith('https://')) return url
+  if (url.startsWith('//')) return (preferHttps ? 'https:' : 'http:') + url
+  return (preferHttps ? 'https://' : 'http://') + url
+}
+
 module.exports = {
-  getQueryVariable
+  getQueryVariable,
+  ensureHttp
 }
