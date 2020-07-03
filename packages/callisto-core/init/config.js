@@ -1,7 +1,7 @@
 // Callisto - callisto-core <https://github.com/msikma/callisto>
 // © MIT license
 
-const { logFatal, logError, die } = require('dada-cli-tools/log')
+const { logFatal, logError, logWarn, die } = require('dada-cli-tools/log')
 const { progName, canAccess } = require('dada-cli-tools/util/fs')
 const { readConfig, reportValidationErrors, validateConfigData } = require('../lib/config')
 const runtime = require('../state')
@@ -20,7 +20,7 @@ const initConfig$ = async (pathConfig) => {
   // Retrieve config data and replace magic strings (like <%baseDir%>).
   const config = readConfig(pathConfig)
   if (!config.success) {
-    return exitError('could not parse config file - run config check.', pathConfig)
+    return exitError('could not parse config file:', pathConfig, config.error)
   }
   const result = validateConfigData(config.data)
   if (!result.success) {
@@ -31,11 +31,12 @@ const initConfig$ = async (pathConfig) => {
 }
 
 /** Exits the program if there's something wrong with the config file. */
-const exitError = (error, path) => {
+const exitError = (error, path, errorObj) => {
   const prog = progName()
   logFatal(`${prog}: error: ${error}`)
+  logWarn(errorObj)
   logError('Ensure a valid config file is available at this location:', path)
-  logError(`You can generate one: ${prog} --new-config`)
+  logError(`You can generate a new config file: ${prog} --new-config`)
   die()
 }
 

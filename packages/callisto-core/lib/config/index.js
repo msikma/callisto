@@ -37,11 +37,13 @@ const readConfigFile = configPath => {
   let success = true
   let exists = true
   let content = null
+  let error = null
 
   try {
     content = require(configPath)
   }
   catch (err) {
+    error = err
     success = false
     exists = err.code === 'MODULE_NOT_FOUND'
   }
@@ -49,6 +51,7 @@ const readConfigFile = configPath => {
   return {
     success,
     exists,
+    error,
     data: content
   }
 }
