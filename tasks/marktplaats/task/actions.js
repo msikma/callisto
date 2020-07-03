@@ -40,7 +40,9 @@ const findSales = async (searchConfig, { taskConfig, logger, postMessage }) => {
     }
     postMessage(formatMessage(item.data, item.meta), target)
   }
-  logger.logDebug([`Skipped ${skippedItems} ${skippedItems === 1 ? 'item' : 'items'}`])
+  if (skippedItems) {
+    logger.logDebug([`Skipped ${skippedItems} ${skippedItems === 1 ? 'item' : 'items'}`])
+  }
 }
 
 module.exports = {
