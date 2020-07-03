@@ -11,7 +11,7 @@ const validator = {
 
 const template = () => (
   `
-  vgmpf: {
+vgmpf: {
   target: [[SERVER, CHANNEL]]
 }
   `.trim()
