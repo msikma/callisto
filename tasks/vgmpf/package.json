@@ -3,7 +3,7 @@
   "_site": "http://www.vgmpf.com/",
   "name": "callisto-task-vgmpf",
   "private": true,
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Posts new video game soundtrack releases from VGMPF",
   "main": "index.js",
   "scripts": {
