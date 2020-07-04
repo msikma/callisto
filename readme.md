@@ -31,19 +31,22 @@ Callisto posts log messages to two channels: one for all general logs, the other
 
 Each task must export two objects from its entry point:
 
-* `task`
-    * `info` - task metadata:
-        * `id` - unique slug identifying the task
-        * `name` - human-readable name of the task
-        * `color` - a color that represents the task and is used to style embeds
-        * `icon` - URL to the task's icon
-    * `actions` - an array of actions that get queued and executed by the bot, each of which is an object containing:
-        * `delay` - the amount of time in milliseconds in between invocations
-        * `description` - a description of the task
-        * `fn` - the function to run, which *must* return **a promise**
-* `config`
-    * `template` - a function that returns a string containing an example config
-    * `validator` - a PropTypes object for validating configs
+**`task`**
+
+* `info` - task metadata:
+    * `id` - unique slug identifying the task
+    * `name` - human-readable name of the task
+    * `color` - a color that represents the task and is used to style embeds
+    * `icon` - URL to the task's icon
+* `actions` - an array of actions that get queued and executed by the bot, each of which is an object containing:
+    * `delay` - the amount of time in milliseconds in between invocations
+    * `description` - a description of the task
+    * `fn` - the function to run, which *must* return **a promise**
+
+**`config`**
+
+* `template` - a function that returns a string containing an example config
+* `validator` - a PropTypes object for validating configs
 
 Here's an example of such an `index.js` file with all the required exports, from the `youtube` task:
 
