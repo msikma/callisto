@@ -2781,10 +2781,10 @@ markdown-escape@^1.0.2:
   resolved "https://registry.yarnpkg.com/markdown-escape/-/markdown-escape-1.1.0.tgz#228c932a47af251bb0a2d18d6001a235403777f2"
   integrity sha512-f1+ARFbzLrBdC0Lj30uREn+zthrK/h1PO5UhN5IMDQvI2lSFn+8U06a5LHaxxYMhHD0mJoJ2BROJ/Sju5aw6+g==
 
-marktplaats-js@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/marktplaats-js/-/marktplaats-js-1.0.0.tgz#07f3876d593dccc294047fbed9dd32c598dcf9a7"
-  integrity sha512-OSTH9R/PKBWl5LP13R/CFuHT91EKuNy8Mf3eDrG3AUy9Sn7DyYdhM0T7RipHNq2kPHwJhdTl4FX2IdMTKwxFSQ==
+marktplaats-js@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/marktplaats-js/-/marktplaats-js-1.1.2.tgz#1332a1448391352a7a64b205b449d48d9562a9ea"
+  integrity sha512-egjMN5XPW/fdb/TI5LFnJCKsmh0d9hQNI/cojBarPN3nc20rf4Kv3AGV/vH4qVBbI5gKnhDHc1z5oCDa8BI97A==
   dependencies:
     lodash "^4.17.5"
     mlib-common "^1.0.0"
