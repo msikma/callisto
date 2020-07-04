@@ -81,6 +81,11 @@ const getAuthorURL = authorRun => (
 const normalizeVideoData = videoData => {
   const videos = []
   for (const videoItem of videoData) {
+    // Skip the current item if it's invalid. We can only render items that have a 'videoRenderer' object.
+    // Other items are playlistRenderer, channelRenderer, shelfRenderer and searchPyvRenderer (promoted video/ad).
+    if (!videoItem || !videoItem.videoRenderer) {
+      continue
+    }
     const base = videoItem.videoRenderer
     const videoID = base.videoId
     const image = getLargestThumbnail(base.thumbnail.thumbnails)
