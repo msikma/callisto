@@ -67,11 +67,14 @@ const getReleaseData = $ => {
 const getScreenshots = $ => {
   // Screenshot divs are all set to 288px width.
   const screenshotNodes = $('#mw-content-text td > div[style*="width:288px"]').get()
-  const screenshots = screenshotNodes.map(s => {
-    const rowImage = getLargestImageSrcset($, $('tbody > tr:nth-child(1) img', s))
-    const rowTitle = $('tbody > tr:nth-child(2) div', s)
-    return { url: baseURL(rowImage), title: rowTitle.text().trim() }
-  })
+  const screenshots = screenshotNodes
+    .map(s => {
+      const rowImage = getLargestImageSrcset($, $('tbody > tr:nth-child(1) img', s))
+      if (!rowImage || !rowImage.url) return null
+      const rowTitle = $('tbody > tr:nth-child(2) div', s)
+      return { url: baseURL(rowImage.url), title: rowTitle.text().trim() }
+    })
+    .filter(s => s)
   return screenshots
 }
 
