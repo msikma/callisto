@@ -7,9 +7,9 @@ This repository is structured as a monorepo, with a core namespace for bot funct
 
 **This bot is a personal project. You're free to use it if you want, but there is very little documentation for adding new functionality.**
 
-## Setting up a bot
+## Setting up the bot
 
-To set up a bot, you must first create an *application* and a *bot user*. Head over to the [Discord developer portal](https://discordapp.com/developers/applications) to do this. When you're done with this, save the generated *client ID* and the bot's *token* to your config file, to `systemConfig.botClientID` and `systemConfig.botToken` respectively.
+To set up the bot, you must first create an *application* and a *bot user*. Head over to the [Discord developer portal](https://discordapp.com/developers/applications) to do this. When you're done with this, save the generated *client ID* and the bot's *token* to your config file, to `systemConfig.botClientID` and `systemConfig.botToken` respectively.
 
 Now invite your bot to the server you intend to use by running the OAuth 2 flow:
 
@@ -26,6 +26,18 @@ This bot *only* posts messages (plain text and rich embeds). It does not use any
 ### Log channels
 
 Callisto posts log messages to two channels: one for all general logs, the other for errors only. To finalize setup, create two channels and save their IDs to `systemConfig.logInfoChannels` and `systemConfig.logErrorChannels`.
+
+## Running the bot
+
+To start the bot, first a *config file* is needed. The bot can autogenerate an empty config file:
+
+```sh
+$ callisto.js --new-config
+```
+
+By default, the file will be saved to `~/.config/callisto/config.js`. The bot also keeps a cache file at `~/.cache/callisto` to keep track of what items have been posted. This will be created on first startup.
+
+After setting up a config file, run the bot by running `callisto.js`. If anything is wrong, the bot will explain how to fix the problem and then quit.
 
 ## Task interface
 
