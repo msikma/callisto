@@ -11,11 +11,13 @@ const info = require('../info')
 /**
  * Translates the Dutch shipping string into English.
  */
-const translateShipping = string => {
+const translateShipping = (string, addEmoji = false) => {
+  const emoL = ':package:'
+  const emoS = ':truck:'
   const strings = {
-    'Verzenden': 'Shipping only',
-    'Ophalen of Verzenden': 'Shipping or local pickup',
-    'Ophalen': 'Local pickup only'
+    'Verzenden': `${addEmoji ? `${emoS} ` : ''}Shipping only`,
+    'Ophalen of Verzenden': `${addEmoji ? `${emoL}${emoS} ` : ''}Shipping or local pickup`,
+    'Ophalen': `${addEmoji ? `${emoL} ` : ''}Local pickup only`
   }
   const translation = strings[string]
   return translation ? translation : string
@@ -130,7 +132,7 @@ const formatMessage = (item, meta, fields = ['price', 'seller', 'location', 'del
   }
   for (const attr of item.attributes) {
     if (attr.key === 'delivery' && visibleFields.delivery) {
-      embed.addField('Delivery', translateShipping(attr.value), false)
+      embed.addField('Delivery', translateShipping(attr.value, true), false)
     }
   }
   if (item.priorityProduct && item.priorityProduct !== 'NONE' && visibleFields.status) {

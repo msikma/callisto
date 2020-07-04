@@ -3,7 +3,7 @@
   "_site": "http://marktplaats.nl/",
   "name": "callisto-task-marktplaats",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Posts new sales added to Marktplaats",
   "main": "index.js",
   "scripts": {
