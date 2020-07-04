@@ -248,7 +248,12 @@ const loadTask = (taskPkg, useLogging = false) => {
   }
   catch (err) {
     error = err
-    useLogging && system.logError('Failed to load task main entry point', taskPkg, error)
+    useLogging && system.logErrorObj({
+      title: 'Failed to load task',
+      desc: 'An error occurred while loading task main entry point',
+      details: { taskPkg },
+      error
+    })
   }
 
   // Put together the final task object.
