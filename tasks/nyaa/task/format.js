@@ -2,7 +2,7 @@
 // © MIT license
 
 const { RichEmbed } = require('discord.js')
-const { attachRemoteImage } = require('callisto-core/util/richembed')
+const { attachRemoteImage, embedDescription, embedTitle } = require('callisto-core/util/richembed')
 const { getFormattedTimestamp } = require('callisto-core/util/time')
 
 const { info } = require('../info')
@@ -57,9 +57,9 @@ const formatMessage = (item, { searchQuery, searchCategory, thumbnail }) => {
   }
 
   if (item.title)
-    embed.setTitle(item.title)
+    embed.setTitle(embedTitle(item.title))
   if (item.description)
-    embed.setDescription(item.description)
+    embed.setDescription(embedDescription(item.description))
   if (item.meta.publishedExact) {
     embed.addField('Published', getFormattedTimestamp(item.meta.publishedExact), false)
     embed.setTimestamp(item.meta.publishedExact)
