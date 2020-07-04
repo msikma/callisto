@@ -1,12 +1,23 @@
-export const configTemplate = () => {
-  const obj = `
-tasvideos: {
-  searches: [
-    // 'type' must be one of the RSS files served by the site.
-    // E.g. 'publications' for 'http://tasvideos.org/publications.rss'.
-    { type: 'publications', target: [[/* server, channel */]] }
-  ]
+// Callisto - callisto-task-tasvideos <https://github.com/msikma/callisto>
+// © MIT license
+
+const PropTypes = require('prop-types')
+
+const validator = {
+  tasvideos: PropTypes.shape({
+    target: PropTypes.array.isRequired
+  })
 }
+
+const template = () => (
   `
-  return { obj: obj.trim() }
+tasvideos: {
+  target: [[SERVER, CHANNEL]]
+}
+  `.trim()
+)
+
+module.exports = {
+  template,
+  validator
 }

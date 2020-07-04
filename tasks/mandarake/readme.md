@@ -1,4 +1,4 @@
-Calypso - calypso-task-mandarake
+Callisto - callisto-task-mandarake
 ==================================
 
 Scrapes Mandarake for new results.

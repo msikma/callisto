@@ -1,19 +1,25 @@
-/**
- * Calypso - calypso-task-vgmpf <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-vgmpf <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRecentReleases } from './actions'
-import { configTemplate } from './config'
+const { findLatestSoundtracks } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-export const id = 'vgmpf'
-export const name = 'Video Game Music Preservation Foundation'
-export const color = 0xfc50ad
-export const icon = 'https://i.imgur.com/C9kyOuE.png'
-const scheduledActions = [
-  { delay: 1800000, desc: 'find new soundtrack releases from VGMPF', fn: actionRecentReleases }
+const taskLatestSoundtracks = async (taskConfig, taskServices) => {
+  await findLatestSoundtracks(taskConfig, taskServices)
+}
+
+const actions = [
+  { delay: 1800000, description: 'posts new soundtrack releases from VGMPF', fn: taskLatestSoundtracks }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

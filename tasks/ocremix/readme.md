@@ -1,4 +1,4 @@
-Calypso - calypso-task-ocremix
+Callisto - callisto-task-ocremix
 ================================
 
-Returns OverClocked ReMix updates.
+Posts OverClocked ReMix single track and album updates.

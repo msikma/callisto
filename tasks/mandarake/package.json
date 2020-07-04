@@ -1,7 +1,7 @@
 {
   "_siteShort": "mandarake.co.jp",
   "_site": "http://mandarake.co.jp/",
-  "name": "calypso-task-mandarake",
+  "name": "callisto-task-mandarake",
   "private": true,
   "version": "1.2.3",
   "description": "Posts new items added to the Mandarake shop and its auction site",
@@ -10,12 +10,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Michiel Sikma <michiel@sikma.org>",
-  "license": "SEE LICENSE IN <readme.md>",
+  "license": "MIT",
+  "devDependencies": {
+  },
   "dependencies": {
-    "calypso-cache": "^1.1.0",
-    "calypso-logging": "^1.3.0",
-    "calypso-misc": "^1.4.0",
+    "callisto-core": "^1.7.3",
     "discord.js": "^11.3.0",
+    "lodash": "^4.0.0",
+    "cheerio": "^1.0.0-rc.2",
     "mdrscr": "^1.3.2"
   }
 }

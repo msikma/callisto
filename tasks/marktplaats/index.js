@@ -1,19 +1,29 @@
-/**
- * Calypso - calypso-task-marktplaats <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-marktplaats <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRunSearches } from './actions'
-import { configTemplate } from './config'
+const { wait } = require('callisto-core/util/promises')
+const { findSales } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
 
-export const id = 'marktplaats'
-export const name = 'Marktplaats'
-export const color = 0xf3a462
-export const icon = 'https://i.imgur.com/XhpaBIf.png'
-const scheduledActions = [
-  { delay: 700000, desc: 'run Marktplaats searches', fn: actionRunSearches }
+const taskRunSearches = async (taskConfig, taskServices) => {
+  for (const search of taskConfig.searches) {
+    await findSales(search, taskServices)
+    await wait(1000)
+  }
+}
+
+const actions = [
+  { delay: 700000, description: 'searches Marktplaats for new items for sale', fn: taskRunSearches },
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

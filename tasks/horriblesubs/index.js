@@ -1,19 +1,31 @@
-/**
- * Calypso - calypso-task-horriblesubs <https://github.com/msikma/calypso>
- * © MIT license
- */
+// Callisto - callisto-task-horriblesubs <https://github.com/msikma/callisto>
+// © MIT license
 
-import { actionRunSearches } from './actions'
-import { configTemplate } from './config'
+const { wait } = require('callisto-core/util/promises')
 
-export const id = 'horriblesubs'
-export const name = 'HorribleSubs'
-export const color = 0xfc55a1
-export const icon = 'https://i.imgur.com/jjQBNkY.jpg'
-const scheduledActions = [
-  { delay: 240000, desc: 'run HorribleSubs searches', fn: actionRunSearches }
+const { runSearchTask } = require('./task/actions')
+const { template, validator } = require('./config')
+const { info } = require('./info')
+
+/** Searches HorribleSubs for new torrents. */
+const taskSearchTorrents = async (taskConfig, taskServices) => {
+  for (const taskData of taskConfig.shows) {
+    await runSearchTask(taskData, taskServices)
+    await wait(1000)
+  }
+}
+
+const actions = [
+  { delay: 1200000, description: 'find new torrents on HorribleSubs', fn: taskSearchTorrents }
 ]
 
-export const getTaskInfo = () => {
-  return { id, name, color, icon, scheduledActions, configTemplate }
+module.exports = {
+  task: {
+    info,
+    actions
+  },
+  config: {
+    template,
+    validator
+  }
 }

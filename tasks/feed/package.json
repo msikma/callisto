@@ -1,5 +1,5 @@
 {
-  "name": "calypso-task-feed",
+  "name": "callisto-task-feed",
   "private": true,
   "version": "1.0.5",
   "description": "Posts updates from generic syndicated feeds in RSS or Atom format",
@@ -8,13 +8,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Michiel Sikma <michiel@sikma.org>",
-  "license": "SEE LICENSE IN <readme.md>",
+  "license": "MIT",
   "devDependencies": {
   },
   "dependencies": {
-    "discord.js": "^11.3.0",
-    "calypso-cache": "^1.1.0",
-    "calypso-logging": "^1.3.0",
-    "calypso-misc": "^1.4.0"
+    "callisto-core": "^1.7.3",
+    "discord.js": "^11.3.0"
   }
 }

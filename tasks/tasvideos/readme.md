@@ -1,4 +1,4 @@
-Calypso - calypso-task-tasvideos
+Callisto - callisto-task-tasvideos
 ==================================
 
-Scrapes new videos from [TASVideos.org](http://tasvideos.org/).
+Scrapes new publications from [TASVideos](http://tasvideos.org/).
