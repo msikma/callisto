@@ -53,7 +53,7 @@ const getLargestImageSrcset = ($, img) => {
   const $img = $(img)
   let srcData = $img.attr('srcset')
   if (!srcData) {
-    return $img.attr('src')
+    return { url: $img.attr('src'), size: 1 }
   }
   srcData = srcData.split(',')
     .map(n => n.trim())
