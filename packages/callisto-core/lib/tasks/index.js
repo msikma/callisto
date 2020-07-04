@@ -196,16 +196,21 @@ const loopTaskAction = async (action, taskConfig, taskServices, runImmediately =
   
   if (!runImmediately) await wait(action.delay)
   while (true) {
-    try {
-      await action.fn(taskConfig, { ...taskServices, taskConfig })
+    if (runtime.state.isShuttingDown) {
+      system.logInfoLocal(['Skipped action', 'system is shutting down', { name: action.fn.name }])
     }
-    catch (err) {
-      taskServices.logger.logErrorObj({
-        title: 'Caught exception while running task',
-        desc: `An exception was thrown while running the action \`${action.fn.name}\`. The action will run again after its usual delay.`,
-        details: { name: action.fn.name, description: action.description, delay: action.delay },
-        error: err
-      })
+    else {
+      try {
+        await action.fn(taskConfig, { ...taskServices, taskConfig })
+      }
+      catch (err) {
+        taskServices.logger.logErrorObj({
+          title: 'Caught exception while running task',
+          desc: `An exception was thrown while running the action \`${action.fn.name}\`. The action will run again after its usual delay.`,
+          details: { name: action.fn.name, description: action.description, delay: action.delay },
+          error: err
+        })
+      }
     }
     await wait(action.delay)
   }
