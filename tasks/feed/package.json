@@ -12,7 +12,7 @@
   "devDependencies": {
   },
   "dependencies": {
-    "callisto-core": "^1.7.3",
+    "callisto-core": "^1.8.0",
     "discord.js": "^11.3.0"
   }
 }
