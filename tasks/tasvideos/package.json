@@ -16,7 +16,7 @@
   "dependencies": {
     "callisto-core": "^1.7.3",
     "discord.js": "^11.3.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.12",
     "cheerio": "^1.0.0-rc.2"
   }
 }
