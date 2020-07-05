@@ -24,8 +24,8 @@ const taskSubscriptionVideos = async (taskConfig, taskServices) => {
 }
 
 const actions = [
-  { delay: 480000, description: 'find new videos from Youtube searches', fn: taskSearchVideos },
-  { delay: 480000, description: 'find new videos from Youtube subscriptions', fn: taskSubscriptionVideos }
+  { delay: 480000, description: 'finds new videos from Youtube searches', fn: taskSearchVideos },
+  { delay: 480000, description: 'finds new videos from Youtube subscriptions', fn: taskSubscriptionVideos }
 ]
 
 module.exports = {

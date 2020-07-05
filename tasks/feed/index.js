@@ -15,7 +15,7 @@ const taskCheckFeeds = async (taskConfig, taskServices) => {
 }
 
 const actions = [
-  { delay: 200000, description: 'retrieve syndicated feed updates', fn: taskCheckFeeds }
+  { delay: 200000, description: 'retrieves syndicated feed updates', fn: taskCheckFeeds }
 ]
 
 module.exports = {

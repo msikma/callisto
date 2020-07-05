@@ -13,8 +13,8 @@ const taskNewAlbums = async (taskConfig, taskServices) => {
 }
 
 const actions = [
-  { delay: 240000, description: 'find new single tracks on OCReMix', fn: taskNewTracks },
-  { delay: 400000, description: 'find new albums on OCReMix', fn: taskNewAlbums }
+  { delay: 240000, description: 'finds new single tracks on OCReMix', fn: taskNewTracks },
+  { delay: 400000, description: 'finds new albums on OCReMix', fn: taskNewAlbums }
 ]
 
 module.exports = {

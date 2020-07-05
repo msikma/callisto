@@ -16,7 +16,7 @@ const taskSearchTorrents = async (taskConfig, taskServices) => {
 }
 
 const actions = [
-  { delay: 1200000, description: 'find new torrents on Nyaa.si', fn: taskSearchTorrents }
+  { delay: 1200000, description: 'finds new torrents on Nyaa.si', fn: taskSearchTorrents }
 ]
 
 module.exports = {
