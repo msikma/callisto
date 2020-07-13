@@ -180,8 +180,8 @@ const getTorrentItems = ($, urlShowPage) => {
     const links = $('.rls-links-container .rls-link', $item).get().map(link => {
       const $link = $(link)
       const resolution = Number($('.rls-link-label', $link).text().trim().match(/([0-9]+)/)[1])
-      const magnetLink = $('.hs-magnet-link a').attr('href')
-      const torrentLink = $('.hs-torrent-link a').attr('href')
+      const magnetLink = $('.hs-magnet-link a', $link).attr('href')
+      const torrentLink = $('.hs-torrent-link a', $link).attr('href')
       return {
         resolution,
         magnetLink,
