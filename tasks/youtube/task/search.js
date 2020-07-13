@@ -46,6 +46,21 @@ const getAuthorURL = authorRun => (
 )
 
 /**
+ * Returns whether a videoRenderer has a specific badge.
+ */
+const hasBadge = (base, findStyle = null, findLabel = null) => {
+  if (!findStyle && !findLabel) return false
+  if (!base.badges || !base.badges.length) return false
+  const hit = base.badges.find(badge => {
+    if (!badge || !badge.metadataBadgeRenderer) return false
+    const hasStyle = findStyle != null ? badge.metadataBadgeRenderer.style === findStyle : true
+    const hasLabel = findLabel != null ? badge.metadataBadgeRenderer.label === findLabel : true
+    return hasStyle && hasLabel
+  })
+  if (hit) return true
+}
+
+/**
  * Converts Youtube's native ytInitialData format into a more usable one.
  * 
  * Returns an array of video objects that look like this:
@@ -92,9 +107,24 @@ const normalizeVideoData = videoData => {
     const title = base.title.runs.map(wrapRunInMarkdown).join('')
     const description = base.descriptionSnippet.runs.map(wrapRunInMarkdown).join('')
     const isScheduled = base.upcomingEventData != null
-    const isPublished = !isScheduled
-    const published = isPublished ? base.publishedTimeText.simpleText : getTimeAgo(new Date(base.upcomingEventData.startTime * 1000))
-    const publishedExact = isPublished ? getAbsoluteFromRelative(published) : getParseableTimestamp(new Date(base.upcomingEventData.startTime * 1000))
+    const isPublished = base.publishedTimeText != null
+    const isPremiering = hasBadge(base, 'BADGE_STYLE_TYPE_LIVE_NOW', 'PREMIERING NOW')
+
+    let published
+    let publishedExact
+    if (isPublished) {
+      published = base.publishedTimeText.simpleText
+      publishedExact = getAbsoluteFromRelative(published)
+    }
+    if (isScheduled) {
+      published = getTimeAgo(new Date(base.upcomingEventData.startTime * 1000))
+      publishedExact = getParseableTimestamp(published)
+    }
+    if (isPremiering) {
+      published = null
+      publishedExact = null
+    }
+
     const length = base.lengthText.simpleText
     const views = base.viewCountText ? base.viewCountText.simpleText : '0 views'
     const url = videoURL(videoID)
@@ -115,6 +145,7 @@ const normalizeVideoData = videoData => {
         published,
         isScheduled,
         isPublished,
+        isPremiering,
         length,
         views
       },

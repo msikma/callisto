@@ -3,7 +3,7 @@
 
 const { RichEmbed } = require('discord.js')
 const { basename } = require('path')
-const { getFormattedTimestamp } = require('callisto-core/util/time')
+const { getFormattedTimestamp, getTimeAgo } = require('callisto-core/util/time')
 
 const { info } = require('../info')
 
@@ -21,6 +21,7 @@ const { info } = require('../info')
  *        published: '1 week ago',
  *        isPublished: true,
  *        isScheduled: false,
+ *        isPremiering: false,
  *        length: '1:27:58',
  *        views: '1,350 views' },
  *     image:
@@ -49,7 +50,9 @@ const formatMessage = (item, { searchQuery, slug, subFile }) => {
   if (item.meta.isPublished && item.meta.published)
     embed.addField('Published', `${item.meta.published}`, false)
   if (item.meta.isScheduled && item.meta.publishedExact)
-    embed.addField('Scheduled for', `${getFormattedTimestamp(item.meta.publishedExact)}`, false)
+    embed.addField('Scheduled for', `${getFormattedTimestamp(item.meta.publishedExact)} (${getTimeAgo(item.meta.publishedExact)})`, false)
+  if (item.meta.isPremiering)
+    embed.addField('Premiere', `Premiere in progress`, false)
   if (item.meta.publishedExact)
     embed.setTimestamp(item.meta.publishedExact)
   if (item.meta.views && item.meta.isPublished)
