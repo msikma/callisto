@@ -6,6 +6,7 @@ const fs = require('fs')
 const PropTypes = require('prop-types')
 
 const { wait } = require('../../util/promises')
+const { isTempError } = require('../../util/errors')
 const { createTaskLogger, createTaskMessageSenders } = require('../discord')
 const { validatePropsModel, reportValidationErrors, getTaskConfig } = require('../config')
 const { system } = require('../discord')
@@ -204,10 +205,14 @@ const loopTaskAction = async (action, taskConfig, taskServices, runImmediately =
         await action.fn(taskConfig, { ...taskServices, taskConfig })
       }
       catch (err) {
-        taskServices.logger.logErrorObj({
-          title: 'Caught exception while running task',
+        const isTemp = isTempError(err)
+        const errorType = isTemp ? 'temporary error' : 'exception'
+        const logFn = isTemp ? taskServices.logger.logNoticeObj : taskServices.logger.logErrorObj
+
+        logFn({
+          title: `Caught ${errorType} while running task`,
           desc: `An exception was thrown while running the action \`${action.fn.name}\`. The action will run again after its usual delay.`,
-          details: { name: action.fn.name, description: action.description, delay: action.delay },
+          details: { name: action.fn.name, description: action.description, delay: action.delay, ...(isTemp ? { isTempError: true } : {}) },
           error: err
         })
       }
