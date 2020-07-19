@@ -8,7 +8,7 @@ const { listingSearch } = require('marktplaats-js')
  */
 const runMarktplaatsSearch = async (keyword, category) => {
   const search = await listingSearch({ query: keyword, categoryID: String(category) })
-  const items = search.data.listings.map(item => ({ ...item, id: `marktplaats$${item.itemId}`}))
+  const items = search.data ? search.data.listings.map(item => ({ ...item, id: `marktplaats$${item.itemId}`})) : []
   return {
     success: true,
     items,
