@@ -30,9 +30,9 @@ const renderRichEmbed = (taskInfo, logArgs, logLevel, isSystemLogger = false) =>
   if (taskInfo.data.meta.id && isSystemLogger === false) {
     embed.setFooter(`Logged by callisto-task-${taskInfo.data.meta.id}${taskInfo.data.package.version ? ` (${taskInfo.data.package.version})` : ''}`)
   }
-  if (logArgs.debug && isPlainObject(debug)) {
+  if (logArgs.debug && isPlainObject(logArgs.debug)) {
     // Print a whole debugging object.
-    embed.addField('Debug information', wrapObject(debug), false)
+    embed.addField('Debug information', wrapObject(logArgs.debug), false)
   }
   if (logArgs.error) {
     // Unpack the error and log whatever relevant information we get.
