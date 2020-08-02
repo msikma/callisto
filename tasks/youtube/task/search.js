@@ -92,6 +92,8 @@ const hasBadge = (base, findStyle = null, findLabel = null) => {
  * go live at a specific time. In this case 'publishedTimeText' will be null, and the
  * 'published' and 'publishedExact' fields will contain the time the video is set
  * to go live.
+ * 
+ * Some fields like 'descriptionSnippet' are almost always defined, but not always.
  */
 const normalizeVideoData = videoData => {
   const videos = []
@@ -105,7 +107,7 @@ const normalizeVideoData = videoData => {
     const videoID = base.videoId
     const image = getLargestThumbnail(base.thumbnail.thumbnails)
     const title = base.title.runs.map(wrapRunInMarkdown).join('')
-    const description = base.descriptionSnippet.runs.map(wrapRunInMarkdown).join('')
+    const description = base.descriptionSnippet ? base.descriptionSnippet.runs.map(wrapRunInMarkdown).join('') : null
     const isScheduled = base.upcomingEventData != null
     const isPublished = base.publishedTimeText != null
     const isPremiering = hasBadge(base, 'BADGE_STYLE_TYPE_LIVE_NOW', 'PREMIERING NOW')
@@ -216,7 +218,9 @@ const findSubscriptionVideos = async (subFile) => {
   
   for (const sub of outline) {
     const items = await parseFeedURL(sub.$xmlUrl)
+    const blacklist = (sub.$_blacklist || '').split(',')
     const videoResults = normalizeVideoDataFeed(items)
+      .filter(vid => blacklist.map(term => ~vid.title.indexOf(term)).filter(term => term).length === 0)
       .map(i => ({ ...i, id: uniqueID(i.videoID, 'subscription', basename(subFile)) }))
     allVideoResults = [...allVideoResults, ...videoResults]
   }
