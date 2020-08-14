@@ -43,9 +43,12 @@ const formatMessage = (item, { showCategories = true, showOtherLinks = true, add
   const embed = new RichEmbed();
   embed.setAuthor('New publication on TASVideos', info.icon)
   embed.setTitle(`${item.hasStar && addStarEmoji ? '⭐ ' : ''}${item.hasMoon && addMoonEmoji ? '🌙 ' : ''}${item.title}`)
-  embed.setDescription(item.description)
-  embed.setTimestamp(item.meta.publishedExact)
-  embed.setURL(item.link.publication)
+  if (item.description)
+    embed.setDescription(item.description)
+  if (item.meta.publishedExact)
+    embed.setTimestamp(item.meta.publishedExact)
+  if (item.link.publication)
+    embed.setURL(item.link.publication)
 
   if (item.image) {
     attachRemoteImage(embed, item.image)
@@ -59,7 +62,7 @@ const formatMessage = (item, { showCategories = true, showOtherLinks = true, add
     ]
     embed.addField('Other links', bulletizeList(links.filter(n => n)), true)
   }
-  if (showCategories) {
+  if (showCategories && item.categories.length) {
     embed.addField('Categories', bulletizeList(item.categories), true)
   }
   return embed
