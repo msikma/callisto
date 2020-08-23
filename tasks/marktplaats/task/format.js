@@ -130,9 +130,11 @@ const formatMessage = (item, meta, fields = ['price', 'seller', 'location', 'del
   if (item.location && visibleFields.location) {
     embed.addField('Location', `${item.location.cityName}, ${item.location.countryAbbreviation}`, true)
   }
-  for (const attr of item.attributes) {
-    if (attr.key === 'delivery' && visibleFields.delivery) {
-      embed.addField('Delivery', translateShipping(attr.value, true), false)
+  if (item.attributes) {
+    for (const attr of item.attributes) {
+      if (attr.key === 'delivery' && visibleFields.delivery) {
+        embed.addField('Delivery', translateShipping(attr.value, true), false)
+      }
     }
   }
   if (item.priorityProduct && item.priorityProduct !== 'NONE' && visibleFields.status) {
