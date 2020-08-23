@@ -5,7 +5,7 @@ const { isFunction } = require('lodash')
 const { htmlToMarkdown, isHTML, getImagesFromHTML } = require('dada-cli-tools/util/html')
 
 /**
- * Wrapper fopr htmlToMarkdown() with options for Discord.
+ * Wrapper for htmlToMarkdown() with options for Discord.
 */
 const htmlToMarkdownDiscord = (html, settings = {}, options = {}) => {
   return htmlToMarkdown(html, settings, { ...options, emDelimiter: '*', codeBlockStyle: 'fenced', bulletListMarker: '-' })
