@@ -3,6 +3,7 @@
 
 const { RichEmbed } = require('discord.js')
 const { attachRemoteImage } = require('callisto-core/util/richembed')
+const { embedDescription } = require('callisto-core/util/richembed')
 const { bulletizeList } = require('callisto-core/util/text')
 
 const { info } = require('../info')
@@ -44,7 +45,7 @@ const formatMessage = (item, { showCategories = true, showOtherLinks = true, add
   embed.setAuthor('New publication on TASVideos', info.icon)
   embed.setTitle(`${item.hasStar && addStarEmoji ? '⭐ ' : ''}${item.hasMoon && addMoonEmoji ? '🌙 ' : ''}${item.title}`)
   if (item.description)
-    embed.setDescription(item.description)
+    embed.setDescription(embedDescription(item.description))
   if (item.meta.publishedExact)
     embed.setTimestamp(item.meta.publishedExact)
   if (item.link.publication)
