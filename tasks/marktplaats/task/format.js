@@ -8,6 +8,9 @@ const { ensureHttp } = require('callisto-core/util/uri')
 const { embedTitle, embedDescription } = require('callisto-core/util/richembed')
 const info = require('../info')
 
+/** If an item is said to be "available in the whole country", but doesn't have a country indicator, this country will be displayed. */
+const DEFAULT_COUNTRY = 'NL'
+
 /**
  * Translates the Dutch shipping string into English.
  */
@@ -128,7 +131,17 @@ const formatMessage = (item, meta, fields = ['price', 'seller', 'location', 'del
     embed.addField('Seller', `${item.sellerInformation.sellerName}${!item.sellerInformation.isVerified && showUnverified ? ' (unverified)' : ''}`, true)
   }
   if (item.location && visibleFields.location) {
-    embed.addField('Location', `${item.location.cityName}, ${item.location.countryAbbreviation}`, true)
+    if (item.location.cityName) {
+      embed.addField('Location', `${item.location.cityName}, ${item.location.countryAbbreviation}`, true)
+    }
+    else if (item.onCountryLevel) {
+      if (item.location.countryAbbreviation) {
+        embed.addField('Location', `${item.location.countryAbbreviation}`, true)
+      }
+      else {
+        embed.addField('Location', DEFAULT_COUNTRY, true)
+      }
+    }
   }
   if (item.attributes) {
     for (const attr of item.attributes) {
