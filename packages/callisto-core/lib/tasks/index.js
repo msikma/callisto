@@ -142,6 +142,10 @@ const validateTaskExport = taskData => {
  * Checks the user's configuration data against a task's validator function.
  */
 const validateTaskConfig = (validator, configData) => {
+  // If 'false', this task is deactivated.
+  if (configData === false) {
+    return { success: true }
+  }
   return validatePropsModel(validator, configData)
 }
 
@@ -304,7 +308,8 @@ const loadTask = (taskPkg, useLogging = false) => {
     error,
     status: 'inactive',
     data: taskStructure,
-    config: configData
+    config: configData,
+    isDeactivated: configData === false
   }
 }
 

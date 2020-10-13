@@ -18,7 +18,7 @@ const initTasks$ = async (devTask) => {
   if (failedTasks.length > 0) {
     system.logWarn('Some tasks failed to initialize')
   }
-  const succeededTasks = taskInfo.filter(taskItem => taskItem.success)
+  const succeededTasks = taskInfo.filter(taskItem => taskItem.success && taskItem.isDeactivated === false)
   if (succeededTasks.length === 0) {
     system.logFatal('No tasks could be successfully loaded. The bot will not post any output.')
   }
