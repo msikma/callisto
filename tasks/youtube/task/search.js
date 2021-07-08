@@ -269,7 +269,7 @@ const findSearchVideos = async (slug, searchQuery, searchParameters) => {
   const url = searchURL(searchQuery, searchParameters)
   const html = await request(url)
   const $ = cheerio.load(html.body)
-  const initialDataScript = findTagContent($, 'script', `window["ytInitialData"]`)
+  const initialDataScript = findTagContent($, 'script', [`window["ytInitialData"]`, `var ytInitialData`])
 
   let initialData
   let estimatedResults
@@ -280,6 +280,10 @@ const findSearchVideos = async (slug, searchQuery, searchParameters) => {
   }
   catch (err) {
     return { success: false, errorType: 'Could not extract `initialData`', error: err, meta: { url } }
+  }
+
+  if (!initialData) {
+    return { success: false, errorType: 'The `initialData` object was null', error: null, meta: { url } }
   }
 
   try {
