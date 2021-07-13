@@ -21,11 +21,12 @@ const callExternal = cmd => new Promise((resolve, reject) => (
  * Retrieves information about the system that the code is currently running on.
  */
 const getSystemInfo = async () => {
+  const dirPrefix = `--git-dir "${runtime.baseDir}/.git"`
   const [branch, hash, hashFull, commits, server] = await Promise.all([
-    callExternal('git describe --all | sed s@heads/@@'),
-    callExternal('git rev-parse --short head'),
-    callExternal('git rev-parse head'),
-    callExternal('git rev-list head --count'),
+    callExternal(`git ${dirPrefix} describe --all | sed s@heads/@@`),
+    callExternal(`git ${dirPrefix} rev-parse --short head`),
+    callExternal(`git ${dirPrefix} rev-parse head`),
+    callExternal(`git ${dirPrefix} rev-list head --count`),
     callExternal('uname -n')
   ])
   const commitLink = getCommitURL(hashFull)
