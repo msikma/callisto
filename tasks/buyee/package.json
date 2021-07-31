@@ -3,7 +3,7 @@
   "_site": "https://buyee.jp",
   "name": "callisto-task-buyee",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Posts new items added to Buyee auctions",
   "main": "index.js",
   "scripts": {

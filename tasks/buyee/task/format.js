@@ -4,8 +4,25 @@
 const { RichEmbed } = require('discord.js')
 const { attachRemoteImage, embedTitle } = require('callisto-core/util/richembed')
 const { formatCurrency } = require('callisto-core/util/text')
+const { URL } = require('url')
 
 const { info } = require('../info')
+
+/**
+ * Extracts the thumbnail hidden inside the 'wing-auctions' URL.
+ * 
+ * An example input: "https://wing-auctions.c.yimg.jp/sim?furl=auctions.c.yimg.jp/images.auctions.yahoo.co.jp/image/dr000/auc0207/users/d74506ff42228a95154972aed8ae445e85203758/i-img759x683-1626960561vy4cjm15481.jpg&dc=1&sr.fs=20000"
+ */
+const extractRealThumbnail = url => {
+  try {
+    const parsed = new URL(url)
+    const furl = parsed.searchParams.get('furl')
+    return furl.startsWith('http') ? furl : `https://${furl}`
+  }
+  catch (err) {
+    return url
+  }
+}
 
 /**
  * Returns a RichEmbed to post to Discord.
@@ -75,8 +92,8 @@ const formatMessage = (item, searchDetails, fields = ['price', 'store', 'time', 
     embed.addField('Current bids', `${item.data.price.numberOfBids} bids`, true)
   }
 
-  if (item.data.image) {
-    attachRemoteImage(embed, item.data.image)
+  if (item.data.thumbnail) {
+    attachRemoteImage(embed, extractRealThumbnail(item.data.thumbnail))
   }
   embed.setURL(item.data.link)
   embed.setColor(info.color)
