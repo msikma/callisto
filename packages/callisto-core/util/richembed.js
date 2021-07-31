@@ -10,12 +10,13 @@ const { slugifyUnderscore } = require('./slug')
 /**
  * Attaches a remote image to a RichEmbed and sets it as image.
  */
-const attachRemoteImage = (embed, url, filename) => {
+const attachRemoteImage = (embed, url, filename, forceExtension, fallbackExtension = 'jpg') => {
   let imageName = filename
   if (!filename) {
     const urlFilename = getURLFilename(url)
     const { basename, extension } = splitFilename(urlFilename)
-    imageName = `image_${slugifyUnderscore(basename)}.${extension}`
+    const imgExtension = forceExtension ? forceExtension : (extension ? extension : fallbackExtension)
+    imageName = `image_${slugifyUnderscore(basename)}.${imgExtension}`
   }
   const attachment = new Attachment(url, imageName)
   embed.attachFile(attachment)
