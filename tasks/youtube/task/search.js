@@ -207,6 +207,7 @@ const findSubscriptionVideos = async (subFile) => {
 
   let allVideoResults = []
   let outline
+  let url
 
   try {
     outline = subs.opml.body.outline.outline
@@ -217,12 +218,23 @@ const findSubscriptionVideos = async (subFile) => {
   }
   
   for (const sub of outline) {
-    const items = await parseFeedURL(sub.$xmlUrl)
-    const blacklist = (sub.$_blacklist || '').split(',')
-    const videoResults = normalizeVideoDataFeed(items)
-      .filter(vid => blacklist.map(term => ~vid.title.indexOf(term)).filter(term => term).length === 0)
-      .map(i => ({ ...i, id: uniqueID(i.videoID, 'subscription', basename(subFile)) }))
-    allVideoResults = [...allVideoResults, ...videoResults]
+    url = sub.$xmlUrl
+    try {
+      const items = await parseFeedURL(url)
+      const blacklist = sub.$_blacklist ? sub.$_blacklist.split(',') : []
+      const videoResults = normalizeVideoDataFeed(items)
+        .filter(vid => blacklist.map(term => vid.title.includes(term)).filter(term => term).length === 0)
+        .map(i => ({ ...i, id: uniqueID(i.videoID, 'subscription', basename(subFile)) }))
+      allVideoResults = [...allVideoResults, ...videoResults]
+    }
+    catch (err) {
+      if (String(err).toLowerCase().indexOf('error: not a feed') > -1) {
+        return { success: false, errorType: 'Error in feed configuration: given URL is not a valid feed', meta: { url } }
+      }
+      else {
+        throw err
+      }
+    }
   }
 
   // Sort oldest items first.
@@ -238,7 +250,6 @@ const findSubscriptionVideos = async (subFile) => {
     }
   }
 }
-
 /**
  * Searches Youtube using a specified search query and returns whatever videos it finds.
  *
@@ -276,7 +287,14 @@ const findSearchVideos = async (slug, searchQuery, searchParameters) => {
   let videoData
 
   try {
-    initialData = extractScriptResult(initialDataScript).context.window.ytInitialData
+    initialData = extractScriptResult(initialDataScript).context
+    // Either the data is in 'window.ytInitialData', or in just 'ytInitialData'.
+    if (initialData.window.ytInitialData) {
+      initialData = initialData.window.ytInitialData
+    }
+    else {
+      initialData = initialData.ytInitialData
+    }
   }
   catch (err) {
     return { success: false, errorType: 'Could not extract `initialData`', error: err, meta: { url } }

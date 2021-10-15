@@ -50,7 +50,7 @@ const runSubscriptionTask = async (taskDataRaw, { taskConfig, logger, postMessag
   const subResult = await findSubscriptionVideos(subscriptions)
 
   if (!subResult.success) {
-    logger.logErrorObj({ title: subResult.errorType, details: { subscriptions, subFile: subResult.meta.subFile }, error: subResult.error })
+    logger.logErrorObj({ title: subResult.errorType, details: { subscriptions, ...subResult.meta }, error: subResult.error })
     return
   }
 

@@ -3,6 +3,7 @@
 
 const { RichEmbed } = require('discord.js')
 const { basename } = require('path')
+const { embedTitle, embedDescription } = require('callisto-core/util/richembed')
 const { getFormattedTimestamp, getTimeAgo } = require('callisto-core/util/time')
 
 const { info } = require('../info')
@@ -44,9 +45,9 @@ const formatMessage = (item, { searchQuery, slug, subFile }) => {
   embed.setURL(item.url)
 
   if (item.title)
-    embed.setTitle(item.title)
+    embed.setTitle(embedTitle(item.title))
   if (item.description)
-    embed.setDescription(item.description)
+    embed.setDescription(embedDescription(item.description))
   if (item.meta.isPublished && item.meta.published)
     embed.addField('Published', `${item.meta.published}`, false)
   if (item.meta.isScheduled && item.meta.publishedExact)
