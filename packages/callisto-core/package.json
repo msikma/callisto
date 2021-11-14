@@ -13,7 +13,7 @@
     "filesize": "^6.0.1",
     "hex2dec": "^1.1.2",
     "humanize-duration": "^3.14.0",
-    "lodash": "^4.17.12",
+    "lodash": "^4.17.19",
     "moment-duration-format": "^2.0.0",
     "moment": "^2.0.0",
     "polyfill-object.fromentries": "^1.0.1",
